@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+   <script>
+  if (sessionStorage.getItem('isAdmin') !== 'true') {
+    // Pakai replace supaya user tidak bisa pencet tombol 'Back' untuk masuk lagi
+    window.location.replace("index.html");
+  }
+</script>
 <meta charset="UTF-8">
 <title>Admin Panel — Team Composition Guide</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -810,36 +816,32 @@ document.getElementById('loginPw').addEventListener('keydown',e=>{
   if(e.key==='Escape')document.getElementById('loginPw').value='';
 });
 
-function submitLogin(){
-  const pw=document.getElementById('loginPw').value;
-  const err=document.getElementById('loginErr');
-  err.style.display='none';
-  fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})})
-    .then(res=>{
-      if(res.ok){
-        document.getElementById('loginGate').style.display='none';
-        document.getElementById('adminContent').style.display='block';
-        initApp();
-      }else{
-        err.style.display='block';
-        document.getElementById('loginPw').value='';
-        document.getElementById('loginPw').focus();
-        // Shake animation
-        const box=document.querySelector('.login-box');
-        box.style.transform='translateX(-8px)';
-        setTimeout(()=>box.style.transform='translateX(8px)',80);
-        setTimeout(()=>box.style.transform='',160);
-      }
-    })
-    .catch(()=>{err.textContent='❌ Connection error.';err.style.display='block';});
-}
-function goToMain(){window.location.href='/';}
-function confirmLogout(){
-  if(confirm('Log out and return to login?')){
-    document.getElementById('adminContent').style.display='none';
-    document.getElementById('loginGate').style.display='flex';
-    document.getElementById('loginPw').value='';
-  }
+function submitLogin() {
+  const pw = document.getElementById('loginPw').value;
+  const err = document.getElementById('loginErr');
+  err.style.display = 'none';
+
+  fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      // Berhasil Login
+      sessionStorage.setItem('isAdmin', 'true');
+      document.getElementById('loginGate').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+      initApp(); // Jalankan fungsi utama dashboard admin kamu
+    } else {
+      err.style.display = 'block';
+      document.getElementById('loginPw').value = '';
+    }
+  })
+  .catch(err => {
+    alert("API Error: Pastikan login.js sudah di-deploy");
+  });
 }
 
 // ═══ FIREBASE ═══
@@ -1268,9 +1270,14 @@ function rewireAll(){
 }
 
 // Auto-focus password on page load
-window.addEventListener('DOMContentLoaded',()=>{
-  initApp();
+window.addEventListener('DOMContentLoaded', () => {
+  if (sessionStorage.getItem('isAdmin') === 'true') {
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('adminContent').style.display = 'block';
+    initApp();
+  }
 });
+
 </script>
 </body>
 </html>
