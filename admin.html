@@ -5,31 +5,6 @@
 <meta charset="UTF-8">
 <title>Admin Panel — Team Composition Guide</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- ══════════════════════════════════════════════════════════
-     ADMIN.HTML — HALAMAN KONTROL (ADMIN ONLY)
-     ══════════════════════════════════════════════════════════
-     Fitur yang tersedia di halaman ini:
-     1. ADD / EDIT / DELETE — Team cards, members, sections
-     2. DRAG & DROP — Reorder blocks, cards, members
-     3. COLOR PICKER — Ubah warna card dan label
-     4. BANNERS — Tambah announcement, title, alert
-     5. MODIFIER PRIORITY — Tambah/hapus modifier pills
-     6. CREDITS EDITOR — Edit credits section
-     7. IMPORT EXCEL — Import data dari file Excel/CSV
-     8. SAVE TO CLOUD — Simpan ke Firebase (akan dimuat di index.html)
-     9. SAVE LOCAL — Simpan ke localStorage sebagai backup
-     10. PAGE VISIBILITY — Kontrol halaman mana yang terlihat oleh guest
-     11. IMAGE UPLOAD — Set gambar per card via URL
-     12. DOWNLOAD IMAGE — Screenshot halaman/card
-
-     Cara menghubungkan ke index.html (Guest Page):
-     - Admin save data ke Firebase via tombol "Save to Cloud"
-     - index.html (halaman publik) akan memuat data tersebut
-     - Guest hanya bisa READ data, download image, dan load database
-     - Admin login melalui shortcut keyboard (ArrowUp → ArrowDown → Backspace)
-       atau langsung masuk via halaman ini
-     - Password diverifikasi via /api/login endpoint
-═══════════════════════════════════════════════════════════ -->
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -138,7 +113,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .cp-sw:hover{transform:scale(1.3);border-color:white;}
 .watermark{position:absolute;bottom:13px;right:13px;color:rgba(255,255,255,.2);font-size:.82rem;font-weight:600;pointer-events:none;z-index:5;}
 
-/* ── ADMIN SHORTCUT OVERLAY ── */
 #adminShortcutOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:99999;align-items:center;justify-content:center;}
 #adminShortcutOverlay.open{display:flex;}
 .asc-box{background:var(--bg2);border:2px solid var(--gold);border-radius:16px;padding:36px 40px;max-width:380px;width:100%;box-shadow:0 0 40px rgba(245,200,66,.25);display:flex;flex-direction:column;align-items:center;gap:18px;}
@@ -153,7 +127,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .asc-cancel{font-size:.76rem;color:var(--dim);cursor:pointer;background:none;border:none;font-family:'Rajdhani',sans-serif;transition:color .15s;}
 .asc-cancel:hover{color:white;}
 
-/* ── MODIFIER PRIORITY ── */
 .mod-priority{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;min-height:72px;}
 .mp-chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
 .mp-pill{padding:5px 15px;border-radius:999px;font-weight:700;font-size:.8rem;border:1.5px solid;min-width:85px;text-align:center;outline:none;transition:transform .15px;}
@@ -168,7 +141,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .delete-pill{margin-left:8px;cursor:pointer;opacity:.55;font-size:.75em;}
 .delete-pill:hover{opacity:1;color:#ff3355;}
 
-/* ── MODIFIER MODAL ── */
 .mod-modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center;}
 .mod-modal-ov.open{display:flex;}
 .mod-modal-box{background:#13131f;border:1px solid var(--cyan);border-radius:14px;width:92%;max-width:600px;padding:26px;position:relative;max-height:80vh;overflow-y:auto;}
@@ -189,7 +161,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .mod-modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;}
 .mod-modal-btns .btn{cursor:pointer;}
 
-/* ── EXCEL MODAL ── */
 .xl-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;align-items:center;justify-content:center;}
 .xl-ov.open{display:flex;}
 .xl-box{background:#13131f;border:1px solid var(--green);border-radius:14px;width:92%;max-width:500px;padding:26px;position:relative;}
@@ -214,7 +185,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .float-xl{position:fixed;bottom:28px;right:28px;z-index:500;padding:11px 20px;background:linear-gradient(135deg,#00e87a,#009944);color:#000;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-size:.88rem;font-family:'Rajdhani',sans-serif;box-shadow:0 4px 20px rgba(0,232,122,.35);transition:transform .15s,box-shadow .15s;}
 .float-xl:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,232,122,.5);}
 
-/* ── BADGES & STATUS ── */
 #roleBadge{display:none;position:fixed;top:20px;right:20px;padding:10px 16px;background:rgba(0,212,255,.1);border:2px solid rgba(0,212,255,.5);border-radius:10px;color:var(--cyan);font-size:.85rem;font-weight:700;font-family:'Rajdhani',sans-serif;cursor:pointer;z-index:999;transition:all .2s;letter-spacing:.05em;}
 #roleBadge.admin-badge{border-color:rgba(245,200,66,.5);background:rgba(245,200,66,.1);color:var(--gold);}
 #fbStatus{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none;}
@@ -223,7 +193,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 #fbStatus.err{background:rgba(255,51,85,.2);color:var(--red);border:1px solid rgba(255,51,85,.5);}
 #fbStatus.loading{background:rgba(0,212,255,.2);color:var(--cyan);border:1px solid rgba(0,212,255,.5);}
 
-/* ── READONLY MODE ── */
 body.readonly .edit-btn,
 body.readonly .add-banner-btn,
 body.readonly .add-point-btn,
@@ -257,7 +226,6 @@ body.readonly .banner-announce,
 body.readonly .banner-title,
 body.readonly .banner-alert{pointer-events:none!important;}
 
-/* ── CREDITS BOX ── */
 .credits-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px 28px;text-align:center;display:flex;flex-direction:column;gap:12px;}
 .cred-content-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;}
 .cred-lbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--dim);margin-bottom:4px;}
@@ -269,7 +237,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
 .cred-pill .cred-lbl{margin-bottom:4px;font-size:.55rem;white-space:nowrap;}
 .cred-pill .cred-name{margin-bottom:0;font-size:.85rem;white-space:nowrap;}
 
-/* ── MODALS (image, h1, credits, excel, download, pv) ── */
 .modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;align-items:center;justify-content:center;}
 .modal-ov.open{display:flex;}
 .modal-box{background:#1a1a2e;padding:26px;border-radius:12px;width:90%;max-width:420px;border:1px solid var(--cyan);}
@@ -315,7 +282,7 @@ body.readonly .banner-alert{pointer-events:none!important;}
 .cred-add-section-btn:hover{border-color:var(--cyan);background:rgba(0,212,255,.07);}
 .cred-apply-row{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);}
 .cred-apply-row .btn{font-family:'Rajdhani',sans-serif;}
-/* ── BANNERS ── */
+
 .banner-announce{border:1.5px solid var(--cyan);border-radius:10px;background:rgba(0,212,255,.07);padding:12px 24px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--cyan);line-height:2;outline:none;}
 .banner-title{border:1.5px solid var(--gold);border-radius:10px;background:rgba(245,200,66,.07);padding:12px 24px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--gold);line-height:2;outline:none;}
 .banner-alert{border:1.5px solid var(--red);border-radius:10px;background:rgba(255,40,60,.08);padding:12px 24px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--red);line-height:2;outline:none;}
@@ -324,7 +291,7 @@ body.readonly .banner-alert{pointer-events:none!important;}
 .add-banner-btn.cyan{color:var(--cyan);border-color:rgba(0,212,255,.4);}.add-banner-btn.cyan:hover{background:rgba(0,212,255,.1);}
 .add-banner-btn.gold{color:var(--gold);border-color:rgba(245,200,66,.4);}.add-banner-btn.gold:hover{background:rgba(245,200,66,.1);}
 .add-banner-btn.red{color:var(--red);border-color:rgba(255,40,60,.4);}.add-banner-btn.red:hover{background:rgba(255,40,60,.1);}
-/* ── SAVE BAR ── */
+
 .save-bar{max-width:1280px;margin:0 auto;padding:0 20px 18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
 .save-btn{padding:9px 18px;border-radius:8px;border:none;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .15s;}
 .save-btn.green{background:linear-gradient(135deg,#00e87a,#009944);color:#000;box-shadow:0 3px 12px rgba(0,232,122,.3);}
@@ -337,7 +304,7 @@ body.readonly .banner-alert{pointer-events:none!important;}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#13131f;border:1px solid var(--green);color:var(--green);padding:10px 22px;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.err{border-color:var(--red);color:var(--red);}
-/* ── TEAM SECTION ── */
+
 .team-section{position:relative;margin-bottom:8px;border:none;border-radius:14px;background:transparent;padding:0 0 8px;}
 .team-section-header{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 16px 8px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:10px;position:relative;}
 .team-section-label{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.14em;color:var(--gold);outline:none;background:none;border:none;cursor:pointer;text-align:center;text-shadow:0 0 16px rgba(245,200,66,.25);min-width:60px;padding:30px 0 15px;transition:color 0.2s;}
@@ -348,7 +315,7 @@ body.readonly .banner-alert{pointer-events:none!important;}
 .team-section-actions{display:flex;justify-content:center;gap:8px;padding:10px 20px 0;flex-wrap:wrap;}
 .add-section-btn{padding:9px 22px;font-size:.85rem;border-color:rgba(245,200,66,.35)!important;color:var(--gold)!important;background:rgba(245,200,66,.06)!important;font-weight:700;letter-spacing:.05em;}
 .add-section-btn:hover{background:rgba(245,200,66,.14)!important;}
-/* ── DOWNLOAD MODAL ── */
+
 .dl-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;}
 .dl-ov.open{display:flex;}
 .dl-box{background:#13131f;border:1px solid var(--cyan);border-radius:16px;width:92%;max-width:460px;padding:28px;position:relative;}
@@ -367,7 +334,7 @@ body.readonly .banner-alert{pointer-events:none!important;}
 .dl-select:focus{border-color:var(--cyan);}
 .dl-slider{width:100%;accent-color:var(--cyan);cursor:pointer;}
 .dl-modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);}
-/* ── PAGE VISIBILITY MODAL ── */
+
 .pv-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;}
 .pv-ov.open{display:flex;}
 .pv-box{background:#13131f;border:1px solid var(--gold);border-radius:16px;width:92%;max-width:420px;padding:28px;position:relative;}
@@ -392,7 +359,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
 </head>
 <body>
 
-<!-- ── ADMIN SHORTCUT OVERLAY (single, canonical) ── -->
 <div id="adminShortcutOverlay">
   <div class="asc-box">
     <div class="asc-title">ADMIN ACCESS</div>
@@ -421,14 +387,12 @@ body.readonly .banner-alert{pointer-events:none!important;}
     <button class="theme-toggle" id="pvSettingsBtn" onclick="openPvModal()" style="background:rgba(245,200,66,.1);color:var(--gold);border-color:rgba(245,200,66,.4);">⚙️ Pages</button>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
     <button class="theme-toggle" id="logoutBtn" onclick="logoutToGuest()" style="background:rgba(255,51,85,.15);color:#ff3355;border-color:rgba(255,51,85,.4);display:none;">🚪 Logout Admin</button>
-    <!-- Link kembali ke halaman guest (index.html) -->
     <a href="index.html" class="theme-toggle" style="text-decoration:none;background:rgba(0,232,122,.1);color:var(--green);border-color:rgba(0,232,122,.3);">👁 Guest View</a>
   </div>
 </div>
 
 <div id="pageBody">
 
-  <!-- ── DUNGEON SECTION ── -->
   <div class="mode-section active" id="dungeonSection">
     <div class="page-block" data-block="title">
       <span class="block-handle">⠿⠿</span>
@@ -479,7 +443,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
     </div>
   </div>
 
-  <!-- ── STORY SECTION ── -->
   <div class="mode-section" id="storySection">
     <div class="page-block" data-block="story-title">
       <span class="block-handle">⠿⠿</span>
@@ -524,7 +487,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
     </div>
   </div>
 
-  <!-- ── MODIFIER PRIORITY + CREDITS ── -->
   <div class="page-block" data-block="bottom">
     <span class="block-handle">⠿⠿</span>
     <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
@@ -549,7 +511,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
     </div>
   </div>
 
-  <!-- ── SAVE BAR ── -->
   <div class="page-block" data-block="save-local">
     <span class="block-handle">⠿⠿</span>
     <div class="save-bar">
@@ -568,12 +529,11 @@ body.readonly .banner-alert{pointer-events:none!important;}
     </div>
   </div>
 
-</div><!-- end pageBody -->
+</div>
 
 <div class="toast" id="toast"></div>
 <button class="float-xl" onclick="openXl()">Import Excel</button>
 
-<!-- ── CREDITS MODAL ── -->
 <div class="cred-ov" id="credModal">
   <div class="cred-modal-box">
     <span class="cred-close" onclick="closeCredModal()">✕</span>
@@ -592,7 +552,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-<!-- ── EXCEL MODAL ── -->
 <div class="xl-ov" id="xlModal">
   <div class="xl-box">
     <span class="xl-close" onclick="closeXl()">✕</span>
@@ -622,7 +581,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-<!-- ── MODIFIER MODAL ── -->
 <div class="mod-modal-ov" id="modModal">
   <div class="mod-modal-box">
     <span class="mod-modal-close" onclick="closeModModal()">✕</span>
@@ -637,7 +595,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-<!-- ── IMAGE MODAL ── -->
 <div class="modal-ov" id="modal">
   <div class="modal-box">
     <div class="modal-title">🖼 Enter Image Link</div>
@@ -649,7 +606,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-<!-- ── H1 MODAL ── -->
 <div class="modal-ov" id="h1Modal">
   <div class="modal-box" style="max-width:370px">
     <div class="modal-title">Add Heading</div>
@@ -667,7 +623,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-<!-- ── DOWNLOAD MODAL ── -->
 <div class="dl-ov" id="dlModal">
   <div class="dl-box">
     <span class="dl-close" onclick="closeDlModal()">✕</span>
@@ -709,7 +664,6 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-<!-- ── PAGE VISIBILITY MODAL ── -->
 <div class="pv-ov" id="pvModal">
   <div class="pv-box">
     <span class="pv-close" onclick="closePvModal()">✕</span>
@@ -727,20 +681,15 @@ body.readonly .banner-alert{pointer-events:none!important;}
   </div>
 </div>
 
-</div><!-- end appContent -->
+</div>
 
-<!-- ═══════════════════════════════════════════════════════
-     JAVASCRIPT
-═══════════════════════════════════════════════════════ -->
 <script>
-/* ── CONSTANTS & STATE ── */
 const TEAM_COLORS=['#f5c842','#c36bff','#00d4ff','#00e87a','#ff8c42','#ff5fa0','#4488ff','#ff3355'];
 const H1_COLORS=[...TEAM_COLORS,'#ffffff','#aaccff','#ff9999','#99ffcc'];
 let colorIdx=0;
 function nextColor(){return TEAM_COLORS[colorIdx++%TEAM_COLORS.length];}
 let currentRole='guest';
 
-/* ── HELPERS ── */
 function isReadonly(){return document.body.classList.contains('readonly');}
 function showToast(msg,isErr){
   const t=document.getElementById('toast');t.textContent=msg;
@@ -753,7 +702,6 @@ function showFbStatus(msg,type){
   el._t=setTimeout(()=>{el.className='';el.textContent='';},3500);
 }
 
-/* ── NAVIGATION ── */
 function switchMode(mode){
   document.querySelectorAll('.mode-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -766,7 +714,6 @@ function switchMode(mode){
   }
 }
 
-/* ── THEME ── */
 let isDarkTheme=true;
 function toggleTheme(){
   isDarkTheme=!isDarkTheme;
@@ -779,7 +726,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(localStorage.getItem('theme')==='light'){isDarkTheme=false;toggleTheme();}
 });
 
-/* ── IMAGE MODAL ── */
 let activeImgId=null;
 function openModal(id){
   if(isReadonly())return;
@@ -806,7 +752,6 @@ document.getElementById('modalInput').addEventListener('keydown',e=>{
   if(e.key==='Enter')applyImg();if(e.key==='Escape')closeModal();
 });
 
-/* ── H1 MODAL ── */
 let activeH1Btn=null,h1Color='#f5c842';
 function buildH1Grid(){
   const g=document.getElementById('h1ColorGrid');g.innerHTML='';
@@ -839,7 +784,6 @@ document.getElementById('h1Text').addEventListener('keydown',e=>{
   if(e.key==='Enter'){e.preventDefault();applyH1();}if(e.key==='Escape')closeH1Modal();
 });
 
-/* ── COLOR PALETTE ── */
 function makeColorPalette(card,initColor){
   const pal=document.createElement('div');pal.className='clr-palette';
   TEAM_COLORS.forEach(c=>{
@@ -859,7 +803,6 @@ function setCardColor(card,color){
   card.querySelector('.card-accent-bar').style.background=`linear-gradient(90deg,${color},transparent)`;
 }
 
-/* ── DRAG: PAGE BLOCKS ── */
 let dragBlock=null;
 function wireBlockDrag(block){
   const h=block.querySelector(':scope > .block-handle');if(!h)return;
@@ -889,7 +832,6 @@ document.getElementById('pageBody').addEventListener('drop',e=>{
   pb.insertBefore(dragBlock,blocks[blocks.indexOf(t)]);
 });
 
-/* ── DRAG: CARDS ── */
 let dragCard=null;
 function enableCardDrag(card){
   const handle=card.querySelector('.card-drag-handle');
@@ -926,7 +868,6 @@ function wireGridDrop(grid){
 }
 document.querySelectorAll('.core-grid,.new-grid').forEach(wireGridDrop);
 
-/* ── DRAG: MEMBERS ── */
 let dragMem=null;
 function enableMemDrag(row){
   row.setAttribute('draggable','true');
@@ -955,7 +896,6 @@ function renumMembers(container){
   container.querySelectorAll('.mem-row').forEach((r,i)=>{const n=r.querySelector('.mem-num');if(n)n.textContent=i+1;});
 }
 
-/* ── BUILD CARD ── */
 function buildCard(t){
   const color=t.color||nextColor();const id=t.id||'card_'+Date.now();
   const card=document.createElement('div');card.className='team-card';card.style.setProperty('--tc',color);
@@ -1015,7 +955,6 @@ function buildCard(t){
   return card;
 }
 
-/* ── FOOTER BUILDERS ── */
 function getFC(btn){return btn.closest('.card-foot').querySelector('.foot-content');}
 function addModBox(btn){
   const b=document.createElement('div');b.className='mod-box';
@@ -1047,7 +986,6 @@ function addMember(btn){
   row.appendChild(del);enableMemDrag(row);container.appendChild(row);
 }
 
-/* ── ADD TEAM SHORTCUTS ── */
 function addNewCoreTeam(){
   const card=buildCard({id:'core_'+Date.now(),tag:'NEW CORE TEAM',title:'New Core Team',desc:'Click text to edit...',members:[{name:'New Unit',bind:'Binding Vow'}]});
   document.getElementById('coreGrid').appendChild(card);card.scrollIntoView({behavior:'smooth',block:'center'});
@@ -1067,8 +1005,8 @@ function addNewStoryTeam(){
   grid.appendChild(card);card.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
-/* ── DOWNLOAD ── */
 let dlMode='fullscreen',dlFmt='png';
+window.downloadNode = function(btn) { openDlModal(btn); }; // Fallback for older database versions
 function openDlModal(btn){
   const sel=document.getElementById('dlNodeSelect');sel.innerHTML='<option value="">-- Select card --</option>';
   document.querySelectorAll('.team-card').forEach((card,i)=>{
@@ -1128,7 +1066,6 @@ function doDlDownload(){
   }
 }
 
-/* ── LABEL COLOR PICKER ── */
 function openLabelColorPicker(el,event){
   if(isReadonly())return;if(event)event.stopPropagation();
   const picker=document.createElement('input');picker.type='color';
@@ -1142,7 +1079,6 @@ function rgbToHex(rgb){
   return'#'+r.slice(0,3).map(x=>parseInt(x).toString(16).padStart(2,'0')).join('');
 }
 
-/* ── TEAM SECTIONS ── */
 function addTeamSection(containerId){
   const container=document.getElementById(containerId);if(!container)return;
   const sectionId='ts_'+Date.now();const gridId='grid_'+sectionId;
@@ -1167,7 +1103,6 @@ function deleteTeamSection(btn){
 }
 function selectAll(el){const range=document.createRange();range.selectNodeContents(el);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);}
 
-/* ── DEFAULT DATA ── */
 const CORE_TEAMS=[
   {id:'t1',color:'#f5c842',tag:'TEAM 1 · COLUMN 1',title:'130+ Floors Push',desc:'Best used from Floor 130+.',members:[{name:'Awakened Eclipseborn Hawk',bind:'Binding Vow'},{name:'Merged Beast',bind:'Fallen Knight'},{name:'Healing Fist',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'}]},
   {id:'t2',color:'#c36bff',tag:'TEAM 2 · COLUMN 2',title:'Best Dungeon Team',desc:'Best overall dungeon & boss team.',members:[{name:'Cosmic Villain',bind:'Binding Vow'},{name:'Awakened Eclipseborn Hawk',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'},{name:'Herald',bind:'Binding Vow'}]},
@@ -1181,7 +1116,6 @@ const NEW_TEAMS=[
 const STORY_CORE_TEAMS=[{id:'st1',color:'#f5c842',tag:'STORY TEAM 1',title:'Story Progression Team',desc:'Best for advancing through story chapters.',members:[{name:'Awakened Eclipseborn Hawk',bind:'Binding Vow'},{name:'Merged Beast',bind:'Fallen Knight'},{name:'Healing Fist',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'}]}];
 const STORY_NEW_TEAMS=[{id:'st5',color:'#ff8c42',tag:'STORY TEAM 5',title:'Story New Team Alpha',desc:'New team for story mode.',members:[{name:'Awakened Eclipseborn Hawk',bind:'Binding Vow'},{name:'Healing Fist',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'},{name:'Herald',bind:'Binding Vow'}]}];
 
-/* ── MP PILLS ── */
 function createMpPill(text,cls){
   const p=document.createElement('span');p.className=`mp-pill ${cls}`;p.contentEditable=true;
   p.innerHTML=`${text}<span class="delete-pill" contenteditable="false"> ✕</span>`;
@@ -1199,7 +1133,6 @@ function wirePillDelete(p){
 }
 function mkArrow(){const a=document.createElement('span');a.className='mp-arrow';a.textContent=' › ';return a;}
 
-/* ── MODIFIER MODAL ── */
 const MOD_COLORS=['#ff3355','#f5c842','#00d4ff','#00e87a','#ff8c42','#c36bff','#ff5fa0','#4488ff'];
 let modInputs=[];
 function openModModal(){modInputs=[];document.getElementById('modInputList').innerHTML='';addModifierInputRow();document.getElementById('modModal').classList.add('open');}
@@ -1236,7 +1169,6 @@ function applyAllModifiers(){
   closeModModal();
 }
 
-/* ── EXCEL IMPORT ── */
 let xlData=null,xlTarget='core';
 function openXl(){
   const list=document.getElementById('xlTargetList');list.querySelectorAll('.xl-radio.dynamic').forEach(el=>el.remove());
@@ -1320,7 +1252,6 @@ function downloadTemplate(){
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Teams');XLSX.writeFile(wb,'Team_Template.xlsx');
 }
 
-/* ── CREDITS MODAL ── */
 const CRED_COLORS=['#f5c842','#c36bff','#00d4ff','#00e87a','#ff8c42','#ff5fa0','#4488ff','#ff3355','#ffffff'];
 let credSections=[];
 function openCredModal(){
@@ -1376,7 +1307,6 @@ function applyCredits(){
   html+='</div>';document.getElementById('credSectionsDisplay').innerHTML=html;credSections=[];closeCredModal();
 }
 
-/* ── ADD BANNER ── */
 function addBannerBlock(btn,type,section){
   const cls={announce:'banner-announce',title:'banner-title',alert:'banner-alert'}[type];
   const emoji={announce:'📢',title:'🏷',alert:'🚨'}[type];
@@ -1390,7 +1320,6 @@ function addBannerBlock(btn,type,section){
   const range=document.createRange();const sel=window.getSelection();range.selectNodeContents(ed);sel.removeAllRanges();sel.addRange(range);
 }
 
-/* ── LOCAL STORAGE ── */
 const SAVE_KEY='ACB_GUIDE_SAVE';
 function saveLocal(){
   try{
@@ -1430,7 +1359,6 @@ function deleteLocal(){
   localStorage.removeItem(SAVE_KEY);document.getElementById('saveStatus').textContent='';showToast('🗑 Save deleted.');
 }
 
-/* ── REWIRE ALL (after innerHTML restore) ── */
 function rewireAll(){
   document.querySelectorAll('.page-block').forEach(wireBlockDrag);
   document.querySelectorAll('.core-grid,.new-grid').forEach(wireGridDrop);
@@ -1454,14 +1382,11 @@ function rewireAll(){
   document.querySelectorAll('.mp-pill').forEach(wirePillDelete);
 }
 
-/* ── ONLOAD ── */
 window.onload=()=>enterAsGuest();
 </script>
 
 <script>
-/* ════════════════════════════════════════════
-   FIREBASE + AUTH
-════════════════════════════════════════════ */
+
 let GUIDE_REF=null;
 
 async function initApp(){
@@ -1478,7 +1403,6 @@ async function initApp(){
 }
 document.addEventListener('DOMContentLoaded',initApp);
 
-/* ── ENTER AS GUEST ── */
 function enterAsGuest(){
   currentRole='guest';
   document.getElementById('appContent').style.display='block';
@@ -1493,7 +1417,6 @@ function enterAsGuest(){
   loadFromFirebase();
 }
 
-/* ── ENTER AS ADMIN (called after successful login) ── */
 function enterAsAdmin(){
   currentRole='admin';
   document.body.classList.remove('readonly');
@@ -1508,7 +1431,6 @@ function enterAsAdmin(){
   showToast('👑 Admin mode activated!');
 }
 
-/* ── LOGOUT ── */
 function logoutToGuest(){
   if(!confirm('Log out from admin?'))return;
   currentRole='guest';
@@ -1590,7 +1512,6 @@ function submitAdminShortcut(){
   .catch(err=>{console.error('Login error:',err);showToast('❌ Network error',true);});
 }
 
-/* ── FIREBASE SAVE / LOAD ── */
 function saveToFirebase(){
   if(currentRole!=='admin'){showToast('❌ Admin only!',true);return;}
   showFbStatus('⛳ Saving...','loading');
@@ -1644,7 +1565,6 @@ function loadDefaults(){
   rewireAll();showFbStatus('✅ Defaults loaded','ok');
 }
 
-/* ── PAGE VISIBILITY ── */
 function openPvModal(){
   document.getElementById('pvDungeon').checked=document.querySelector('.nav-btn:nth-child(1)').style.display!=='none';
   document.getElementById('pvStory').checked=document.querySelector('.nav-btn:nth-child(2)').style.display!=='none';
