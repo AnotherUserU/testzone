@@ -1317,42 +1317,7 @@ document.getElementById('ascPwInput').addEventListener('keydown',e=>{
 });
 
 function submitAdminShortcut(){
-  const pw=document.getElementById('ascPwInput').value;
-  const err=document.getElementById('ascErr');
-  err.style.display='none';
-
-  fetch('/api/login',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({password:pw})
-  })
-  .then(res=>{
-    if(res.ok){
-      currentRole='admin';
-      closeAdminShortcut();
-      document.body.classList.remove('readonly');
-      document.getElementById('logoutBtn').style.display='block';
-      document.getElementById('saveCloudBtn').style.display='block';
-      document.getElementById('pvSettingsBtn').style.display='block';
-      document.getElementById('saveLocalBtn').style.display='block';
-      document.getElementById('loadLocalBtn').style.display='block';
-      document.getElementById('deleteLocalBtn').style.display='block';
-      // subtle admin badge
-      const badge=document.getElementById('roleBadge');
-      badge.textContent='🔑 ADMIN';
-      badge.className='admin-badge';
-      badge.style.display='block';
-      showToast('🔑 Admin access granted!');
-    }else{
-      err.style.display='block';
-      document.getElementById('ascPwInput').value='';
-      document.getElementById('ascPwInput').focus();
-    }
-  })
-  .catch(()=>{
-    err.textContent='❌ Connection error.';
-    err.style.display='block';
-  });
+  window.location.href = "admin.html";
 }
 
 /* ─── LOGOUT (back to guest) ─── */
@@ -1456,58 +1421,7 @@ function applyPageVisibility(saveToCloud){
 }
 
 /* ─── HIDDEN ADMIN ACCESS ─── */
-(function() {
-  let mouseButtons = 0;
-  let keysPressed = {};
-  const ADMIN_PASSWORD = "admin"; // Anda bisa mengubah password ini di sini
 
-  window.addEventListener('mousedown', (e) => {
-    // Mouse 4 = button 3, Mouse 5 = button 4
-    if (e.button === 3 || e.button === 4) {
-      mouseButtons |= (1 << e.button);
-      checkAdminTrigger();
-    }
-  });
-
-  window.addEventListener('mouseup', (e) => {
-    if (e.button === 3 || e.button === 4) {
-      mouseButtons &= ~(1 << e.button);
-    }
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      keysPressed[e.key] = true;
-      checkAdminTrigger();
-    }
-  });
-
-  window.addEventListener('keyup', (e) => {
-    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
-      delete keysPressed[e.key];
-    }
-  });
-
-  function checkAdminTrigger() {
-    const mouse4 = (mouseButtons & (1 << 3));
-    const mouse5 = (mouseButtons & (1 << 4));
-    const up = keysPressed["ArrowUp"];
-    const down = keysPressed["ArrowDown"];
-
-    if (mouse4 && mouse5 && up && down) {
-      // Reset state agar tidak ter-trigger berulang kali
-      mouseButtons = 0;
-      keysPressed = {};
-      
-      const pass = prompt("Enter Admin Password:");
-      if (pass === ADMIN_PASSWORD) {
-        window.location.href = "admin.html";
-      } else if (pass !== null) {
-        alert("Incorrect password!");
-      }
-    }
-  }
-})();
 </script>
 
 <script>
