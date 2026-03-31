@@ -1218,6 +1218,9 @@ async function initApp(){
   try{
     const res=await fetch('/api/config');
     const firebaseConfig=await res.json();
+    if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes("firebaseio.com")) {
+      firebaseConfig.databaseURL = "https://this-is-the-real-one-4640e-default-rtdb.asia-southeast1.firebasedatabase.app";
+    }
     firebase.initializeApp(firebaseConfig);
     const db=firebase.database();
     GUIDE_REF=db.ref('guide');
