@@ -5,29 +5,11 @@
 <title>Team Composition Guide</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ══════════════════════════════════════════════
-     INDEX.HTML — HALAMAN PUBLIK (GUEST / USER)
-     ══════════════════════════════════════════════
-     Fitur yang tersedia di halaman ini:
-     1. READ-ONLY — Tampilkan semua data team tanpa bisa diedit
-     2. DOWNLOAD IMAGE — Fullscreen atau per-card screenshot
-     3. LOAD DATABASE — Muat data dari Firebase (cloud)
-     4. THEME TOGGLE — Dark/Light mode
-     5. NAVIGASI — Switch antara Dungeon dan Story
-
-     Cara menghubungkan ke admin.html:
-     - Admin login melalui admin.html (halaman terpisah)
-     - Data tersimpan di Firebase, index.html memuat data dari sana
-     - Tidak ada tombol save, add, edit, atau delete di halaman ini
-═══════════════════════════════════════════════ -->
-
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<!-- XLSX tidak diperlukan di halaman guest (hanya untuk import Excel di admin) -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <style>
-/* ── CSS VARIABEL (SAMA dengan admin.html agar tampilan konsisten) ── */
 :root{--bg:#0f0f17;--bg2:#13131f;--bg3:#1a1a2e;--border:rgba(255,255,255,0.07);--text:#dde0f0;--dim:#6b6f8f;--gold:#f5c842;--cyan:#00d4ff;--green:#00e87a;--red:#ff3355;--orange:#ff8c42;--purple:#c36bff;--pink:#ff5fa0;--blue:#4488ff;}
 :root.light-theme{--bg:#ffffff;--bg2:#f5f5f5;--bg3:#eeeeee;--border:rgba(0,0,0,0.1);--text:#1a1a1a;--dim:#888888;--gold:#d4a500;--cyan:#0099cc;--green:#009900;--red:#cc0000;--orange:#ff8000;--purple:#9933cc;--pink:#cc0066;--blue:#0066cc;}
 :root.light-theme .card-desc{color:#555;}
@@ -98,7 +80,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .h1-block h1{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;letter-spacing:.06em;line-height:1.4;}
 .watermark{position:absolute;bottom:13px;right:13px;color:rgba(255,255,255,.2);font-size:.82rem;font-weight:600;pointer-events:none;z-index:5;}
 
-/* ── MODIFIER PRIORITY (read-only) ── */
 .mod-priority{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 22px;min-height:72px;pointer-events:none;}
 .mp-chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px;}
 .mp-pill{padding:5px 15px;border-radius:999px;font-weight:700;font-size:.8rem;border:1.5px solid;min-width:85px;text-align:center;}
@@ -110,17 +91,14 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .mp-pill.green{color:var(--green);border-color:rgba(0,232,122,.45);background:rgba(0,232,122,.07);}
 .mp-pill.gray{color:var(--dim);border-color:rgba(107,111,143,.45);background:rgba(107,111,143,.07);}
 .mp-arrow{color:var(--dim);}
-/* Sembunyikan delete-pill di guest */
 .delete-pill{display:none;}
 
-/* ── BADGES & STATUS ── */
 #fbStatus{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);padding:12px 20px;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;transition:opacity .3s;z-index:999;pointer-events:none;}
 #fbStatus.show{opacity:1;}
 #fbStatus.ok{background:rgba(0,232,122,.2);color:var(--green);border:1px solid rgba(0,232,122,.5);}
 #fbStatus.err{background:rgba(255,51,85,.2);color:var(--red);border:1px solid rgba(255,51,85,.5);}
 #fbStatus.loading{background:rgba(0,212,255,.2);color:var(--cyan);border:1px solid rgba(0,212,255,.5);}
 
-/* ── CREDITS BOX ── */
 .credits-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:22px 28px;text-align:center;display:flex;flex-direction:column;gap:12px;}
 .cred-content-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;}
 .cred-lbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--dim);margin-bottom:4px;}
@@ -130,18 +108,15 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .cred-pill .cred-lbl{margin-bottom:4px;font-size:.55rem;white-space:nowrap;}
 .cred-pill .cred-name{margin-bottom:0;font-size:.85rem;white-space:nowrap;}
 
-/* ── BANNERS ── */
 .banner-announce{border:1.5px solid var(--cyan);border-radius:10px;background:rgba(0,212,255,.07);padding:12px 24px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--cyan);line-height:2;}
 .banner-title{border:1.5px solid var(--gold);border-radius:10px;background:rgba(245,200,66,.07);padding:12px 24px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--gold);line-height:2;}
 .banner-alert{border:1.5px solid var(--red);border-radius:10px;background:rgba(255,40,60,.08);padding:12px 24px;text-align:center;font-family:'Orbitron',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.1em;color:var(--red);line-height:2;}
 
-/* ── TEAM SECTION ── */
 .team-section{position:relative;margin-bottom:8px;border:none;border-radius:14px;background:transparent;padding:0 0 8px;}
 .team-section-header{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 16px 8px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:10px;position:relative;}
 .team-section-label{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;letter-spacing:.14em;color:var(--gold);text-align:center;text-shadow:0 0 16px rgba(245,200,66,.25);padding:30px 0 15px;}
 .team-section .grid-wrap{padding-bottom:0;}
 
-/* ── DOWNLOAD MODAL ── */
 .dl-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;}
 .dl-ov.open{display:flex;}
 .dl-box{background:#13131f;border:1px solid var(--cyan);border-radius:16px;width:92%;max-width:460px;padding:28px;position:relative;}
@@ -164,16 +139,13 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .btn-cancel{background:#333;color:white;}
 .btn-apply{background:var(--cyan);color:#000;}
 
-/* ── DOWNLOAD BUTTON per card (guest bisa screenshot card) ── */
 .download-node-btn{position:absolute;top:38px;right:8px;background:rgba(0,212,255,.15);color:var(--cyan);border:1px solid rgba(0,212,255,.3);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:.7rem;font-weight:700;z-index:20;transition:all .2s;font-family:'Orbitron',sans-serif;white-space:nowrap;}
 .download-node-btn:hover{background:rgba(0,212,255,.3);box-shadow:0 0 10px rgba(0,212,255,.2);}
 
-/* ── TOAST ── */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#13131f;border:1px solid var(--green);color:var(--green);padding:10px 22px;border-radius:10px;font-weight:700;font-size:.85rem;opacity:0;transition:all .3s;z-index:9999;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 .toast.err{border-color:var(--red);color:var(--red);}
 
-/* ── Sembunyikan semua elemen admin di guest ── */
 .edit-btn, .add-banner-btn, .add-point-btn,
 .delete-box, .delete-mem, .delete-team-btn, .delete-pill,
 .color-dot, .clr-palette,
@@ -184,8 +156,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 .add-section-btn, .add-banner-bar, .float-xl,
 .save-bar {display:none!important;}
 [contenteditable="true"]{pointer-events:none!important;cursor:default!important;user-select:text!important;}
-
-/* ── LINK KE ADMIN ── */
 .admin-link{position:fixed;bottom:16px;right:16px;padding:8px 16px;background:rgba(245,200,66,.08);color:var(--gold);border:1px solid rgba(245,200,66,.25);border-radius:8px;cursor:pointer;font-size:.72rem;font-weight:600;font-family:'Orbitron',sans-serif;text-decoration:none;z-index:500;transition:all .2s;opacity:.5;}
 .admin-link:hover{opacity:1;background:rgba(245,200,66,.15);box-shadow:0 0 14px rgba(245,200,66,.2);}
 
@@ -195,15 +165,10 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════
-     BODY — HALAMAN GUEST (READ-ONLY)
-     ══════════════════════════════════════════════ -->
-
 <div id="fbStatus"></div>
 
 <div id="appContent" style="display:none;">
 
-<!-- ── NAVIGASI ── -->
 <div class="nav-header">
   <div style="flex:1;"></div>
   <div class="nav-menu">
@@ -217,7 +182,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 
 <div id="pageBody">
 
-  <!-- ── DUNGEON SECTION ── -->
   <div class="mode-section active" id="dungeonSection">
     <div class="main-title">TEAM COMPOSITION GUIDE</div>
     <div class="alert-wrap">
@@ -230,7 +194,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
     <div id="dungeonGroups"></div>
   </div>
 
-  <!-- ── STORY SECTION ── -->
   <div class="mode-section" id="storySection">
     <div class="main-title">STORY MODE GUIDE</div>
     <div class="section-label">STORY CORE TEAMS</div>
@@ -240,7 +203,6 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
     <div id="storyGroups"></div>
   </div>
 
-  <!-- ── MODIFIER PRIORITY + CREDITS (read-only) ── -->
   <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
     <div class="mod-priority">
       <div class="mp-chain" id="mpChain"></div>
@@ -259,25 +221,17 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
       </div>
     </div>
   </div>
-
-  <!-- ── DOWNLOAD BUTTON (guest bisa download gambar) ── -->
   <div style="text-align:center;padding:10px 0 50px">
     <button id="downloadBtn" onclick="openDlModal()" style="padding:12px 28px;background:#00d4ff;color:#000;font-weight:700;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">Download as Image</button>
   </div>
 
-</div><!-- end pageBody -->
+</div>
 
 <div class="toast" id="toast"></div>
-
-<!-- ── LINK KE ADMIN PAGE ──
-     Komentar: Link ini mengarah ke admin.html untuk login admin
-     Anda bisa menghapus link ini jika ingin menyembunyikan akses admin
--->
 <a href="admin.html" class="admin-link" title="Admin Panel">🔐 Admin</a>
 
-</div><!-- end appContent -->
+</div>
 
-<!-- ── DOWNLOAD MODAL (untuk guest download image) ── -->
 <div class="dl-ov" id="dlModal">
   <div class="dl-box">
     <span class="dl-close" onclick="closeDlModal()">✕</span>
@@ -319,22 +273,11 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════
-     JAVASCRIPT — GUEST PAGE
-     Hanya berisi fungsi-fungsi yang dibutuhkan guest:
-     - Navigasi (switchMode)
-     - Theme toggle
-     - Build card (read-only, tanpa editing)
-     - Download image
-     - Load dari Firebase
-═══════════════════════════════════════════════════════ -->
 <script>
-/* ── CONSTANTS & STATE ── */
 const TEAM_COLORS=['#f5c842','#c36bff','#00d4ff','#00e87a','#ff8c42','#ff5fa0','#4488ff','#ff3355'];
 let colorIdx=0;
 function nextColor(){return TEAM_COLORS[colorIdx++%TEAM_COLORS.length];}
 
-/* ── HELPERS ── */
 function showToast(msg,isErr){
   const t=document.getElementById('toast');t.textContent=msg;
   t.className='toast'+(isErr?' err':'');t.classList.add('show');
@@ -346,7 +289,6 @@ function showFbStatus(msg,type){
   el._t=setTimeout(()=>{el.className='';el.textContent='';},3500);
 }
 
-/* ── NAVIGATION ── */
 function switchMode(mode){
   document.querySelectorAll('.mode-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -359,7 +301,6 @@ function switchMode(mode){
   }
 }
 
-/* ── THEME ── */
 let isDarkTheme=true;
 function toggleTheme(){
   isDarkTheme=!isDarkTheme;
@@ -372,7 +313,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   if(localStorage.getItem('theme')==='light'){isDarkTheme=false;toggleTheme();}
 });
 
-/* ── BUILD CARD (read-only version, tanpa tombol edit/delete/drag) ── */
 function buildCard(t){
   const color=t.color||nextColor();const id=t.id||'card_'+Date.now();
   const card=document.createElement('div');card.className='team-card';card.style.setProperty('--tc',color);
@@ -408,8 +348,8 @@ function buildCard(t){
   return card;
 }
 
-/* ── DOWNLOAD ── */
 let dlMode='fullscreen',dlFmt='png';
+window.downloadNode = function(btn) { openDlModal(btn); }; // Fallback for older database versions
 function openDlModal(btn){
   const sel=document.getElementById('dlNodeSelect');sel.innerHTML='<option value="">-- Select card --</option>';
   document.querySelectorAll('.team-card').forEach((card,i)=>{
@@ -469,7 +409,6 @@ function doDlDownload(){
   }
 }
 
-/* ── DEFAULT DATA (fallback jika tidak ada data di Firebase) ── */
 const CORE_TEAMS=[
   {id:'t1',color:'#f5c842',tag:'TEAM 1 · COLUMN 1',title:'130+ Floors Push',desc:'Best used from Floor 130+.',members:[{name:'Awakened Eclipseborn Hawk',bind:'Binding Vow'},{name:'Merged Beast',bind:'Fallen Knight'},{name:'Healing Fist',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'}]},
   {id:'t2',color:'#c36bff',tag:'TEAM 2 · COLUMN 2',title:'Best Dungeon Team',desc:'Best overall dungeon & boss team.',members:[{name:'Cosmic Villain',bind:'Binding Vow'},{name:'Awakened Eclipseborn Hawk',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'},{name:'Herald',bind:'Binding Vow'}]},
@@ -483,7 +422,6 @@ const NEW_TEAMS=[
 const STORY_CORE_TEAMS=[{id:'st1',color:'#f5c842',tag:'STORY TEAM 1',title:'Story Progression Team',desc:'Best for advancing through story chapters.',members:[{name:'Awakened Eclipseborn Hawk',bind:'Binding Vow'},{name:'Merged Beast',bind:'Fallen Knight'},{name:'Healing Fist',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'}]}];
 const STORY_NEW_TEAMS=[{id:'st5',color:'#ff8c42',tag:'STORY TEAM 5',title:'Story New Team Alpha',desc:'New team for story mode.',members:[{name:'Awakened Eclipseborn Hawk',bind:'Binding Vow'},{name:'Healing Fist',bind:'Binding Light'},{name:'Divine Emperor',bind:'Binding Vow'},{name:'Herald',bind:'Binding Vow'}]}];
 
-/* ── LOAD DEFAULTS ── */
 function loadDefaults(){
   const cg=document.getElementById('coreGrid'),ng=document.getElementById('newGrid');
   if(cg)CORE_TEAMS.forEach(t=>cg.appendChild(buildCard(t)));
@@ -494,16 +432,13 @@ function loadDefaults(){
   showFbStatus('✅ Defaults loaded','ok');
 }
 
-/* ── REWIRE (setelah innerHTML restore dari Firebase) ── */
+
 function rewireAll(){
-  /* Di guest page: tidak ada drag, tidak ada delete, tidak ada color palette.
-     Kita hanya perlu memastikan semua contenteditable=false */
   document.querySelectorAll('[contenteditable="true"]').forEach(el=>{
     el.contentEditable='false';
   });
 }
 
-/* ── INIT ── */
 function enterAsGuest(){
   document.getElementById('appContent').style.display='block';
   loadFromFirebase();
@@ -513,14 +448,7 @@ window.onload=()=>enterAsGuest();
 </script>
 
 <script>
-/* ════════════════════════════════════════════
-   FIREBASE — Load data dari cloud
-   ════════════════════════════════════════════
-   Komentar: Konfigurasi Firebase sama dengan admin.html
-   Data yang dimuat guest berasal dari data yang disave admin
-*/
 let GUIDE_REF=null;
-
 async function initApp(){
   try{
     const res=await fetch('/api/config');
@@ -547,7 +475,6 @@ function loadFromFirebase(){
     if(data.storyHTML)document.getElementById('storySection').innerHTML=data.storyHTML;
     if(data.mpChain)document.getElementById('mpChain').innerHTML=data.mpChain;
     if(data.credDisplay)document.getElementById('credSectionsDisplay').innerHTML=data.credDisplay;
-    /* Terapkan page visibility (sembunyikan tab jika admin matikan) */
     if(data.pageVisibility){
       const showDungeon=data.pageVisibility.dungeon!==false;
       const showStory=data.pageVisibility.story!==false;
