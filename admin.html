@@ -445,26 +445,11 @@ body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;fo
 <!-- ══════════════════════════════════════════
      LOGIN GATE — shown before everything
 ══════════════════════════════════════════ -->
-<div id="loginGate">
-  <div class="login-box">
-    <div class="login-scanline"></div>
-    <div class="login-crown">👑</div>
-    <div class="login-title">ADMIN PANEL</div>
-    <div class="login-sub">
-      Team Composition Guide<br>
-      Enter admin password to continue.
-    </div>
-    <div id="loginErr" class="login-err">❌ Password incorrect. Try again.</div>
-    <input class="login-field" type="password" id="loginPw" placeholder="Enter admin password..." autocomplete="current-password">
-    <button class="login-btn" onclick="submitLogin()">🔑 &nbsp;ACCESS PANEL</button>
-    <button class="login-back" onclick="goToMain()">← Back to main page</button>
-  </div>
-</div>
 
 <!-- ══════════════════════════════════════════
      ADMIN CONTENT — hidden until login
 ══════════════════════════════════════════ -->
-<div id="adminContent" style="display:none;">
+<div id="adminContent" style="display:block;">
 
   <!-- ADMIN TOPBAR -->
   <div class="admin-topbar">
@@ -1284,7 +1269,7 @@ function rewireAll(){
 
 // Auto-focus password on page load
 window.addEventListener('DOMContentLoaded',()=>{
-  setTimeout(()=>document.getElementById('loginPw').focus(),200);
+  initApp();
 });
 </script>
 </body>
