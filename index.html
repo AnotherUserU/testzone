@@ -1,176 +1,1485 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
+  <title>Team Composition Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Composition Guide - Guest View</title>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="shared/styles/variables.css">
-  <link rel="stylesheet" href="shared/styles/base.css">
-  <link rel="stylesheet" href="shared/styles/cards.css">
-  <link rel="stylesheet" href="shared/styles/modals.css">
-  <link rel="stylesheet" href="shared/styles/navigation.css">
-  <link rel="stylesheet" href="shared/styles/responsive.css">
-</head>
-<body class="readonly">
 
-<div class="nav-header">
-  <div class="nav-menu">
-    <button class="nav-btn active" onclick="switchMode('dungeon')">Dungeon Teams</button>
-    <button class="nav-btn" onclick="switchMode('story')">Story Teams</button>
-  </div>
-  <button class="theme-toggle" id="themeBtn">☀️ Light Mode</button>
-</div>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap"
+    rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+  <style>
+    :root {
+      --bg: #0f0f17;
+      --bg2: #13131f;
+      --bg3: #1a1a2e;
+      --border: rgba(255, 255, 255, 0.07);
+      --text: #dde0f0;
+      --dim: #6b6f8f;
+      --gold: #f5c842;
+      --cyan: #00d4ff;
+      --green: #00e87a;
+      --red: #ff3355;
+      --orange: #ff8c42;
+      --purple: #c36bff;
+      --pink: #ff5fa0;
+      --blue: #4488ff;
+    }
 
-<a href="admin.html" class="admin-link">🛠 Admin</a>
-<div id="roleBadge">VIEW MODE</div>
-<div id="fbStatus">Connecting...</div>
+    :root.light-theme {
+      --bg: #ffffff;
+      --bg2: #f5f5f5;
+      --bg3: #eeeeee;
+      --border: rgba(0, 0, 0, 0.1);
+      --text: #1a1a1a;
+      --dim: #888888;
+      --gold: #d4a500;
+      --cyan: #0099cc;
+      --green: #009900;
+      --red: #cc0000;
+      --orange: #ff8000;
+      --purple: #9933cc;
+      --pink: #cc0066;
+      --blue: #0066cc;
+    }
 
-<!-- Loading Frame -->
-<div class="loading-screen" id="appLoading">
-  <div class="loading-title">LOADING TEAMS...</div>
-  <div class="loading-bar-track">
-    <div class="loading-bar-fill"></div>
-  </div>
-</div>
+    :root.light-theme .card-desc {
+      color: #555;
+    }
 
-<div id="appContent" style="display:none;">
-  <div id="dungeonMode" class="mode-section active">
-    <!-- Firebase Data will be injected here safely via DOMPurify -->
-    <div id="dungeonSection"></div>
-    <div id="newDungeonSection"></div>
-  </div>
+    :root.light-theme .mem-bind {
+      color: #666;
+    }
 
-  <div id="storyMode" class="mode-section">
-    <div id="storySection"></div>
-    <div id="newStorySection"></div>
-  </div>
+    :root.light-theme .img-right-overlay {
+      color: #999;
+    }
 
-  <!-- Sections, Modifiers & Credits -->
-  <div id="customSectionsArea"></div>
+    :root.light-theme .mod-item {
+      color: #2d7a3d;
+    }
 
-  <div style="max-width:1280px; margin:40px auto; padding:0 20px;">
-    <div class="section-label" style="text-align:left; padding:20px 0 10px;">🛡 MODIFIER PRIORITY</div>
-    <div id="modSettingsList" style="display:flex; flex-direction:column; gap:8px;"></div>
-  </div>
+    :root.light-theme .tips-item {
+      color: #0066cc;
+    }
 
-  <div style="max-width:1280px; margin:40px auto 60px; padding:0 20px;">
-    <div class="section-label" style="text-align:left; padding:20px 0 10px;">📜 CREDITS</div>
-    <div id="creditsList" style="display:flex; flex-direction:column; gap:8px;"></div>
-  </div>
+    :root.light-theme .mod-title {
+      color: #cc6600;
+    }
 
-  <!-- Download Float -->
-  <button class="float-xl" onclick="showModal('dlModal')">⬇ Download Pages</button>
-  <div class="watermark" id="dlWatermark" style="display:none;">GENERATED VIA SRE TEAMS GUIDE</div>
-</div>
+    :root.light-theme .tips-title {
+      color: #0099cc;
+    }
 
-<!-- Download Modal -->
-<div class="dl-ov" id="dlModal">
-  <div class="dl-box">
-    <div class="dl-close" onclick="hideModal('dlModal')">✖</div>
-    <div class="dl-title">DOWNLOAD CONFIG</div>
-    <div class="dl-section-label">SELECT SCOPE</div>
-    <div class="dl-radio-group">
-      <label class="dl-radio active">
-        <input type="radio" name="dlType" value="fullscreen" checked style="display:none;">
-        <span class="dl-radio-icon">🖥️</span>
-        <div><div class="dl-radio-name">Full Screen</div><div class="dl-radio-sub">Active mode</div></div>
-      </label>
-      <label class="dl-radio">
-        <input type="radio" name="dlType" value="section" style="display:none;">
-        <span class="dl-radio-icon">✂️</span>
-        <div><div class="dl-radio-name">Specific Section</div><div class="dl-radio-sub">Choose below</div></div>
-      </label>
-    </div>
-    <select id="dlSectionSelect" class="dl-select" style="display:none;"></select>
-    <div class="dl-modal-btns">
-      <button class="btn btn-apply" id="startDlBtn">GENERATE IMAGE</button>
-    </div>
-  </div>
-</div>
+    :root.light-theme .alert-box {
+      color: #cc0000;
+      background: rgba(255, 0, 0, .05);
+      border-color: rgba(255, 0, 0, .2);
+    }
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    :root.light-theme .warn-box {
+      color: #990033;
+      background: rgba(255, 0, 0, .08);
+    }
 
-<script type="module">
-  import { initTheme } from './shared/js/theme.js';
-  import { showToast, showModal, hideModal } from './shared/js/utils.js';
-  import { setupDownloadModal } from './shared/js/download.js';
+    :root.light-theme .section-label {
+      color: #666;
+    }
 
-  window.showModal = showModal;
-  window.hideModal = hideModal;
+    :root.light-theme .mod-box {
+      background: rgba(255, 140, 66, .12);
+      border-color: rgba(255, 140, 66, .3);
+    }
 
-  window.switchMode = function(mode) {
-    document.querySelectorAll('.mode-section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(mode + 'Mode')?.classList.add('active');
-    event.target.classList.add('active');
-  }
+    :root.light-theme .tips-box {
+      background: rgba(0, 153, 204, .12);
+      border-color: rgba(0, 153, 204, .3);
+    }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    initTheme();
-    setupDownloadModal();
-    loadFirebaseData();
-  });
+    :root.light-theme .h1-block {
+      background: rgba(0, 0, 0, .03);
+      border-color: rgba(0, 0, 0, .1);
+    }
 
-  async function loadFirebaseData() {
-    const st = document.getElementById('fbStatus');
-    try {
-      // 1. Get Firebase Config
-      const res = await fetch('/api/config');
-      if(!res.ok) throw new Error();
-      const cfg = await res.json();
+    :root.light-theme .theme-toggle {
+      background: rgba(0, 153, 204, .15);
+      border-color: rgba(0, 153, 204, .4);
+    }
 
-      // 2. Load SDK dynamically
-      if(typeof firebase === 'undefined') {
-        const sc1 = document.createElement('script');
-        sc1.src = 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js';
-        document.head.appendChild(sc1);
-        await new Promise(r => sc1.onload = r);
+    :root.light-theme .theme-toggle:hover {
+      background: rgba(0, 153, 204, .25);
+    }
 
-        const sc2 = document.createElement('script');
-        sc2.src = 'https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js';
-        document.head.appendChild(sc2);
-        await new Promise(r => sc2.onload = r);
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .nav-header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-menu {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex: 1;
+      flex-wrap: wrap;
+      padding: 0 10px;
+    }
+
+    .nav-btn {
+      padding: 8px 16px;
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: 'Orbitron', sans-serif;
+      transition: background .2s, color .2s;
+      white-space: nowrap;
+    }
+
+    .nav-btn.active {
+      background: var(--gold);
+      color: #000;
+      border-color: var(--gold);
+    }
+
+    .nav-btn:hover {
+      background: var(--cyan);
+      color: #000;
+    }
+
+    .theme-toggle {
+      padding: 8px 14px;
+      background: rgba(0, 212, 255, .1);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 212, 255, .3);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+
+    .theme-toggle:hover {
+      background: rgba(0, 212, 255, .2);
+      box-shadow: 0 0 10px rgba(0, 212, 255, .3);
+    }
+
+    .mode-section {
+      display: none;
+    }
+
+    .mode-section.active {
+      display: block;
+    }
+
+    #pageBody {
+      padding-left: 36px;
+      padding-right: 16px;
+    }
+
+    .main-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 2.2rem;
+      color: var(--gold);
+      text-align: center;
+      padding: 30px 0;
+      text-shadow: 0 0 30px rgba(245, 200, 66, .3);
+      letter-spacing: .18em;
+    }
+
+    .section-label {
+      text-align: center;
+      padding: 30px 0 15px;
+      font-size: 1rem;
+      letter-spacing: .14em;
+      color: var(--gold);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      text-shadow: 0 0 16px rgba(245, 200, 66, .25);
+    }
+
+    .alert-wrap {
+      padding: 0 20px 16px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .alert-box {
+      border: 1.5px solid var(--red);
+      border-radius: 10px;
+      background: rgba(255, 40, 60, .08);
+      padding: 14px 24px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: .82rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--red);
+      line-height: 2.2;
+    }
+
+    .grid-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px 28px;
+    }
+
+    .core-grid,
+    .new-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .core-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .new-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .team-section .core-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .team-card {
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      border-radius: 12px;
+      overflow: visible;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow .2s, transform .2s;
+    }
+
+    .team-card-inner {
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .card-accent-bar {
+      height: 3px;
+      background: linear-gradient(90deg, var(--tc, #f5c842), transparent);
+      flex-shrink: 0;
+    }
+
+    .card-head {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    .card-tag {
+      font-size: .75rem;
+      color: var(--tc, #f5c842) !important;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--tc, #f5c842) !important;
+    }
+
+    .card-desc {
+      font-size: .82rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    .card-body {
+      display: flex;
+      flex: 1;
+    }
+
+    .card-members {
+      flex: 1;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mem-row {
+      display: flex;
+      gap: 10px;
+      position: relative;
+      align-items: flex-start;
+    }
+
+    .mem-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: var(--tc, #f5c842);
+    }
+
+    .mem-name {
+      font-weight: 700;
+      display: block;
+    }
+
+    .mem-bind {
+      font-size: .78rem;
+      color: #888;
+      display: block;
+    }
+
+    .card-img-right {
+      width: 184px;
+      height: 319px;
+      align-self: flex-start;
+      background: rgba(0, 0, 0, .4);
+      position: relative;
+      border-left: 1px solid var(--border);
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .card-img-right img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .card-img-right.loaded img {
+      display: block;
+    }
+
+    .img-right-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #555;
+      font-size: .72rem;
+      text-align: center;
+      padding: 10px;
+      pointer-events: none;
+      gap: 5px;
+    }
+
+    .card-img-right.loaded .img-right-overlay {
+      opacity: 0;
+    }
+
+    .img-right-overlay .ov-icon {
+      font-size: 1.4rem;
+      opacity: .35;
+    }
+
+    .card-foot {
+      padding: 12px;
+      border-top: 1px solid var(--border);
+      background: rgba(0, 0, 0, .25);
+    }
+
+    .mod-box,
+    .tips-box,
+    .warn-box,
+    .h1-block {
+      border-radius: 8px;
+      padding: 10px 13px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .mod-box {
+      background: rgba(255, 140, 66, .08);
+      border: 1px solid rgba(255, 140, 66, .4);
+    }
+
+    .tips-box {
+      background: rgba(0, 212, 255, .08);
+      border: 1px solid rgba(0, 212, 255, .4);
+    }
+
+    .warn-box {
+      background: rgba(255, 40, 60, .08);
+      border: 1px solid rgba(255, 40, 60, .35);
+      color: #ff8899;
+      line-height: 1.55;
+    }
+
+    .h1-block {
+      background: rgba(255, 255, 255, .03);
+      border: 1px solid rgba(255, 255, 255, .1);
+    }
+
+    .mod-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: 1.5px;
+      color: #ff8c42;
+      margin-bottom: 6px;
+    }
+
+    .tips-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: 1.5px;
+      color: #00d4ff;
+      margin-bottom: 6px;
+    }
+
+    .mod-item {
+      font-size: .82rem;
+      color: #a0e0c0;
+      font-weight: 600;
+      padding: 3px 0;
+    }
+
+    .tips-item {
+      font-size: .82rem;
+      color: #a0e0ff;
+      font-weight: 600;
+      padding: 3px 0;
+    }
+
+    .h1-block h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      line-height: 1.4;
+    }
+
+    .watermark {
+      position: absolute;
+      bottom: 13px;
+      right: 13px;
+      color: rgba(255, 255, 255, .2);
+      font-size: .82rem;
+      font-weight: 600;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .mod-priority {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 22px;
+      min-height: 72px;
+      pointer-events: none;
+    }
+
+    .mp-chain {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .mp-pill {
+      padding: 5px 15px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: .8rem;
+      border: 1.5px solid;
+      min-width: 85px;
+      text-align: center;
+    }
+
+    .mp-pill.red {
+      color: var(--red);
+      border-color: rgba(255, 51, 85, .45);
+      background: rgba(255, 51, 85, .07);
+    }
+
+    .mp-pill.gold {
+      color: var(--gold);
+      border-color: rgba(245, 200, 66, .45);
+      background: rgba(245, 200, 66, .07);
+    }
+
+    .mp-pill.cyan {
+      color: var(--cyan);
+      border-color: rgba(0, 212, 255, .45);
+      background: rgba(0, 212, 255, .07);
+    }
+
+    .mp-pill.orange {
+      color: var(--orange);
+      border-color: rgba(255, 140, 66, .45);
+      background: rgba(255, 140, 66, .07);
+    }
+
+    .mp-pill.purple {
+      color: var(--purple);
+      border-color: rgba(195, 107, 255, .45);
+      background: rgba(195, 107, 255, .07);
+    }
+
+    .mp-pill.green {
+      color: var(--green);
+      border-color: rgba(0, 232, 122, .45);
+      background: rgba(0, 232, 122, .07);
+    }
+
+    .mp-pill.gray {
+      color: var(--dim);
+      border-color: rgba(107, 111, 143, .45);
+      background: rgba(107, 111, 143, .07);
+    }
+
+    .mp-arrow {
+      color: var(--dim);
+    }
+
+    .delete-pill {
+      display: none;
+    }
+
+    #fbStatus {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: .85rem;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    #fbStatus.show {
+      opacity: 1;
+    }
+
+    #fbStatus.ok {
+      background: rgba(0, 232, 122, .2);
+      color: var(--green);
+      border: 1px solid rgba(0, 232, 122, .5);
+    }
+
+    #fbStatus.err {
+      background: rgba(255, 51, 85, .2);
+      color: var(--red);
+      border: 1px solid rgba(255, 51, 85, .5);
+    }
+
+    #fbStatus.loading {
+      background: rgba(0, 212, 255, .2);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 212, 255, .5);
+    }
+
+    .credits-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 28px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .cred-content-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cred-lbl {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .58rem;
+      letter-spacing: .2em;
+      color: var(--dim);
+      margin-bottom: 4px;
+    }
+
+    .cred-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gold);
+      text-shadow: 0 0 14px rgba(245, 200, 66, .38);
+      margin-bottom: 0;
+    }
+
+    .cred-pills-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: stretch;
+      margin: 0 auto;
+      justify-content: center;
+    }
+
+    .cred-pill {
+      display: flex;
+      align-items: center;
+      background: rgba(245, 200, 66, .06);
+      border: 1px solid rgba(245, 200, 66, .2);
+      border-radius: 8px;
+      padding: 8px 14px;
+    }
+
+    .cred-pill .cred-lbl {
+      margin-bottom: 4px;
+      font-size: .55rem;
+      white-space: nowrap;
+    }
+
+    .cred-pill .cred-name {
+      margin-bottom: 0;
+      font-size: .85rem;
+      white-space: nowrap;
+    }
+
+    .banner-announce {
+      border: 1.5px solid var(--cyan);
+      border-radius: 10px;
+      background: rgba(0, 212, 255, .07);
+      padding: 12px 24px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--cyan);
+      line-height: 2;
+    }
+
+    .banner-title {
+      border: 1.5px solid var(--gold);
+      border-radius: 10px;
+      background: rgba(245, 200, 66, .07);
+      padding: 12px 24px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--gold);
+      line-height: 2;
+    }
+
+    .banner-alert {
+      border: 1.5px solid var(--red);
+      border-radius: 10px;
+      background: rgba(255, 40, 60, .08);
+      padding: 12px 24px;
+      text-align: center;
+      font-family: 'Orbitron', sans-serif;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--red);
+      line-height: 2;
+    }
+
+    .team-section {
+      position: relative;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 14px;
+      background: transparent;
+      padding: 0 0 8px;
+    }
+
+    .team-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 10px 16px 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, .05);
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .team-section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      color: var(--gold);
+      text-align: center;
+      text-shadow: 0 0 16px rgba(245, 200, 66, .25);
+      padding: 30px 0 15px;
+    }
+
+    .team-section .grid-wrap {
+      padding-bottom: 0;
+    }
+
+    .dl-ov {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .92);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dl-ov.open {
+      display: flex;
+    }
+
+    .dl-box {
+      background: #13131f;
+      border: 1px solid var(--cyan);
+      border-radius: 16px;
+      width: 92%;
+      max-width: 460px;
+      padding: 28px;
+      position: relative;
+    }
+
+    .dl-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: .95rem;
+      color: var(--cyan);
+      letter-spacing: .12em;
+      margin-bottom: 20px;
+    }
+
+    .dl-close {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      color: var(--dim);
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+
+    .dl-close:hover {
+      color: white;
+    }
+
+    .dl-section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .65rem;
+      letter-spacing: 1.5px;
+      color: var(--dim);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .dl-radio-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .dl-radio {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1.5px solid rgba(255, 255, 255, .1);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .15s;
+      background: rgba(255, 255, 255, .02);
+    }
+
+    .dl-radio:hover {
+      border-color: rgba(0, 212, 255, .4);
+      background: rgba(0, 212, 255, .05);
+    }
+
+    .dl-radio.active {
+      border-color: var(--cyan);
+      background: rgba(0, 212, 255, .1);
+    }
+
+    .dl-radio-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .dl-radio-name {
+      font-weight: 700;
+      font-size: .85rem;
+    }
+
+    .dl-radio-sub {
+      font-size: .7rem;
+      color: var(--dim);
+    }
+
+    .dl-select {
+      width: 100%;
+      padding: 9px 12px;
+      background: #0f0f17;
+      border: 1px solid rgba(0, 212, 255, .3);
+      color: white;
+      border-radius: 8px;
+      font-size: .85rem;
+      outline: none;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .dl-select:focus {
+      border-color: var(--cyan);
+    }
+
+    .dl-slider {
+      width: 100%;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .dl-modal-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .btn {
+      padding: 9px 20px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: .9rem;
+    }
+
+    .btn-cancel {
+      background: #333;
+      color: white;
+    }
+
+    .btn-apply {
+      background: var(--cyan);
+      color: #000;
+    }
+
+    .download-node-btn {
+      position: absolute;
+      top: 38px;
+      right: 8px;
+      background: rgba(0, 212, 255, .15);
+      color: var(--cyan);
+      border: 1px solid rgba(0, 212, 255, .3);
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: .7rem;
+      font-weight: 700;
+      z-index: 20;
+      transition: all .2s;
+      font-family: 'Orbitron', sans-serif;
+      white-space: nowrap;
+    }
+
+    .download-node-btn:hover {
+      background: rgba(0, 212, 255, .3);
+      box-shadow: 0 0 10px rgba(0, 212, 255, .2);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #13131f;
+      border: 1px solid var(--green);
+      color: var(--green);
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: .85rem;
+      opacity: 0;
+      transition: all .3s;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.err {
+      border-color: var(--red);
+      color: var(--red);
+    }
+
+    .edit-btn,
+    .add-banner-btn,
+    .add-point-btn,
+    .delete-box,
+    .delete-mem,
+    .delete-team-btn,
+    .delete-pill,
+    .color-dot,
+    .clr-palette,
+    .cred-edit-btn,
+    .mod-add-row-btn,
+    .cred-add-name-btn,
+    .cred-add-section-btn,
+    .save-btn,
+    .card-drag-handle,
+    .block-handle,
+    .del-section-btn,
+    .team-section-actions,
+    .add-section-btn,
+    .add-banner-bar,
+    .float-xl,
+    .save-bar {
+      display: none !important;
+    }
+
+    [contenteditable="true"] {
+      pointer-events: none !important;
+      cursor: default !important;
+      user-select: text !important;
+    }
+
+    .admin-link {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      padding: 8px 16px;
+      background: rgba(245, 200, 66, .08);
+      color: var(--gold);
+      border: 1px solid rgba(245, 200, 66, .25);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .72rem;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+      text-decoration: none;
+      z-index: 500;
+      transition: all .2s;
+      opacity: .0;
+    }
+
+    .admin-link:hover {
+      opacity: 1;
+      background: rgba(245, 200, 66, .15);
+      box-shadow: 0 0 14px rgba(245, 200, 66, .2);
+    }
+
+    @media(max-width:1000px) {
+      .core-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media(max-width:600px) {
+
+      .core-grid,
+      .new-grid {
+        grid-template-columns: 1fr;
       }
 
-      firebase.initializeApp(cfg);
-      const db = firebase.database();
-      
-      db.ref('guide').once('value').then(snap => {
-        const data = snap.val();
-        if(data) {
-          // CRITICAL SECURITY FIX: Sanitize all loaded HTML
-          if(data.dungeonHTML) document.getElementById('dungeonSection').innerHTML = DOMPurify.sanitize(data.dungeonHTML);
-          if(data.storyHTML) document.getElementById('storySection').innerHTML = DOMPurify.sanitize(data.storyHTML);
-          if(data.newDungeonHTML) document.getElementById('newDungeonSection').innerHTML = DOMPurify.sanitize(data.newDungeonHTML);
-          if(data.newStoryHTML) document.getElementById('newStorySection').innerHTML = DOMPurify.sanitize(data.newStoryHTML);
-          if(data.customSectionsHTML) document.getElementById('customSectionsArea').innerHTML = DOMPurify.sanitize(data.customSectionsHTML);
-          if(data.modHTML) document.getElementById('modSettingsList').innerHTML = DOMPurify.sanitize(data.modHTML);
-          if(data.creditsHTML) document.getElementById('creditsList').innerHTML = DOMPurify.sanitize(data.creditsHTML);
-        }
-        
-        st.textContent = '✅ Database connected';
-        st.className = 'show ok';
-        setTimeout(() => st.classList.remove('show'), 2000);
-        
-        // Hide skeleton, show content
-        document.getElementById('appLoading').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
-
-      }).catch(e => {
-        throw e;
-      });
-
-    } catch(e) {
-      console.error(e);
-      st.textContent = '❌ Failed to load data';
-      st.className = 'show err';
-      showToast('Failed to connect to cloud database.', true);
+      .card-img-right {
+        width: 140px;
+        height: 240px;
+      }
     }
-  }
-</script>
+  </style>
+</head>
+
+<body>
+
+  <div id="fbStatus"></div>
+
+  <div id="appContent" style="display:none;">
+
+    <div class="nav-header">
+      <div style="flex:1;"></div>
+      <div class="nav-menu">
+        <button class="nav-btn active" data-mode="dungeon" onclick="switchMode('dungeon')">DUNGEON</button>
+        <button class="nav-btn" data-mode="story" onclick="switchMode('story')">STORY</button>
+        <button class="nav-btn" data-mode="raid" onclick="switchMode('raid')">RAID</button>
+        <button class="nav-btn" data-mode="storyTowers" onclick="switchMode('storyTowers')">STORY TOWERS</button>
+        <button class="nav-btn" data-mode="battleTowers" onclick="switchMode('battleTowers')">BATTLE TOWERS</button>
+        <button class="nav-btn" data-mode="celestialTower" onclick="switchMode('celestialTower')">CELESTIAL
+          TOWER</button>
+      </div>
+      <div style="flex:1;display:flex;justify-content:flex-end;gap:10px;align-items:center;">
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
+      </div>
+    </div>
+
+    <div id="pageBody">
+
+      <div class="mode-section active" id="dungeonSection">
+        <div class="main-title">TEAM COMPOSITION GUIDE</div>
+        <div class="alert-wrap">
+          <div class="alert-box">🚫 &nbsp;DO NOT USE SEC MERGED BEAST<br>ONLY RB MERGED BEAST — NO EXCEPTIONS</div>
+        </div>
+        <div class="section-label">CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="coreGrid"></div>
+        </div>
+        <div class="section-label">NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="newGrid"></div>
+        </div>
+        <div id="dungeonGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-sections-display">
+                <div class="cred-pills-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-section" id="storySection">
+        <div class="main-title">STORY MODE GUIDE</div>
+        <div class="section-label">STORY CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="storyCoreGrid"></div>
+        </div>
+        <div class="section-label">🟢 STORY NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="storyNewGrid"></div>
+        </div>
+        <div id="storyGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-sections-display">
+                <div class="cred-pills-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-section" id="raidSection">
+        <div class="main-title">RAID GUIDE</div>
+        <div id="raidGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-sections-display">
+                <div class="cred-pills-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-section" id="storyTowersSection">
+        <div class="main-title">STORY TOWERS GUIDE</div>
+        <div id="storyTowersGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-sections-display">
+                <div class="cred-pills-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-section" id="battleTowersSection">
+        <div class="main-title">BATTLE TOWERS GUIDE</div>
+        <div id="battleTowersGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-sections-display">
+                <div class="cred-pills-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-section" id="celestialTowerSection">
+        <div class="main-title">CELESTIAL TOWER GUIDE</div>
+        <div id="celestialTowerGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-sections-display">
+                <div class="cred-pills-row"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:10px 0 50px">
+        <button id="downloadBtn" onclick="openDlModal()"
+          style="padding:12px 28px;background:#00d4ff;color:#000;font-weight:700;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">Download
+          as Image</button>
+      </div>
+
+    </div>
+
+    <div class="toast" id="toast"></div>
+    <a href="admin.html" class="admin-link" title="Admin Panel">Admin</a>
+
+  </div>
+
+  <div class="dl-ov" id="dlModal">
+    <div class="dl-box">
+      <span class="dl-close" onclick="closeDlModal()">✕</span>
+      <div class="dl-title">📥 DOWNLOAD IMAGE</div>
+      <div class="dl-section-label">Mode</div>
+      <div class="dl-radio-group">
+        <div class="dl-radio active" id="dlModeFullscreen" onclick="setDlMode('fullscreen')">
+          <div class="dl-radio-icon">🖥</div>
+          <div>
+            <div class="dl-radio-name">Fullscreen</div>
+            <div class="dl-radio-sub">Entire web page</div>
+          </div>
+        </div>
+        <div class="dl-radio" id="dlModeNode" onclick="setDlMode('node')">
+          <div class="dl-radio-icon">✂️</div>
+          <div>
+            <div class="dl-radio-name">Node / Card</div>
+            <div class="dl-radio-sub">Auto-crop per card</div>
+          </div>
+        </div>
+      </div>
+      <div id="dlNodePicker" style="display:none;margin-bottom:16px;">
+        <div class="dl-section-label">Select Card</div>
+        <select id="dlNodeSelect" class="dl-select">
+          <option value="">-- Select card --</option>
+        </select>
+      </div>
+      <div class="dl-section-label">Format</div>
+      <div class="dl-radio-group">
+        <div class="dl-radio active" id="dlFmtPng" onclick="setDlFmt('png')">
+          <div class="dl-radio-icon">🖼</div>
+          <div>
+            <div class="dl-radio-name">PNG</div>
+            <div class="dl-radio-sub">Lossless</div>
+          </div>
+        </div>
+        <div class="dl-radio" id="dlFmtJpg" onclick="setDlFmt('jpg')">
+          <div class="dl-radio-icon">📸</div>
+          <div>
+            <div class="dl-radio-name">JPG</div>
+            <div class="dl-radio-sub">Smaller file</div>
+          </div>
+        </div>
+      </div>
+      <div id="dlQualityWrap" style="display:none;margin-bottom:16px;">
+        <div class="dl-section-label">Quality: <span id="dlQualityVal"
+            style="color:var(--cyan);font-weight:700;">75</span>%</div>
+        <input type="range" id="dlQualitySlider" min="1" max="100" value="75" class="dl-slider"
+          oninput="document.getElementById('dlQualityVal').textContent=this.value">
+      </div>
+      <div class="dl-modal-btns">
+        <button class="btn btn-cancel" onclick="closeDlModal()">Cancel</button>
+        <button class="btn btn-apply" onclick="doDlDownload()">📥 Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const TEAM_COLORS = ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355'];
+    let colorIdx = 0;
+    function nextColor() { return TEAM_COLORS[colorIdx++ % TEAM_COLORS.length]; }
+
+    function showToast(msg, isErr) {
+      const t = document.getElementById('toast'); t.textContent = msg;
+      t.className = 'toast' + (isErr ? ' err' : ''); t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2800);
+    }
+    function showFbStatus(msg, type) {
+      const el = document.getElementById('fbStatus'); el.textContent = msg;
+      el.className = 'show ' + (type || 'ok'); clearTimeout(el._t);
+      el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
+    }
+
+    function switchMode(mode) {
+      document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const targetSection = document.getElementById(mode + 'Section');
+      const targetBtn = document.querySelector(`.nav-btn[data-mode="${mode}"]`);
+      if (targetSection) targetSection.classList.add('active');
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    let isDarkTheme = true;
+    function toggleTheme() {
+      isDarkTheme = !isDarkTheme;
+      const root = document.documentElement, btn = document.getElementById('themeToggle');
+      if (isDarkTheme) { root.classList.remove('light-theme'); btn.textContent = '🌙 Dark'; }
+      else { root.classList.add('light-theme'); btn.textContent = '☀️ Light'; }
+      localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      if (localStorage.getItem('theme') === 'light') { isDarkTheme = false; toggleTheme(); }
+    });
+
+    function buildCard(t) {
+      const color = t.color || nextColor(); const id = t.id || 'card_' + Date.now();
+      const card = document.createElement('div'); card.className = 'team-card'; card.style.setProperty('--tc', color);
+      card.innerHTML = `
+    <div class="team-card-inner">
+      <div class="card-accent-bar" style="background:linear-gradient(90deg,${color},transparent)"></div>
+      <div class="card-head">
+        <div class="card-tag" style="color:${color}">${t.tag || 'TEAM TAG'}</div>
+        <div class="card-title" style="color:${color}">${t.title || 'Team Name'}</div>
+        <div class="card-desc">${t.desc || ''}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-members">
+          ${(t.members || []).map((m, i) => `
+            <div class="mem-row">
+              <div class="mem-num" style="color:${color}">${i + 1}</div>
+              <div style="flex:1">
+                <div class="mem-name">${m.name}</div>
+                <div class="mem-bind">${m.bind}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="card-img-right" id="panel-${id}">
+          <img src="" alt="">
+          <div class="img-right-overlay"><div class="ov-icon">🖼</div><div>No image</div></div>
+        </div>
+      </div>
+      <div class="card-foot">
+        <div class="foot-content"></div>
+      </div>
+    </div>
+    <button class="download-node-btn" onclick="openDlModal(this)">📸 Screenshot</button>`;
+      return card;
+    }
+
+    let dlMode = 'fullscreen', dlFmt = 'png';
+    window.downloadNode = function (btn) { openDlModal(btn); }; // Fallback for older database versions
+    function openDlModal(btn) {
+      const sel = document.getElementById('dlNodeSelect'); sel.innerHTML = '<option value="">-- Select card --</option>';
+      document.querySelectorAll('.team-card').forEach((card, i) => {
+        const title = card.querySelector('.card-title')?.textContent.trim() || ('Card ' + (i + 1));
+        const opt = document.createElement('option'); opt.value = i; opt.textContent = title; sel.appendChild(opt);
+      });
+      if (btn) {
+        setDlMode('node');
+        const cards = [...document.querySelectorAll('.team-card')];
+        const idx = cards.indexOf(btn.closest('.team-card')); if (idx >= 0) sel.value = idx;
+      } else { setDlMode('fullscreen'); }
+      setDlFmt('png'); document.getElementById('dlModal').classList.add('open');
+    }
+    function closeDlModal() { document.getElementById('dlModal').classList.remove('open'); }
+    function setDlMode(m) {
+      dlMode = m;
+      document.getElementById('dlModeFullscreen').classList.toggle('active', m === 'fullscreen');
+      document.getElementById('dlModeNode').classList.toggle('active', m === 'node');
+      document.getElementById('dlNodePicker').style.display = m === 'node' ? 'block' : 'none';
+    }
+    function setDlFmt(f) {
+      dlFmt = f;
+      document.getElementById('dlFmtPng').classList.toggle('active', f === 'png');
+      document.getElementById('dlFmtJpg').classList.toggle('active', f === 'jpg');
+      document.getElementById('dlQualityWrap').style.display = f === 'jpg' ? 'block' : 'none';
+    }
+    function doDlDownload() {
+      const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
+      const isLight = document.documentElement.classList.contains('light-theme');
+      const HIDE_SEL = '.download-node-btn,.admin-link';
+      if (dlMode === 'fullscreen') {
+        const hide = document.querySelectorAll(HIDE_SEL); hide.forEach(el => el.style.display = 'none');
+        closeDlModal();
+        setTimeout(() => {
+          html2canvas(document.body, { scale: 4, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
+            const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
+            a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
+            hide.forEach(el => el.style.display = '');
+          }).catch(err => { console.error(err); alert('Failed to download.'); hide.forEach(el => el.style.display = ''); });
+        }, 400);
+      } else {
+        const cards = [...document.querySelectorAll('.team-card')];
+        const idx = parseInt(document.getElementById('dlNodeSelect').value);
+        if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); return; }
+        const card = cards[idx];
+        const hide = card.querySelectorAll('.download-node-btn');
+        hide.forEach(el => el.style.display = 'none'); closeDlModal();
+        setTimeout(() => {
+          html2canvas(card, { scale: 4, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
+            const a = document.createElement('a');
+            const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
+            a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
+            a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
+            hide.forEach(el => el.style.display = '');
+          }).catch(err => { console.error(err); alert('Failed.'); hide.forEach(el => el.style.display = ''); });
+        }, 300);
+      }
+    }
+
+    const CORE_TEAMS = [
+      { id: 't1', color: '#f5c842', tag: 'TEAM 1 · COLUMN 1', title: '130+ Floors Push', desc: 'Best used from Floor 130+.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Merged Beast', bind: 'Fallen Knight' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }] },
+      { id: 't2', color: '#c36bff', tag: 'TEAM 2 · COLUMN 2', title: 'Best Dungeon Team', desc: 'Best overall dungeon & boss team.', members: [{ name: 'Cosmic Villain', bind: 'Binding Vow' }, { name: 'Awakened Eclipseborn Hawk', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Herald', bind: 'Binding Vow' }] },
+      { id: 't3', color: '#00d4ff', tag: 'TEAM 3 · COLUMN 3', title: 'Speed Run Team', desc: 'Fast clear team.', members: [{ name: 'Cosmic Villain', bind: 'Binding Vow' }, { name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'King of Hell — Hades', bind: 'Demonic Gift' }, { name: 'Divine Emperor', bind: 'Binding Vow' }] },
+      { id: 't4', color: '#00e87a', tag: 'TEAM 4 · COLUMN 4', title: 'Late Game Variant', desc: 'Version of Team 2 for Floor 140–200+.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Sacred Arch Priestess', bind: 'Binding Vow' }] },
+    ];
+    const NEW_TEAMS = [
+      { id: 't5', color: '#ff8c42', tag: 'TEAM 5', title: 'New Team Alpha', desc: 'One of the newest and best teams.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Herald', bind: 'Binding Vow' }] },
+      { id: 't6', color: '#ff5fa0', tag: 'TEAM 6', title: 'New Team Beta', desc: 'One of the best teams. 220+ floors minimum.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Merged Beast', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Sacred Arch Priestess', bind: 'Binding Vow' }] },
+    ];
+    const STORY_CORE_TEAMS = [{ id: 'st1', color: '#f5c842', tag: 'STORY TEAM 1', title: 'Story Progression Team', desc: 'Best for advancing through story chapters.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Merged Beast', bind: 'Fallen Knight' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }] }];
+    const STORY_NEW_TEAMS = [{ id: 'st5', color: '#ff8c42', tag: 'STORY TEAM 5', title: 'Story New Team Alpha', desc: 'New team for story mode.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Herald', bind: 'Binding Vow' }] }];
+
+    function loadDefaults() {
+      const cg = document.getElementById('coreGrid'), ng = document.getElementById('newGrid');
+      if (cg) CORE_TEAMS.forEach(t => cg.appendChild(buildCard(t)));
+      if (ng) NEW_TEAMS.forEach(t => ng.appendChild(buildCard(t)));
+      const scg = document.getElementById('storyCoreGrid'), sng = document.getElementById('storyNewGrid');
+      if (scg) STORY_CORE_TEAMS.forEach(t => scg.appendChild(buildCard(t)));
+      if (sng) STORY_NEW_TEAMS.forEach(t => sng.appendChild(buildCard(t)));
+      showFbStatus('✅ Defaults loaded', 'ok');
+    }
+
+
+    function rewireAll() {
+      document.querySelectorAll('[contenteditable="true"]').forEach(el => {
+        el.contentEditable = 'false';
+      });
+    }
+
+    function enterAsGuest() {
+      document.getElementById('appContent').style.display = 'block';
+      loadFromFirebase();
+    }
+
+    window.onload = () => enterAsGuest();
+  </script>
+
+  <script>
+    let GUIDE_REF = null;
+    async function initApp() {
+      try {
+        const res = await fetch('/api/config');
+        const firebaseConfig = await res.json();
+        if (!firebaseConfig.databaseURL || firebaseConfig.databaseURL.includes('firebaseio.com')) {
+          firebaseConfig.databaseURL = 'https://this-is-the-real-one-4640e-default-rtdb.asia-southeast1.firebasedatabase.app';
+        }
+        firebase.initializeApp(firebaseConfig);
+        GUIDE_REF = firebase.database().ref('guide');
+        console.log('%c🔥 Firebase Connected', 'color:#ff8c42;font-size:13px');
+      } catch (e) { console.warn('Firebase init error:', e); }
+    }
+    document.addEventListener('DOMContentLoaded', initApp);
+
+    function loadFromFirebase() {
+      if (!GUIDE_REF) { setTimeout(() => { if (GUIDE_REF) loadFromFirebase(); else loadDefaults(); }, 1500); return; }
+      showFbStatus('⏳ Loading...', 'loading');
+      GUIDE_REF.once('value').then(snap => {
+        const data = snap.val();
+        if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
+        if (data.dungeonHTML) document.getElementById('dungeonSection').innerHTML = data.dungeonHTML;
+        if (data.storyHTML) document.getElementById('storySection').innerHTML = data.storyHTML;
+        if (data.raidHTML) document.getElementById('raidSection').innerHTML = data.raidHTML;
+        if (data.storyTowersHTML) document.getElementById('storyTowersSection').innerHTML = data.storyTowersHTML;
+        if (data.battleTowersHTML) document.getElementById('battleTowersSection').innerHTML = data.battleTowersHTML;
+        if (data.celestialTowerHTML) document.getElementById('celestialTowerSection').innerHTML = data.celestialTowerHTML;
+
+        // Fallbacks for older data structures
+        if (data.mpChain) {
+          const oldMpChain = document.getElementById('dungeonSection').querySelector('.mp-chain');
+          if (oldMpChain && !oldMpChain.innerHTML.trim()) { oldMpChain.innerHTML = data.mpChain; }
+        }
+        if (data.credDisplay) {
+          const oldCred = document.getElementById('dungeonSection').querySelector('.cred-sections-display');
+          if (oldCred && !oldCred.innerHTML.trim()) { oldCred.innerHTML = data.credDisplay; }
+        }
+
+        if (data.pageVisibility) {
+          const pages = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
+          let firstVisible = null;
+          pages.forEach(p => {
+            const show = data.pageVisibility[p] !== false;
+            const btn = document.querySelector(`.nav-btn[data-mode="${p}"]`);
+            if (btn) btn.style.display = show ? '' : 'none';
+            if (show && !firstVisible) firstVisible = p;
+          });
+          if (firstVisible) {
+            switchMode(firstVisible);
+          }
+        }
+        rewireAll();
+        showFbStatus('✅ Loaded!', 'ok');
+      }).catch(err => { showFbStatus('❌ ' + err.message, 'err'); loadDefaults(); });
+    }
+  </script>
+
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+  </script>
+  <script defer src="/_vercel/insights/script.js"></script>
 </body>
+
 </html>
