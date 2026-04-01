@@ -1590,6 +1590,19 @@
           }
         }
         rewireAll();
+        const dungeonCred = document.getElementById('dungeonCredDisplay');
+if (dungeonCred && dungeonCred.querySelector('.cred-pills-row') === null) {
+  dungeonCred.innerHTML = `<div class="cred-pills-row">
+    <div class="cred-pill"><div><div class="cred-lbl">DESIGN BY</div><div class="cred-name" style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru</div></div></div>
+    <div class="cred-pill"><div><div class="cred-lbl">GUIDED</div><div class="cred-name" style="color:#ff3355;text-shadow:0 0 12px #ff335555;margin-bottom:0">Qin shi Huang</div></div></div>
+    <div class="cred-pill"><div><div class="cred-lbl">TEAM 1-4 CREATOR</div><div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">Dark~</div></div></div>
+    <div class="cred-pill"><div><div class="cred-lbl">TEAM 1-4 CREATOR</div><div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">NEKOTSUNA</div></div></div>
+    <div class="cred-pill"><div><div class="cred-lbl">TEAM 5 CREATOR</div><div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">King_Li9on ᡕᠵデ气亠</div></div></div>
+    <div class="cred-pill"><div><div class="cred-lbl">TEAM 5 CREATOR</div><div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">BEAD</div></div></div>
+    <div class="cred-pill"><div><div class="cred-lbl">PINNED BY</div><div class="cred-name" style="color:#ff5fa0;text-shadow:0 0 12px #ff5fa055;margin-bottom:0">GORRĀH</div></div></div>
+  </div>`;
+}
+
         showFbStatus('✅ Loaded!', 'ok');
       }).catch(err => { showFbStatus('❌ ' + err.message, 'err'); loadDefaults(); });
     }
