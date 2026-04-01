@@ -1,5 +1,4 @@
-import admin from 'firebase-admin';
-import jwt from 'jsonwebtoken';
+const admin = require('firebase-admin');
 
 if (!admin.apps.length) {
   admin.initializeApp({
@@ -14,32 +13,10 @@ if (!admin.apps.length) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-  
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Missing or malformed token' });
-  }
+  // Verifikasi token admin dulu
+  const { token, data } = req.body;
+  if (token !== process.env.ADMIN_TOKEN) return res.status(401).end();
 
-  const token = authHeader.replace('Bearer ', '');
-  const secret = process.env.JWT_SECRET || 'fallback-secret-for-dev';
-
-  try {
-    const decoded = jwt.verify(token, secret);
-    if (decoded.role !== 'admin') {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-    
-    // Valid Admin Token -> Save Data
-    const { data } = req.body;
-    
-    // Consider adding server-side DOMPurify here if we expect HTML strings anywhere within JSON data
-    // However, since we're using JSON State now, the risk is much lower because we render carefully.
-    
-    await admin.database().ref('guide').set(data);
-    res.status(200).json({ success: true });
-    
-  } catch (err) {
-    console.error('Save failed:', err);
-    return res.status(401).json({ error: 'Invalid token or save failed' });
-  }
+  await admin.database().ref('guide').set(data);
+  res.status(200).json({ success: true });
 }

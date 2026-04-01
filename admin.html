@@ -148,24 +148,22 @@
     .nav-menu {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       flex: 1;
       flex-wrap: wrap;
-      padding: 0 10px;
     }
 
     .nav-btn {
-      padding: 8px 16px;
+      padding: 8px 14px;
       background: var(--bg3);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
       font-family: 'Orbitron', sans-serif;
       transition: background .2s, color .2s;
-      white-space: nowrap;
     }
 
     .nav-btn.active {
@@ -2494,19 +2492,72 @@
               Section</button>
           </div>
         </div>
-        <div class="page-block" data-block="bottom">
+        <div class="page-block" data-block="dungeon-bottom">
           <span class="block-handle">⠿⠿</span>
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
-              <div class="mp-chain"></div><button class="edit-btn" onclick="openModModal(this)"
-                style="margin-top:4px;margin-bottom:4px;">➕ Add Modifier</button>
+              <div class="mp-chain" id="dungeonMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
             </div>
             <div class="credits-box">
               <div class="cred-content-row">
-                <div class="cred-sections-display">
-                  <div class="cred-pills-row"></div>
+                <div class="cred-display" id="dungeonCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">GUIDED</div>
+                        <div class="cred-name" style="color:#ff3355;text-shadow:0 0 12px #ff335555;margin-bottom:0">Qin
+                          shi Huang</div>
+                      </div>
+                    </div>
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">TEAM 1-4 CREATOR</div>
+                        <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">
+                          Dark~</div>
+                      </div>
+                    </div>
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">TEAM 1-4 CREATOR</div>
+                        <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">
+                          NEKOTSUNA</div>
+                      </div>
+                    </div>
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">TEAM 5 CREATOR</div>
+                        <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">
+                          King_Li9on ᡕᠵデ气亠</div>
+                      </div>
+                    </div>
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">TEAM 5 CREATOR</div>
+                        <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">BEAD
+                        </div>
+                      </div>
+                    </div>
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">PINNED BY</div>
+                        <div class="cred-name" style="color:#ff5fa0;text-shadow:0 0 12px #ff5fa055;margin-bottom:0">
+                          GORRĀH</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div><button class="cred-edit-btn" onclick="openCredModal(this)">Edit Credits</button>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
             </div>
           </div>
         </div>
@@ -2561,19 +2612,30 @@
             <button class="edit-btn add-section-btn" onclick="addTeamSection('storyGroups')">➕ Add Team Section</button>
           </div>
         </div>
-        <div class="page-block" data-block="bottom">
+        <div class="page-block" data-block="story-bottom">
           <span class="block-handle">⠿⠿</span>
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
-              <div class="mp-chain"></div><button class="edit-btn" onclick="openModModal(this)"
-                style="margin-top:4px;margin-bottom:4px;">➕ Add Modifier</button>
+              <div class="mp-chain" id="storyMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
             </div>
             <div class="credits-box">
               <div class="cred-content-row">
-                <div class="cred-sections-display">
-                  <div class="cred-pills-row"></div>
+                <div class="cred-display" id="storyCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div><button class="cred-edit-btn" onclick="openCredModal(this)">Edit Credits</button>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
             </div>
           </div>
         </div>
@@ -2584,116 +2646,325 @@
           <span class="block-handle">⠿⠿</span>
           <div class="main-title" contenteditable="true">RAID GUIDE</div>
         </div>
+        <div class="page-block" data-block="add-banner-raid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="add-banner-bar">
+            <button class="add-banner-btn cyan" onclick="addBannerBlock(this,'announce','raid')">📢 +
+              Announcement</button>
+            <button class="add-banner-btn gold" onclick="addBannerBlock(this,'title','raid')">🏷 + Title</button>
+            <button class="add-banner-btn red" onclick="addBannerBlock(this,'alert','raid')">🚨 + Alert</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="raid-core-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">RAID CORE
+            TEAMS</div>
+        </div>
+        <div class="page-block" data-block="raid-core-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="core-grid" id="raidCoreGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericCoreTeam('raidCoreGrid','RAID')">➕ Add Raid Core Team</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="raid-new-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">RAID NEW TEAMS
+          </div>
+        </div>
+        <div class="page-block" data-block="raid-new-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="new-grid" id="raidNewGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericNewTeam('raidNewGrid','RAID')">➕ Add Raid New Team</button>
+          </div>
+        </div>
         <div id="raidGroups"></div>
         <div class="page-block" data-block="add-section-raid">
           <span class="block-handle">⠿⠿</span>
-          <div style="text-align:center;padding:8px 0 28px"><button class="edit-btn add-section-btn"
-              onclick="addTeamSection('raidGroups')">➕ Add Team Section</button></div>
+          <div style="text-align:center;padding:8px 0 28px">
+            <button class="edit-btn add-section-btn" onclick="addTeamSection('raidGroups')">➕ Add Team Section</button>
+          </div>
         </div>
-        <div class="page-block" data-block="bottom">
+        <div class="page-block" data-block="raid-bottom">
           <span class="block-handle">⠿⠿</span>
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
-              <div class="mp-chain"></div><button class="edit-btn" onclick="openModModal(this)"
-                style="margin-top:4px;margin-bottom:4px;">➕ Add Modifier</button>
+              <div class="mp-chain" id="raidMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
             </div>
             <div class="credits-box">
               <div class="cred-content-row">
-                <div class="cred-sections-display">
-                  <div class="cred-pills-row"></div>
+                <div class="cred-display" id="raidCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div><button class="cred-edit-btn" onclick="openCredModal(this)">Edit Credits</button>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="mode-section" id="storyTowersSection">
-        <div class="page-block" data-block="story-towers-title">
+        <div class="page-block" data-block="storyTowers-title">
           <span class="block-handle">⠿⠿</span>
           <div class="main-title" contenteditable="true">STORY TOWERS GUIDE</div>
         </div>
-        <div id="storyTowersGroups"></div>
-        <div class="page-block" data-block="add-section-story-towers">
+        <div class="page-block" data-block="add-banner-storyTowers">
           <span class="block-handle">⠿⠿</span>
-          <div style="text-align:center;padding:8px 0 28px"><button class="edit-btn add-section-btn"
-              onclick="addTeamSection('storyTowersGroups')">➕ Add Team Section</button></div>
+          <div class="add-banner-bar">
+            <button class="add-banner-btn cyan" onclick="addBannerBlock(this,'announce','storyTowers')">📢 +
+              Announcement</button>
+            <button class="add-banner-btn gold" onclick="addBannerBlock(this,'title','storyTowers')">🏷 + Title</button>
+            <button class="add-banner-btn red" onclick="addBannerBlock(this,'alert','storyTowers')">🚨 + Alert</button>
+          </div>
         </div>
-        <div class="page-block" data-block="bottom">
+        <div class="page-block" data-block="storyTowers-core-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">STORY TOWERS
+            CORE TEAMS</div>
+        </div>
+        <div class="page-block" data-block="storyTowers-core-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="core-grid" id="storyTowersCoreGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericCoreTeam('storyTowersCoreGrid','STORY TOWERS')">➕ Add Story
+              Towers Core Team</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="storyTowers-new-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">STORY TOWERS
+            NEW TEAMS</div>
+        </div>
+        <div class="page-block" data-block="storyTowers-new-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="new-grid" id="storyTowersNewGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericNewTeam('storyTowersNewGrid','STORY TOWERS')">➕ Add Story Towers
+              New Team</button>
+          </div>
+        </div>
+        <div id="storyTowersGroups"></div>
+        <div class="page-block" data-block="add-section-storyTowers">
+          <span class="block-handle">⠿⠿</span>
+          <div style="text-align:center;padding:8px 0 28px">
+            <button class="edit-btn add-section-btn" onclick="addTeamSection('storyTowersGroups')">➕ Add Team
+              Section</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="storyTowers-bottom">
           <span class="block-handle">⠿⠿</span>
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
-              <div class="mp-chain"></div><button class="edit-btn" onclick="openModModal(this)"
-                style="margin-top:4px;margin-bottom:4px;">➕ Add Modifier</button>
+              <div class="mp-chain" id="storyTowersMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
             </div>
             <div class="credits-box">
               <div class="cred-content-row">
-                <div class="cred-sections-display">
-                  <div class="cred-pills-row"></div>
+                <div class="cred-display" id="storyTowersCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div><button class="cred-edit-btn" onclick="openCredModal(this)">Edit Credits</button>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="mode-section" id="battleTowersSection">
-        <div class="page-block" data-block="battle-towers-title">
+        <div class="page-block" data-block="battleTowers-title">
           <span class="block-handle">⠿⠿</span>
           <div class="main-title" contenteditable="true">BATTLE TOWERS GUIDE</div>
         </div>
-        <div id="battleTowersGroups"></div>
-        <div class="page-block" data-block="add-section-battle-towers">
+        <div class="page-block" data-block="add-banner-battleTowers">
           <span class="block-handle">⠿⠿</span>
-          <div style="text-align:center;padding:8px 0 28px"><button class="edit-btn add-section-btn"
-              onclick="addTeamSection('battleTowersGroups')">➕ Add Team Section</button></div>
+          <div class="add-banner-bar">
+            <button class="add-banner-btn cyan" onclick="addBannerBlock(this,'announce','battleTowers')">📢 +
+              Announcement</button>
+            <button class="add-banner-btn gold" onclick="addBannerBlock(this,'title','battleTowers')">🏷 +
+              Title</button>
+            <button class="add-banner-btn red" onclick="addBannerBlock(this,'alert','battleTowers')">🚨 + Alert</button>
+          </div>
         </div>
-        <div class="page-block" data-block="bottom">
+        <div class="page-block" data-block="battleTowers-core-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">BATTLE TOWERS
+            CORE TEAMS</div>
+        </div>
+        <div class="page-block" data-block="battleTowers-core-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="core-grid" id="battleTowersCoreGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericCoreTeam('battleTowersCoreGrid','BATTLE TOWERS')">➕ Add Battle
+              Towers Core Team</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="battleTowers-new-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">BATTLE TOWERS
+            NEW TEAMS</div>
+        </div>
+        <div class="page-block" data-block="battleTowers-new-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="new-grid" id="battleTowersNewGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericNewTeam('battleTowersNewGrid','BATTLE TOWERS')">➕ Add Battle
+              Towers New Team</button>
+          </div>
+        </div>
+        <div id="battleTowersGroups"></div>
+        <div class="page-block" data-block="add-section-battleTowers">
+          <span class="block-handle">⠿⠿</span>
+          <div style="text-align:center;padding:8px 0 28px">
+            <button class="edit-btn add-section-btn" onclick="addTeamSection('battleTowersGroups')">➕ Add Team
+              Section</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="battleTowers-bottom">
           <span class="block-handle">⠿⠿</span>
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
-              <div class="mp-chain"></div><button class="edit-btn" onclick="openModModal(this)"
-                style="margin-top:4px;margin-bottom:4px;">➕ Add Modifier</button>
+              <div class="mp-chain" id="battleTowersMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
             </div>
             <div class="credits-box">
               <div class="cred-content-row">
-                <div class="cred-sections-display">
-                  <div class="cred-pills-row"></div>
+                <div class="cred-display" id="battleTowersCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div><button class="cred-edit-btn" onclick="openCredModal(this)">Edit Credits</button>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
             </div>
           </div>
         </div>
       </div>
 
       <div class="mode-section" id="celestialTowerSection">
-        <div class="page-block" data-block="celestial-tower-title">
+        <div class="page-block" data-block="celestialTower-title">
           <span class="block-handle">⠿⠿</span>
           <div class="main-title" contenteditable="true">CELESTIAL TOWER GUIDE</div>
         </div>
-        <div id="celestialTowerGroups"></div>
-        <div class="page-block" data-block="add-section-celestial-tower">
+        <div class="page-block" data-block="add-banner-celestialTower">
           <span class="block-handle">⠿⠿</span>
-          <div style="text-align:center;padding:8px 0 28px"><button class="edit-btn add-section-btn"
-              onclick="addTeamSection('celestialTowerGroups')">➕ Add Team Section</button></div>
+          <div class="add-banner-bar">
+            <button class="add-banner-btn cyan" onclick="addBannerBlock(this,'announce','celestialTower')">📢 +
+              Announcement</button>
+            <button class="add-banner-btn gold" onclick="addBannerBlock(this,'title','celestialTower')">🏷 +
+              Title</button>
+            <button class="add-banner-btn red" onclick="addBannerBlock(this,'alert','celestialTower')">🚨 +
+              Alert</button>
+          </div>
         </div>
-        <div class="page-block" data-block="bottom">
+        <div class="page-block" data-block="celestialTower-core-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">CELESTIAL
+            TOWER CORE TEAMS</div>
+        </div>
+        <div class="page-block" data-block="celestialTower-core-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="core-grid" id="celestialTowerCoreGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericCoreTeam('celestialTowerCoreGrid','CELESTIAL TOWER')">➕ Add
+              Celestial Tower Core Team</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="celestialTower-new-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">CELESTIAL
+            TOWER NEW TEAMS</div>
+        </div>
+        <div class="page-block" data-block="celestialTower-new-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="new-grid" id="celestialTowerNewGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericNewTeam('celestialTowerNewGrid','CELESTIAL TOWER')">➕ Add
+              Celestial Tower New Team</button>
+          </div>
+        </div>
+        <div id="celestialTowerGroups"></div>
+        <div class="page-block" data-block="add-section-celestialTower">
+          <span class="block-handle">⠿⠿</span>
+          <div style="text-align:center;padding:8px 0 28px">
+            <button class="edit-btn add-section-btn" onclick="addTeamSection('celestialTowerGroups')">➕ Add Team
+              Section</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="celestialTower-bottom">
           <span class="block-handle">⠿⠿</span>
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
-              <div class="mp-chain"></div><button class="edit-btn" onclick="openModModal(this)"
-                style="margin-top:4px;margin-bottom:4px;">➕ Add Modifier</button>
+              <div class="mp-chain" id="celestialTowerMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
             </div>
             <div class="credits-box">
               <div class="cred-content-row">
-                <div class="cred-sections-display">
-                  <div class="cred-pills-row"></div>
+                <div class="cred-display" id="celestialTowerCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div><button class="cred-edit-btn" onclick="openCredModal(this)">Edit Credits</button>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
             </div>
           </div>
         </div>
       </div>
+
 
       <div class="page-block" data-block="save-local">
         <span class="block-handle">⠿⠿</span>
@@ -2899,32 +3170,32 @@
         </div>
         <div class="pv-row">
           <div class="pv-row-info">
-            <div class="pv-row-name">🐉 Raid</div>
-            <div class="pv-row-desc">Raid boss guides</div>
+            <div class="pv-row-name">⚔ Raid</div>
+            <div class="pv-row-desc">Raid team compositions</div>
           </div>
           <label class="pv-toggle"><input type="checkbox" id="pvRaid" checked onchange="applyPageVisibility(true)"><span
               class="pv-slider"></span></label>
         </div>
         <div class="pv-row">
           <div class="pv-row-info">
-            <div class="pv-row-name">🗼 Story Towers</div>
-            <div class="pv-row-desc">Story Towers guides</div>
+            <div class="pv-row-name">🏰 Story Towers</div>
+            <div class="pv-row-desc">Story towers team compositions</div>
           </div>
           <label class="pv-toggle"><input type="checkbox" id="pvStoryTowers" checked
               onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
         </div>
         <div class="pv-row">
           <div class="pv-row-info">
-            <div class="pv-row-name">⚡ Battle Towers</div>
-            <div class="pv-row-desc">Battle Towers guides</div>
+            <div class="pv-row-name">🗼 Battle Towers</div>
+            <div class="pv-row-desc">Battle towers team compositions</div>
           </div>
           <label class="pv-toggle"><input type="checkbox" id="pvBattleTowers" checked
               onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
         </div>
         <div class="pv-row">
           <div class="pv-row-info">
-            <div class="pv-row-name">🌟 Celestial Tower</div>
-            <div class="pv-row-desc">Celestial Tower guides</div>
+            <div class="pv-row-name">✨ Celestial Tower</div>
+            <div class="pv-row-desc">Celestial tower team compositions</div>
           </div>
           <label class="pv-toggle"><input type="checkbox" id="pvCelestialTower" checked
               onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
@@ -2954,13 +3225,19 @@
       el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
     }
 
+    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection' };
+    const GROUPS_MAP = { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups' };
+    const MP_MAP = { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain' };
+    const CRED_MAP = { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay' };
+    let currentMode = 'dungeon';
     function switchMode(mode) {
+      currentMode = mode;
       document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      const targetSection = document.getElementById(mode + 'Section');
-      const targetBtn = document.querySelector(`.nav-btn[data-mode="${mode}"]`);
-      if (targetSection) targetSection.classList.add('active');
-      if (targetBtn) targetBtn.classList.add('active');
+      const sec = document.getElementById(PAGE_MAP[mode]);
+      if (sec) sec.classList.add('active');
+      const btn = document.querySelector('.nav-btn[data-mode="' + mode + '"]');
+      if (btn) btn.classList.add('active');
     }
 
     let isDarkTheme = true;
@@ -3253,6 +3530,16 @@
       const card = buildCard({ id: 'story_new_' + Date.now(), tag: 'STORY NEW TEAM', title: 'Story New Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
       grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+    function addGenericCoreTeam(gridId, prefix) {
+      const grid = document.getElementById(gridId); if (!grid) return;
+      const card = buildCard({ id: gridId + '_' + Date.now(), tag: prefix + ' CORE TEAM', title: prefix + ' Core Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+      grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    function addGenericNewTeam(gridId, prefix) {
+      const grid = document.getElementById(gridId); if (!grid) return;
+      const card = buildCard({ id: gridId + '_' + Date.now(), tag: prefix + ' NEW TEAM', title: prefix + ' New Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+      grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
     let dlMode = 'fullscreen', dlFmt = 'png';
     window.downloadNode = function (btn) { openDlModal(btn); }; // Fallback for older database versions
@@ -3384,8 +3671,7 @@
 
     const MOD_COLORS = ['#ff3355', '#f5c842', '#00d4ff', '#00e87a', '#ff8c42', '#c36bff', '#ff5fa0', '#4488ff'];
     let modInputs = [];
-    let currentModTarget = null;
-    function openModModal(btn) { currentModTarget = btn.closest('.mode-section').querySelector('.mp-chain'); modInputs = []; document.getElementById('modInputList').innerHTML = ''; addModifierInputRow(); document.getElementById('modModal').classList.add('open'); }
+    function openModModal() { modInputs = []; document.getElementById('modInputList').innerHTML = ''; addModifierInputRow(); document.getElementById('modModal').classList.add('open'); }
     function closeModModal() { document.getElementById('modModal').classList.remove('open'); }
     function getUsedColors() { return modInputs.map(m => m.color); }
     function getRandomColor() { const used = getUsedColors(); let c; do { c = MOD_COLORS[Math.floor(Math.random() * MOD_COLORS.length)]; } while (used.includes(c)); return c; }
@@ -3409,7 +3695,7 @@
       });
     }
     function applyAllModifiers() {
-      const chain = currentModTarget;
+      const chain = document.getElementById(MP_MAP[currentMode]);
       if (!chain) return;
       const colorMap = { '#ff3355': 'red', '#f5c842': 'gold', '#00d4ff': 'cyan', '#00e87a': 'green', '#ff8c42': 'orange', '#c36bff': 'purple', '#ff5fa0': 'pink', '#4488ff': 'blue' };
       modInputs.forEach(m => {
@@ -3418,18 +3704,18 @@
         chain.appendChild(createMpPill(m.text, colorMap[m.color] || 'gray'));
       });
       closeModModal();
-      currentModTarget = null;
     }
 
     let xlData = null, xlTarget = 'core';
     function openXl() {
       const list = document.getElementById('xlTargetList'); list.querySelectorAll('.xl-radio.dynamic').forEach(el => el.remove());
-      [...document.querySelectorAll('#dungeonGroups .team-section'), ...document.querySelectorAll('#storyGroups .team-section')].forEach(sec => {
+      const allGroupIds = Object.values(GROUPS_MAP);
+      const allSections = []; allGroupIds.forEach(gid => { const el = document.getElementById(gid); if (el) allSections.push(...el.querySelectorAll('.team-section')); });
+      allSections.forEach(sec => {
         const gridEl = sec.querySelector('.core-grid'); if (!gridEl || !gridEl.id) return;
         const label = sec.querySelector('.team-section-label')?.textContent.trim() || 'Unnamed';
-        const isDungeon = sec.closest('#dungeonGroups') !== null;
-        const pill = document.createElement('div'); pill.className = 'xl-radio dynamic ' + (isDungeon ? 'core' : 'new');
-        pill.dataset.target = gridEl.id; pill.textContent = (isDungeon ? '🗂 ' : '📖 ') + label;
+        const pill = document.createElement('div'); pill.className = 'xl-radio dynamic core';
+        pill.dataset.target = gridEl.id; pill.textContent = '🗂 ' + label;
         pill.onclick = () => setTarget(gridEl.id); list.appendChild(pill);
       });
       document.getElementById('xlModal').classList.add('open'); resetXl();
@@ -3505,20 +3791,24 @@
     }
 
     const CRED_COLORS = ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355', '#ffffff'];
+    let credSectionsMap = {};
     let credSections = [];
-    let currentCredTarget = null;
-    function openCredModal(btn) {
-      currentCredTarget = btn.closest('.mode-section').querySelector('.cred-sections-display');
-      credSections = [];
-      const pills = currentCredTarget.querySelectorAll('.cred-pill'); const map = {};
-      pills.forEach(pill => {
-        const lbl = pill.querySelector('.cred-lbl')?.textContent.trim() || 'SECTION';
-        const name = pill.querySelector('.cred-name')?.textContent.trim() || '';
-        let color = pill.querySelector('.cred-name')?.style.color || '#f5c842';
-        if (color.startsWith('rgb')) { const m = color.match(/\d+/g); if (m) color = '#' + m.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join(''); }
-        if (!map[lbl]) map[lbl] = { label: lbl, color, names: [] }; if (name) map[lbl].names.push(name);
-      });
-      credSections = Object.values(map);
+    function openCredModal() {
+      credSections = credSectionsMap[currentMode] || [];
+      if (credSections.length === 0) {
+        const credEl = document.getElementById(CRED_MAP[currentMode]);
+        if (credEl) {
+          const pills = credEl.querySelectorAll('.cred-pill'); const map = {};
+          pills.forEach(pill => {
+            const lbl = pill.querySelector('.cred-lbl')?.textContent.trim() || 'SECTION';
+            const name = pill.querySelector('.cred-name')?.textContent.trim() || '';
+            let color = pill.querySelector('.cred-name')?.style.color || '#f5c842';
+            if (color.startsWith('rgb')) { const m = color.match(/\d+/g); if (m) color = '#' + m.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join(''); }
+            if (!map[lbl]) map[lbl] = { label: lbl, color, names: [] }; if (name) map[lbl].names.push(name);
+          });
+          credSections = Object.values(map);
+        }
+      }
       renderCredFormSections(); document.getElementById('credModal').classList.add('open');
     }
     function closeCredModal() { document.getElementById('credModal').classList.remove('open'); }
@@ -3558,15 +3848,15 @@
         names.forEach(n => { html += `<div class="cred-pill"><div><div class="cred-lbl">${sec.label}</div><div class="cred-name" style="color:${sec.color};text-shadow:0 0 12px ${sec.color}55">${n}</div></div></div>`; });
       });
       html += '</div>';
-      if (currentCredTarget) currentCredTarget.innerHTML = html;
-      credSections = []; closeCredModal();
-      currentCredTarget = null;
+      const credEl = document.getElementById(CRED_MAP[currentMode]);
+      if (credEl) credEl.innerHTML = html;
+      credSectionsMap[currentMode] = []; credSections = []; closeCredModal();
     }
 
     function addBannerBlock(btn, type, section) {
       const cls = { announce: 'banner-announce', title: 'banner-title', alert: 'banner-alert' }[type];
       const emoji = { announce: '📢', title: '🏷', alert: '🚨' }[type];
-      const blockKey = section === 'story' ? 'add-banner-story' : 'add-banner-main';
+      const blockKey = 'add-banner-' + section;
       const placeholder = { announce: 'Write announcement here...', title: 'Write title here...', alert: 'Write alert here...' }[type];
       const block = document.createElement('div'); block.className = 'page-block'; block.dataset.block = 'banner-' + Date.now();
       block.innerHTML = `<span class="block-handle">⠿⠿</span><div class="alert-wrap"><div class="${cls}" contenteditable="true">${emoji} &nbsp;${placeholder}</div><div style="text-align:center;margin-top:6px;"><button class="edit-btn" style="font-size:.72rem;padding:4px 10px;" onclick="this.closest('.page-block').remove()">🗑 Remove Banner</button></div></div>`;
@@ -3577,25 +3867,14 @@
     }
 
     const SAVE_KEY = 'ACB_GUIDE_SAVE';
+    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
+    const PV_MAP = { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower' };
     function saveLocal() {
       try {
-        const data = {
-          dungeonHTML: document.getElementById('dungeonSection').innerHTML,
-          storyHTML: document.getElementById('storySection').innerHTML,
-          raidHTML: document.getElementById('raidSection').innerHTML,
-          storyTowersHTML: document.getElementById('storyTowersSection').innerHTML,
-          battleTowersHTML: document.getElementById('battleTowersSection').innerHTML,
-          celestialTowerHTML: document.getElementById('celestialTowerSection').innerHTML,
-          pageVisibility: {
-            dungeon: document.getElementById('pvDungeon').checked,
-            story: document.getElementById('pvStory').checked,
-            raid: document.getElementById('pvRaid').checked,
-            storyTowers: document.getElementById('pvStoryTowers').checked,
-            battleTowers: document.getElementById('pvBattleTowers').checked,
-            celestialTower: document.getElementById('pvCelestialTower').checked
-          },
-          savedAt: new Date().toLocaleString()
-        };
+        const data = { savedAt: new Date().toLocaleString() };
+        ALL_MODES.forEach(m => {
+          data[m + 'HTML'] = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
+        });
         localStorage.setItem(SAVE_KEY, JSON.stringify(data));
         document.getElementById('saveStatus').textContent = '✅ Saved at ' + data.savedAt;
         showToast('✅ Data saved!');
@@ -3605,17 +3884,12 @@
       try {
         const raw = localStorage.getItem(SAVE_KEY); if (!raw) { if (!silent) showToast('⚠ No save found.', true); return; }
         const data = JSON.parse(raw);
-        if (data.dungeonHTML) document.getElementById('dungeonSection').innerHTML = data.dungeonHTML;
-        if (data.storyHTML) document.getElementById('storySection').innerHTML = data.storyHTML;
-        if (data.raidHTML) document.getElementById('raidSection').innerHTML = data.raidHTML;
-        if (data.storyTowersHTML) document.getElementById('storyTowersSection').innerHTML = data.storyTowersHTML;
-        if (data.battleTowersHTML) document.getElementById('battleTowersSection').innerHTML = data.battleTowersHTML;
-        if (data.celestialTowerHTML) document.getElementById('celestialTowerSection').innerHTML = data.celestialTowerHTML;
-
-        // Fallbacks
-        if (data.mpChain) { const f = document.getElementById('dungeonSection').querySelector('.mp-chain'); if (f && !f.innerHTML.trim()) f.innerHTML = data.mpChain; }
-        if (data.credDisplay) { const f = document.getElementById('dungeonSection').querySelector('.cred-sections-display'); if (f && !f.innerHTML.trim()) f.innerHTML = data.credDisplay; }
-
+        ALL_MODES.forEach(m => {
+          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
+        });
+        // Legacy support
+        if (data.mpChain) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = data.mpChain; }
+        if (data.credDisplay) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = data.credDisplay; }
         rewireAll(); document.getElementById('saveStatus').textContent = '📂 Loaded from ' + data.savedAt;
         if (!silent) showToast('📂 Loaded!');
       } catch (e) { if (!silent) showToast('❌ Failed: ' + e.message, true); }
@@ -3782,23 +4056,13 @@
     function saveToFirebase() {
       if (currentRole !== 'admin') { showToast('❌ Admin only!', true); return; }
       showFbStatus('⛳ Saving...', 'loading');
-      const data = {
-        dungeonHTML: document.getElementById('dungeonSection')?.innerHTML || '',
-        storyHTML: document.getElementById('storySection')?.innerHTML || '',
-        raidHTML: document.getElementById('raidSection')?.innerHTML || '',
-        storyTowersHTML: document.getElementById('storyTowersSection')?.innerHTML || '',
-        battleTowersHTML: document.getElementById('battleTowersSection')?.innerHTML || '',
-        celestialTowerHTML: document.getElementById('celestialTowerSection')?.innerHTML || '',
-        pageVisibility: {
-          dungeon: document.getElementById('pvDungeon').checked,
-          story: document.getElementById('pvStory').checked,
-          raid: document.getElementById('pvRaid').checked,
-          storyTowers: document.getElementById('pvStoryTowers').checked,
-          battleTowers: document.getElementById('pvBattleTowers').checked,
-          celestialTower: document.getElementById('pvCelestialTower').checked
-        },
-        savedAt: new Date().toLocaleString()
-      };
+      const data = { savedAt: new Date().toLocaleString() };
+      ALL_MODES.forEach(m => {
+        data[m + 'HTML'] = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
+      });
+      const pv = {};
+      ALL_MODES.forEach(m => { const el = document.getElementById(PV_MAP[m]); pv[m] = el ? el.checked : true; });
+      data.pageVisibility = pv;
       GUIDE_REF.set(data)
         .then(() => { showFbStatus('✅ Saved!', 'ok'); showToast('☁️ Saved to Cloud!'); document.getElementById('saveStatus').textContent = '☁️ Saved at ' + data.savedAt; })
         .catch(err => { showFbStatus('❌ ' + err.message, 'err'); showToast('❌ Save failed!', true); });
@@ -3810,24 +4074,18 @@
       GUIDE_REF.once('value').then(snap => {
         const data = snap.val();
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
-        if (data.dungeonHTML) document.getElementById('dungeonSection').innerHTML = data.dungeonHTML;
-        if (data.storyHTML) document.getElementById('storySection').innerHTML = data.storyHTML;
-        if (data.raidHTML) document.getElementById('raidSection').innerHTML = data.raidHTML;
-        if (data.storyTowersHTML) document.getElementById('storyTowersSection').innerHTML = data.storyTowersHTML;
-        if (data.battleTowersHTML) document.getElementById('battleTowersSection').innerHTML = data.battleTowersHTML;
-        if (data.celestialTowerHTML) document.getElementById('celestialTowerSection').innerHTML = data.celestialTowerHTML;
-
-        // Fallbacks
-        if (data.mpChain) { const f = document.getElementById('dungeonSection').querySelector('.mp-chain'); if (f && !f.innerHTML.trim()) f.innerHTML = data.mpChain; }
-        if (data.credDisplay) { const f = document.getElementById('dungeonSection').querySelector('.cred-sections-display'); if (f && !f.innerHTML.trim()) f.innerHTML = data.credDisplay; }
-
+        ALL_MODES.forEach(m => {
+          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
+        });
+        // Legacy migration: old global mpChain/credDisplay → dungeon
+        if (data.mpChain && !data.dungeonHTML) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = data.mpChain; }
+        if (data.credDisplay && !data.dungeonHTML) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = data.credDisplay; }
         if (data.pageVisibility) {
-          const pages = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
-          pages.forEach(p => {
-            const check = document.getElementById('pv' + p.charAt(0).toUpperCase() + p.slice(1));
-            if (check) check.checked = data.pageVisibility[p] !== false;
+          ALL_MODES.forEach(m => {
+            const el = document.getElementById(PV_MAP[m]);
+            if (el) el.checked = data.pageVisibility[m] !== false;
           });
-          applyPageVisibility(false);
+          applyPageVisibility();
         }
         rewireAll();
         showFbStatus('✅ Loaded!', 'ok');
@@ -3846,34 +4104,29 @@
     }
 
     function openPvModal() {
-      const pages = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
-      pages.forEach(p => {
-        const check = document.getElementById('pv' + p.charAt(0).toUpperCase() + p.slice(1));
-        const btn = document.querySelector(`.nav-btn[data-mode="${p}"]`);
-        if (check && btn) check.checked = btn.style.display !== 'none';
+      ALL_MODES.forEach(m => {
+        const el = document.getElementById(PV_MAP[m]);
+        const btn = document.querySelector('.nav-btn[data-mode="' + m + '"]');
+        if (el && btn) el.checked = btn.style.display !== 'none';
       });
       document.getElementById('pvModal').classList.add('open');
     }
     function closePvModal() { document.getElementById('pvModal').classList.remove('open'); }
     function applyPageVisibility(saveToCloud) {
-      const pages = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
       const vis = {};
-      let firstVisible = null;
-      pages.forEach(p => {
-        const check = document.getElementById('pv' + p.charAt(0).toUpperCase() + p.slice(1));
-        const show = check ? check.checked : true;
-        vis[p] = show;
-        const btn = document.querySelector(`.nav-btn[data-mode="${p}"]`);
-        if (btn) btn.style.display = show ? '' : 'none';
-        if (show && !firstVisible) firstVisible = p;
+      ALL_MODES.forEach(m => {
+        const el = document.getElementById(PV_MAP[m]);
+        vis[m] = el ? el.checked : true;
+        const btn = document.querySelector('.nav-btn[data-mode="' + m + '"]');
+        if (btn) btn.style.display = vis[m] ? '' : 'none';
       });
-
-      const activeSec = document.querySelector('.mode-section.active');
-      const activeMode = activeSec ? activeSec.id.replace('Section', '') : null;
-      if (activeMode && !vis[activeMode] && firstVisible) {
-        switchMode(firstVisible);
+      // If current active page just got hidden, switch to first visible
+      const activeSection = document.querySelector('.mode-section.active');
+      const activeMode = Object.keys(PAGE_MAP).find(m => document.getElementById(PAGE_MAP[m]) === activeSection) || 'dungeon';
+      if (!vis[activeMode]) {
+        const firstVisible = ALL_MODES.find(m => vis[m]);
+        if (firstVisible) switchMode(firstVisible);
       }
-
       if (currentRole === 'admin' && saveToCloud && GUIDE_REF) {
         GUIDE_REF.child('pageVisibility').set(vis)
           .then(() => showFbStatus('✅ Visibility saved!', 'ok'))

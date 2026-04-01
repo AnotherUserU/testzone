@@ -140,24 +140,22 @@
     .nav-menu {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       flex: 1;
       flex-wrap: wrap;
-      padding: 0 10px;
     }
 
     .nav-btn {
-      padding: 8px 16px;
+      padding: 8px 14px;
       background: var(--bg3);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 8px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 13px;
+      font-weight: 600;
       font-family: 'Orbitron', sans-serif;
       transition: background .2s, color .2s;
-      white-space: nowrap;
     }
 
     .nav-btn.active {
@@ -1073,12 +1071,63 @@
         <div id="dungeonGroups"></div>
         <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
           <div class="mod-priority">
-            <div class="mp-chain"></div>
+            <div class="mp-chain" id="dungeonMpChain"></div>
           </div>
           <div class="credits-box">
             <div class="cred-content-row">
-              <div class="cred-sections-display">
-                <div class="cred-pills-row"></div>
+              <div class="cred-display" id="dungeonCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">GUIDED</div>
+                      <div class="cred-name" style="color:#ff3355;text-shadow:0 0 12px #ff335555;margin-bottom:0">Qin
+                        shi Huang</div>
+                    </div>
+                  </div>
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">TEAM 1-4 CREATOR</div>
+                      <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">Dark~
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">TEAM 1-4 CREATOR</div>
+                      <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">
+                        NEKOTSUNA</div>
+                    </div>
+                  </div>
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">TEAM 5 CREATOR</div>
+                      <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">
+                        King_Li9on ᡕᠵデ气亠</div>
+                    </div>
+                  </div>
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">TEAM 5 CREATOR</div>
+                      <div class="cred-name" style="color:#c36bff;text-shadow:0 0 12px #c36bff55;margin-bottom:0">BEAD
+                      </div>
+                    </div>
+                  </div>
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">PINNED BY</div>
+                      <div class="cred-name" style="color:#ff5fa0;text-shadow:0 0 12px #ff5fa055;margin-bottom:0">GORRĀH
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1098,12 +1147,21 @@
         <div id="storyGroups"></div>
         <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
           <div class="mod-priority">
-            <div class="mp-chain"></div>
+            <div class="mp-chain" id="storyMpChain"></div>
           </div>
           <div class="credits-box">
             <div class="cred-content-row">
-              <div class="cred-sections-display">
-                <div class="cred-pills-row"></div>
+              <div class="cred-display" id="storyCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1112,15 +1170,32 @@
 
       <div class="mode-section" id="raidSection">
         <div class="main-title">RAID GUIDE</div>
+        <div class="section-label">RAID CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="raidCoreGrid"></div>
+        </div>
+        <div class="section-label">RAID NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="raidNewGrid"></div>
+        </div>
         <div id="raidGroups"></div>
         <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
           <div class="mod-priority">
-            <div class="mp-chain"></div>
+            <div class="mp-chain" id="raidMpChain"></div>
           </div>
           <div class="credits-box">
             <div class="cred-content-row">
-              <div class="cred-sections-display">
-                <div class="cred-pills-row"></div>
+              <div class="cred-display" id="raidCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1129,15 +1204,32 @@
 
       <div class="mode-section" id="storyTowersSection">
         <div class="main-title">STORY TOWERS GUIDE</div>
+        <div class="section-label">STORY TOWERS CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="storyTowersCoreGrid"></div>
+        </div>
+        <div class="section-label">STORY TOWERS NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="storyTowersNewGrid"></div>
+        </div>
         <div id="storyTowersGroups"></div>
         <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
           <div class="mod-priority">
-            <div class="mp-chain"></div>
+            <div class="mp-chain" id="storyTowersMpChain"></div>
           </div>
           <div class="credits-box">
             <div class="cred-content-row">
-              <div class="cred-sections-display">
-                <div class="cred-pills-row"></div>
+              <div class="cred-display" id="storyTowersCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1146,15 +1238,32 @@
 
       <div class="mode-section" id="battleTowersSection">
         <div class="main-title">BATTLE TOWERS GUIDE</div>
+        <div class="section-label">BATTLE TOWERS CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="battleTowersCoreGrid"></div>
+        </div>
+        <div class="section-label">BATTLE TOWERS NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="battleTowersNewGrid"></div>
+        </div>
         <div id="battleTowersGroups"></div>
         <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
           <div class="mod-priority">
-            <div class="mp-chain"></div>
+            <div class="mp-chain" id="battleTowersMpChain"></div>
           </div>
           <div class="credits-box">
             <div class="cred-content-row">
-              <div class="cred-sections-display">
-                <div class="cred-pills-row"></div>
+              <div class="cred-display" id="battleTowersCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1163,20 +1272,38 @@
 
       <div class="mode-section" id="celestialTowerSection">
         <div class="main-title">CELESTIAL TOWER GUIDE</div>
+        <div class="section-label">CELESTIAL TOWER CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="celestialTowerCoreGrid"></div>
+        </div>
+        <div class="section-label">CELESTIAL TOWER NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="celestialTowerNewGrid"></div>
+        </div>
         <div id="celestialTowerGroups"></div>
         <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
           <div class="mod-priority">
-            <div class="mp-chain"></div>
+            <div class="mp-chain" id="celestialTowerMpChain"></div>
           </div>
           <div class="credits-box">
             <div class="cred-content-row">
-              <div class="cred-sections-display">
-                <div class="cred-pills-row"></div>
+              <div class="cred-display" id="celestialTowerCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       <div style="text-align:center;padding:10px 0 50px">
         <button id="downloadBtn" onclick="openDlModal()"
           style="padding:12px 28px;background:#00d4ff;color:#000;font-weight:700;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">Download
@@ -1263,13 +1390,15 @@
       el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
     }
 
+    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection' };
+    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
     function switchMode(mode) {
       document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      const targetSection = document.getElementById(mode + 'Section');
-      const targetBtn = document.querySelector(`.nav-btn[data-mode="${mode}"]`);
-      if (targetSection) targetSection.classList.add('active');
-      if (targetBtn) targetBtn.classList.add('active');
+      const sec = document.getElementById(PAGE_MAP[mode]);
+      if (sec) sec.classList.add('active');
+      const btn = document.querySelector('.nav-btn[data-mode="' + mode + '"]');
+      if (btn) btn.classList.add('active');
     }
 
     let isDarkTheme = true;
@@ -1440,34 +1569,24 @@
       GUIDE_REF.once('value').then(snap => {
         const data = snap.val();
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
-        if (data.dungeonHTML) document.getElementById('dungeonSection').innerHTML = data.dungeonHTML;
-        if (data.storyHTML) document.getElementById('storySection').innerHTML = data.storyHTML;
-        if (data.raidHTML) document.getElementById('raidSection').innerHTML = data.raidHTML;
-        if (data.storyTowersHTML) document.getElementById('storyTowersSection').innerHTML = data.storyTowersHTML;
-        if (data.battleTowersHTML) document.getElementById('battleTowersSection').innerHTML = data.battleTowersHTML;
-        if (data.celestialTowerHTML) document.getElementById('celestialTowerSection').innerHTML = data.celestialTowerHTML;
-
-        // Fallbacks for older data structures
-        if (data.mpChain) {
-          const oldMpChain = document.getElementById('dungeonSection').querySelector('.mp-chain');
-          if (oldMpChain && !oldMpChain.innerHTML.trim()) { oldMpChain.innerHTML = data.mpChain; }
-        }
-        if (data.credDisplay) {
-          const oldCred = document.getElementById('dungeonSection').querySelector('.cred-sections-display');
-          if (oldCred && !oldCred.innerHTML.trim()) { oldCred.innerHTML = data.credDisplay; }
-        }
-
+        ALL_MODES.forEach(m => {
+          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
+        });
+        // Legacy migration
+        if (data.mpChain && !data.dungeonHTML) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = data.mpChain; }
+        if (data.credDisplay && !data.dungeonHTML) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = data.credDisplay; }
         if (data.pageVisibility) {
-          const pages = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
-          let firstVisible = null;
-          pages.forEach(p => {
-            const show = data.pageVisibility[p] !== false;
-            const btn = document.querySelector(`.nav-btn[data-mode="${p}"]`);
+          ALL_MODES.forEach(m => {
+            const show = data.pageVisibility[m] !== false;
+            const btn = document.querySelector('.nav-btn[data-mode="' + m + '"]');
             if (btn) btn.style.display = show ? '' : 'none';
-            if (show && !firstVisible) firstVisible = p;
           });
-          if (firstVisible) {
-            switchMode(firstVisible);
+          // Switch to first visible page
+          const activeSection = document.querySelector('.mode-section.active');
+          const activeMode = Object.keys(PAGE_MAP).find(m => document.getElementById(PAGE_MAP[m]) === activeSection) || 'dungeon';
+          if (data.pageVisibility[activeMode] === false) {
+            const firstVisible = ALL_MODES.find(m => data.pageVisibility[m] !== false);
+            if (firstVisible) switchMode(firstVisible);
           }
         }
         rewireAll();
