@@ -10,33 +10,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
-<style>
-:root{--bg:#0f0f17;--bg2:#13131f;--bg3:#1a1a2e;--border:rgba(255,255,255,0.07);--text:#dde0f0;--dim:#6b6f8f;--gold:#f5c842;--cyan:#00d4ff;--green:#00e87a;--red:#ff3355;--orange:#ff8c42;--purple:#c36bff;--pink:#ff5fa0;--blue:#4488ff;}
-:root.light-theme{--bg:#ffffff;--bg2:#f5f5f5;--bg3:#eeeeee;--border:rgba(0,0,0,0.1);--text:#1a1a1a;--dim:#888888;--gold:#d4a500;--cyan:#0099cc;--green:#009900;--red:#cc0000;--orange:#ff8000;--purple:#9933cc;--pink:#cc0066;--blue:#0066cc;}
-:root.light-theme .card-desc{color:#555;}
-:root.light-theme .mem-bind{color:#666;}
-:root.light-theme .img-right-overlay{color:#999;}
-:root.light-theme .mod-item{color:#2d7a3d;}
-:root.light-theme .tips-item{color:#0066cc;}
-:root.light-theme .mod-title{color:#cc6600;}
-:root.light-theme .tips-title{color:#0099cc;}
-:root.light-theme .alert-box{color:#cc0000;background:rgba(255,0,0,.05);border-color:rgba(255,0,0,.2);}
-:root.light-theme .warn-box{color:#990033;background:rgba(255,0,0,.08);}
-:root.light-theme .delete-pill:hover{color:#cc0000;}
-:root.light-theme .section-label{color:#666;}
-:root.light-theme .add-point-btn{color:#cc6600;}
-:root.light-theme .mod-box{background:rgba(255,140,66,.12);border-color:rgba(255,140,66,.3);}
-:root.light-theme .tips-box{background:rgba(0,153,204,.12);border-color:rgba(0,153,204,.3);}
-:root.light-theme .h1-block{background:rgba(0,0,0,.03);border-color:rgba(0,0,0,.1);}
-:root.light-theme .theme-toggle{background:rgba(0,153,204,.15);border-color:rgba(0,153,204,.4);}
-:root.light-theme .theme-toggle:hover{background:rgba(0,153,204,.25);}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;line-height:1.5;}
-.nav-header{background:var(--bg2);border-bottom:1px solid var(--border);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;}
-.nav-menu{display:flex;justify-content:center;gap:20px;flex:1;}
-.nav-btn{padding:10px 20px;background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:16px;font-weight:600;font-family:'Orbitron',sans-serif;transition:background .2s,color .2s;}
-.nav-btn.active{background:var(--gold);color:#000;border-color:var(--gold);}
-.nav-btn:hover{background:var(--cyan);color:#000;}
 .theme-toggle{padding:8px 14px;background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.3);border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;font-family:'Orbitron',sans-serif;transition:all .2s;white-space:nowrap;}
 .theme-toggle:hover{background:rgba(0,212,255,.2);box-shadow:0 0 10px rgba(0,212,255,.3);}
 .mode-section{display:none;}
@@ -1055,7 +1028,7 @@ function doDlDownload(){
     const hide=card.querySelectorAll('.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.download-node-btn');
     hide.forEach(el=>el.style.display='none');closeDlModal();
     setTimeout(()=>{
-      html2canvas(card,{scale:4,useCORS:true,backgroundColor:isLight?'#ffffff':'#13131f',logging:false}).then(canvas=>{
+      html2canvas(card,{scale:2.5,useCORS:true,backgroundColor:isLight?'#ffffff':'#13131f',logging:false}).then(canvas=>{
         const a=document.createElement('a');
         const title=card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g,'_')||'Card';
         a.download=title+'.'+(dlFmt==='jpg'?'jpg':'png');
@@ -1479,8 +1452,31 @@ function openAdminShortcut(){
 function closeAdminShortcut(){
   document.getElementById('adminShortcutOverlay').classList.remove('open');
   document.getElementById('ascPwInput').value='';
-  document.getElementById('ascErr').style.display='none';
 }
+
+window.hasUnsavedChanges = false;
+let autoSaveTimer = null;
+document.addEventListener('input', e => {
+  if (currentRole !== 'admin') return;
+  if (e.target.isContentEditable || e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    window.hasUnsavedChanges = true;
+    const ss = document.getElementById('saveStatus');
+    if(ss) ss.textContent = '✏️ Unsaved changes';
+    
+    // Auto-save logic
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+      saveToFirebase();
+    }, 15000);
+  }
+});
+
+window.addEventListener('beforeunload', e => {
+  if (window.hasUnsavedChanges && currentRole === 'admin') {
+    e.preventDefault();
+    e.returnValue = 'You have unsaved changes.';
+  }
+});
 
 document.getElementById('ascPwInput').addEventListener('keydown',e=>{
   if(e.key==='Enter')submitAdminShortcut();
@@ -1501,6 +1497,7 @@ function submitAdminShortcut(){
   .then(data=>{
     if(data.success){
       sessionStorage.setItem('access_granted','true');
+      sessionStorage.setItem('adminToken', data.token);
       closeAdminShortcut();
       enterAsAdmin();
     }else{
@@ -1526,9 +1523,24 @@ function saveToFirebase(){
     pageVisibility:{dungeon:document.getElementById('pvDungeon').checked,story:document.getElementById('pvStory').checked},
     savedAt:new Date().toLocaleString()
   };
-  GUIDE_REF.set(data)
-    .then(()=>{showFbStatus('✅ Saved!','ok');showToast('☁️ Saved to Cloud!');document.getElementById('saveStatus').textContent='☁️ Saved at '+data.savedAt;})
-    .catch(err=>{showFbStatus('❌ '+err.message,'err');showToast('❌ Save failed!',true);});
+  
+  const token = sessionStorage.getItem('adminToken');
+  fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ data })
+  })
+  .then(res=>{
+    if(!res.ok) throw new Error("Save rejected by server");
+    showFbStatus('✅ Saved!','ok');
+    showToast('☁️ Saved to Cloud!');
+    document.getElementById('saveStatus').textContent='☁️ Saved at '+data.savedAt;
+    window.hasUnsavedChanges = false;
+  })
+  .catch(err=>{
+    showFbStatus('❌ '+err.message,'err');
+    showToast('❌ Save failed!',true);
+  });
 }
 
 function loadFromFirebase(){
