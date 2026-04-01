@@ -89,3 +89,37 @@
 /* Modifiers admin view */
 .mp-pill .delete-pill { margin-left:8px; cursor:pointer; opacity:.55; font-size:.75em; }
 .mp-pill .delete-pill:hover { opacity:1; color:#ff3355; }
+
+/* Readonly Mode Overrides */
+body.readonly .edit-btn,
+body.readonly .add-banner-btn,
+body.readonly .add-point-btn,
+body.readonly .delete-box,
+body.readonly .delete-mem,
+body.readonly .delete-team-btn,
+body.readonly .delete-pill,
+body.readonly .color-dot,
+body.readonly .clr-palette,
+body.readonly .cred-edit-btn,
+body.readonly .mod-add-row-btn,
+body.readonly .cred-add-name-btn,
+body.readonly .cred-add-section-btn,
+body.readonly .save-btn,
+body.readonly .card-drag-handle,
+body.readonly .block-handle,
+body.readonly .del-section-btn,
+body.readonly .team-section-actions,
+body.readonly .add-section-btn,
+body.readonly .add-banner-bar,
+body.readonly .float-xl,
+body.readonly .download-node-btn{display:none!important;}
+body.readonly [contenteditable="true"]{pointer-events:none!important;cursor:default!important;user-select:none!important;}
+body.readonly .mod-priority{pointer-events:none!important;}
+body.readonly .card-img-right{pointer-events:none!important;}
+body.readonly .mem-row{cursor:default!important;}
+body.readonly .section-label,
+body.readonly .team-section-label,
+body.readonly .main-title{pointer-events:none!important;cursor:default!important;}
+body.readonly .banner-announce,
+body.readonly .banner-title,
+body.readonly .banner-alert{pointer-events:none!important;}

@@ -42,9 +42,14 @@
 :root.light-theme .mod-title { color: #cc6600; }
 :root.light-theme .tips-title { color: #0099cc; }
 :root.light-theme .alert-box { color: #cc0000; background: rgba(255,0,0,.05); border-color: rgba(255,0,0,.2); }
+:root.light-theme .banner-announce { color: #0099cc; background: rgba(0,153,204,.05); border-color: rgba(0,153,204,.2); }
+:root.light-theme .banner-title { color: #d4a500; background: rgba(212,165,0,.05); border-color: rgba(212,165,0,.2); }
+:root.light-theme .banner-alert { color: #cc0000; background: rgba(255,0,0,.05); border-color: rgba(255,0,0,.2); }
 :root.light-theme .warn-box { color: #990033; background: rgba(255,0,0,.08); }
 :root.light-theme .delete-pill:hover { color: #cc0000; }
-:root.light-theme .section-label { color: #666; }
+:root.light-theme .section-label { color: #666; text-shadow: none; }
+:root.light-theme .section-label:hover { color: #d4a500; }
+:root.light-theme .main-title { color: #d4a500; text-shadow: none; }
 :root.light-theme .add-point-btn { color: #cc6600; }
 :root.light-theme .mod-box { background: rgba(255,140,66,.12); border-color: rgba(255,140,66,.3); }
 :root.light-theme .tips-box { background: rgba(0,153,204,.12); border-color: rgba(0,153,204,.3); }
