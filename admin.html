@@ -1587,6 +1587,7 @@
       currentRole = 'guest';
       document.getElementById('appContent').style.display = 'block';
       document.body.classList.add('readonly');
+      document.body.classList.remove('is-admin');
       document.getElementById('logoutBtn').style.display = 'none';
       document.getElementById('saveCloudBtn').style.display = 'none';
       document.getElementById('pvSettingsBtn').style.display = 'none';
@@ -1600,6 +1601,7 @@
     function enterAsAdmin() {
       currentRole = 'admin';
       document.body.classList.remove('readonly');
+      document.body.classList.add('is-admin');
       document.getElementById('logoutBtn').style.display = '';
       document.getElementById('saveCloudBtn').style.display = '';
       document.getElementById('pvSettingsBtn').style.display = '';
@@ -1617,6 +1619,7 @@
       sessionStorage.removeItem('access_granted');
       currentRole = 'guest';
       document.body.classList.add('readonly');
+      document.body.classList.remove('is-admin');
       document.getElementById('logoutBtn').style.display = 'none';
       document.getElementById('saveCloudBtn').style.display = 'none';
       document.getElementById('pvSettingsBtn').style.display = 'none';
