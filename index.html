@@ -540,7 +540,7 @@
         el.contentEditable = 'false';
       });
       // Hide admin-only elements if they leaked from DB HTML strings
-      const adminSelectors = '.edit-btn, .download-node-btn, .block-handle, .add-banner-bar, .delete-mem, .renum-members, .delete-box, .add-point-btn, .add-tp-btn, .add-pt-btn, .cred-edit-btn, .delete-node-btn';
+      const adminSelectors = '.edit-btn, .block-handle, .add-banner-bar, .delete-mem, .renum-members, .delete-box, .add-point-btn, .add-tp-btn, .add-pt-btn, .cred-edit-btn, .delete-node-btn, .delete-team-btn, .del-section-btn';
       document.querySelectorAll(adminSelectors).forEach(el => el.style.display = 'none');
     }
 

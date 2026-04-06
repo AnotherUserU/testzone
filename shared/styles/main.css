@@ -1324,6 +1324,12 @@
     body.readonly .delete-box,
     body.readonly .delete-mem,
     body.readonly .delete-team-btn,
+    body.readonly .del-section-btn,
+    body.readonly .delete-node-btn,
+    body.readonly .renum-members {
+      display: none !important;
+    }
+
     body.readonly .delete-pill,
     body.readonly .color-dot,
     body.readonly .clr-palette,
@@ -2401,14 +2407,16 @@
     .block-handle,
     .add-banner-bar,
     .edit-btn,
-    .download-node-btn,
     .cred-edit-btn,
     .add-point-btn,
     .add-tp-btn,
     .add-pt-btn,
     .delete-box,
     .delete-mem,
-    .renum-members {
+    .renum-members,
+    .delete-team-btn,
+    .del-section-btn,
+    .delete-node-btn {
       display: none !important;
     }
 
@@ -2423,8 +2431,11 @@
     body.is-admin .add-pt-btn,
     body.is-admin .delete-box,
     body.is-admin .delete-mem,
-    body.is-admin .renum-members {
-      display: block !important;
+    body.is-admin .renum-members,
+    body.is-admin .delete-team-btn,
+    body.is-admin .del-section-btn,
+    body.is-admin .delete-node-btn {
+      display: inline-block !important;
     }
 
     body.is-admin .block-handle {
