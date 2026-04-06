@@ -1347,7 +1347,6 @@
     body.readonly .team-section-actions,
     body.readonly .add-section-btn,
     body.readonly .add-banner-bar,
-    body.readonly .float-xl,
     body.readonly .download-node-btn {
       display: none !important;
     }
