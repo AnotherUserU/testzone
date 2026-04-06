@@ -1330,9 +1330,12 @@
       display: none !important;
     }
 
-    body.readonly .delete-pill,
-    body.readonly .color-dot,
-    body.readonly .clr-palette,
+    body.readonly [contenteditable="true"] {
+      pointer-events: none !important;
+      cursor: default !important;
+      user-select: none !important;
+    }
+
     body.readonly .cred-edit-btn,
     body.readonly .mod-add-row-btn,
     body.readonly .cred-add-name-btn,
