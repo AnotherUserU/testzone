@@ -2373,3 +2373,26 @@
       }
     }
   
+    .admin-link {
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      padding: 8px 16px;
+      background: rgba(245, 200, 66, .08);
+      color: var(--gold);
+      border: 1px solid rgba(245, 200, 66, .25);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .72rem;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif;
+      text-decoration: none;
+      z-index: 500;
+      transition: all .2s;
+      opacity: 0;
+    }
+    .admin-link:hover {
+      opacity: 1;
+      background: rgba(245, 200, 66, .15);
+      box-shadow: 0 0 14px rgba(245, 200, 66, .2);
+    }

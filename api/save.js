@@ -1,16 +1,3 @@
-const admin = require('firebase-admin');
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
-    }),
-    databaseURL: process.env.FIREBASE_DATABASE_URL
-  });
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   
@@ -20,11 +7,26 @@ export default async function handler(req, res) {
   }
   const token = authHeader.split(' ')[1];
   
-  if (token !== process.env.ADMIN_TOKEN) return res.status(401).json({ error: 'Unauthorized' });
+  const expectedToken = process.env.ADMIN_TOKEN || process.env.ADMIN_PASSWORD;
+  if (token !== expectedToken) return res.status(401).json({ error: 'Unauthorized' });
 
   const { data } = req.body;
   if (!data) return res.status(400).json({ error: 'Missing data' });
 
-  await admin.database().ref('guide').set(data);
-  res.status(200).json({ success: true });
+  try {
+    const dbUrl = process.env.FIREBASE_DB_URL;
+    if (!dbUrl) return res.status(500).json({ error: 'Database URL not configured' });
+    
+    const response = await fetch(`${dbUrl}/guide.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) throw new Error('Firebase REST error: ' + response.status);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Save error:', error);
+    res.status(500).json({ error: 'Failed to save data' });
+  }
 }
