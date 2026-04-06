@@ -1576,9 +1576,12 @@
         enterAsAdmin();
       } else {
         enterAsGuest();
+        // Auto-open admin modal on admin.html page if not authenticated
+        openAdminShortcut();
       }
     }
-    document.addEventListener('DOMContentLoaded', initApp);
+    document.addEventListener('DOMContentLoaded', iApp);
+    function iApp() { initApp(); }
 
     function enterAsGuest() {
       currentRole = 'guest';
@@ -1610,6 +1613,8 @@
 
     function logoutToGuest() {
       if (!confirm('Log out from admin?')) return;
+      localStorage.removeItem('adminToken');
+      sessionStorage.removeItem('access_granted');
       currentRole = 'guest';
       document.body.classList.add('readonly');
       document.getElementById('logoutBtn').style.display = 'none';
@@ -1620,6 +1625,7 @@
       document.getElementById('deleteLocalBtn').style.display = 'none';
       document.getElementById('roleBadge').style.display = 'none';
       showToast('👁 Returned to guest mode.');
+      openAdminShortcut();
     }
 
 
@@ -1723,11 +1729,13 @@
         .catch(err => { showFbStatus('❌ ' + err.message, 'err'); showToast('❌ Save failed!', true); });
     }
 
-    function loadFromFirebase() {
-      if (!GUIDE_REF) { setTimeout(() => { if (GUIDE_REF) loadFromFirebase(); else loadDefaults(); }, 1500); return; }
+    async function loadFromFirebase() {
       showFbStatus('⏳ Loading...', 'loading');
-      GUIDE_REF.once('value').then(snap => {
-        const data = snap.val();
+      try {
+        const res = await fetch('/api/load');
+        if (!res.ok) throw new Error('Cloud error');
+        const data = await res.json();
+        
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
         ALL_MODES.forEach(m => {
           if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
@@ -1744,8 +1752,11 @@
         }
         rewireAll();
         showFbStatus('✅ Loaded!', 'ok');
-        document.getElementById('saveStatus').textContent = '☁️ Loaded (' + data.savedAt + ')';
-      }).catch(err => { showFbStatus('❌ ' + err.message, 'err'); loadLocal(true); });
+        document.getElementById('saveStatus').textContent = '☁️ Loaded (' + (data.savedAt || 'unknown') + ')';
+      } catch (err) {
+        showFbStatus('❌ ' + err.message, 'err');
+        loadLocal(true);
+      }
     }
 
     function loadDefaults() {

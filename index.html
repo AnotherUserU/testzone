@@ -551,11 +551,13 @@
   <script>
     
 
-    function loadFromFirebase() {
-      if (!GUIDE_REF) { setTimeout(() => { if (GUIDE_REF) loadFromFirebase(); else loadDefaults(); }, 1500); return; }
+    async function loadFromFirebase() {
       showFbStatus('⏳ Loading...', 'loading');
-      GUIDE_REF.once('value').then(snap => {
-        const data = snap.val();
+      try {
+        const res = await fetch('/api/load');
+        if (!res.ok) throw new Error('Cloud error');
+        const data = await res.json();
+        
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
         ALL_MODES.forEach(m => {
           if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
@@ -579,7 +581,7 @@
         }
         rewireAll();
 
-        // Fallback cards dungeon jika kosong
+        // Fallback cards dungeon if empty
         const cg = document.getElementById('coreGrid');
         const ng = document.getElementById('newGrid');
         if (cg && cg.querySelectorAll('.team-card').length === 0) {
@@ -589,7 +591,7 @@
           NEW_TEAMS.forEach(t => ng.appendChild(buildCard(t)));
         }
 
-        // Fallback credits dungeon jika kosong SETELAH innerHTML ditimpa
+        // Fallback credits dungeon if empty 
         const dungeonCred = document.getElementById('dungeonCredDisplay');
         if (!dungeonCred || !dungeonCred.querySelector('.cred-pill')) {
           const credBox = document.querySelector('#dungeonSection .credits-box .cred-content-row');
@@ -607,7 +609,10 @@
         }
 
         showFbStatus('✅ Loaded!', 'ok');
-      }).catch(err => { showFbStatus('❌ ' + err.message, 'err'); loadDefaults(); });
+      } catch (err) {
+        showFbStatus('❌ ' + err.message, 'err');
+        loadDefaults();
+      }
     }
   </script>
 
