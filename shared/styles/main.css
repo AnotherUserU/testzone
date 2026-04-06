@@ -2418,7 +2418,10 @@
     .renum-members,
     .delete-team-btn,
     .del-section-btn,
-    .delete-node-btn {
+    .delete-node-btn,
+    .color-dot,
+    .clr-palette,
+    .sec-color-dot {
       display: none !important;
     }
 
@@ -2436,7 +2439,10 @@
     body.is-admin .renum-members,
     body.is-admin .delete-team-btn,
     body.is-admin .del-section-btn,
-    body.is-admin .delete-node-btn {
+    body.is-admin .delete-node-btn,
+    body.is-admin .color-dot,
+    body.is-admin .clr-palette,
+    body.is-admin .sec-color-dot {
       display: inline-block !important;
     }
 
