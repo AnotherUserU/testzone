@@ -1,0 +1,125 @@
+/* ===== Admin Only Styles ===== */
+.page-block { position: relative; transition: opacity .2s; }
+.page-block.dragging-block { opacity: .35; }
+.page-block.block-drag-over { outline: 2px dashed var(--cyan); border-radius: 6px; }
+
+.block-handle {
+  position: absolute;
+  left: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dim);
+  font-size: 1rem;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity .15s;
+  user-select: none;
+  z-index: 10;
+}
+.page-block:hover .block-handle { opacity: .6; }
+.block-handle:hover { opacity: 1 !important; }
+
+.team-card.dragging-card { opacity: .4; transform: scale(.97); }
+.team-card.drag-over-card { box-shadow: 0 0 0 2px var(--cyan) inset; }
+.core-grid.drag-over, .new-grid.drag-over { outline: 2px dashed var(--cyan); border-radius: 12px; }
+
+.mem-row.dragging-mem { opacity: .35; }
+.mem-row.over-mem { box-shadow: 0 -2px 0 var(--cyan); }
+
+.delete-box { position: absolute; top: 7px; right: 8px; color: var(--red); cursor: pointer; font-size: 1rem; opacity: .6; }
+.delete-box:hover { opacity: 1; }
+.delete-mem { position: absolute; right: 0; top: 4px; color: var(--red); cursor: pointer; font-size: .9rem; opacity: .55; }
+.delete-mem:hover { opacity: 1; }
+.delete-team-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,50,50,.85); color: white; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: .72rem; z-index: 20; }
+
+.edit-btn {
+  padding: 6px 11px;
+  background: rgba(0,212,255,.1);
+  color: var(--cyan);
+  border: 1px solid rgba(0,212,255,.3);
+  border-radius: 6px;
+  cursor: pointer;
+  margin: 3px;
+  font-size: .76rem;
+  font-family: 'Rajdhani', sans-serif;
+  transition: background .15s;
+}
+.edit-btn:hover { background: rgba(0,212,255,.2); }
+
+.add-point-btn { font-size: .72rem; color: #ff8c42; background: none; border: none; cursor: pointer; margin-top: 5px; font-family: 'Rajdhani', sans-serif; }
+
+.card-drag-handle { position: absolute; top: 8px; left: 9px; color: var(--dim); font-size: .85rem; cursor: grab; opacity: .4; z-index: 15; user-select: none; }
+.card-drag-handle:hover { opacity: .9; }
+
+.color-dot { position: absolute; top: 16px; left: 130px; width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); cursor: pointer; z-index: 15; transition: transform .15s; }
+.color-dot:hover { transform: scale(1.4); }
+
+.clr-palette { display: none; position: absolute; top: 28px; left: 10px; background: var(--bg3); border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px; z-index: 100; gap: 7px; flex-wrap: wrap; width: 148px; box-shadow: 0 8px 24px rgba(0,0,0,.6); }
+.clr-palette.open { display: flex; }
+.cp-sw { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform .15s, border-color .15s; }
+.cp-sw:hover { transform: scale(1.3); border-color: white; }
+
+.save-bar { max-width: 1280px; margin: 0 auto; padding: 0 20px 18px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.save-btn { padding: 9px 18px; border-radius: 8px; border: none; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .85rem; cursor: pointer; transition: all .15s; }
+.save-btn.green { background: linear-gradient(135deg,#00e87a,#009944); color: #000; box-shadow: 0 3px 12px rgba(0,232,122,.3); }
+.save-btn.green:hover { transform: translateY(-1px); box-shadow: 0 5px 18px rgba(0,232,122,.45); }
+.save-btn.red { background: rgba(255,51,85,.15); color: var(--red); border: 1px solid rgba(255,51,85,.35); }
+.save-btn.red:hover { background: rgba(255,51,85,.25); }
+.save-btn.gray { background: rgba(255,255,255,.07); color: var(--dim); border: 1px solid rgba(255,255,255,.1); }
+.save-btn.gray:hover { background: rgba(255,255,255,.12); color: var(--text); }
+.save-status { font-size: .76rem; color: var(--dim); margin-left: 4px; }
+
+.float-xl { position: fixed; bottom: 28px; right: 28px; z-index: 500; padding: 11px 20px; background: linear-gradient(135deg,#00e87a,#009944); color: #000; font-weight: 700; border: none; border-radius: 12px; cursor: pointer; font-size: .88rem; font-family: 'Rajdhani', sans-serif; box-shadow: 0 4px 20px rgba(0,232,122,.35); transition: transform .15s, box-shadow .15s; }
+.float-xl:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(0,232,122,.5); }
+
+/* Banners */
+.add-banner-bar { max-width: 1280px; margin: 0 auto; padding: 0 20px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+.add-banner-btn { padding: 6px 14px; border-radius: 7px; border: 1.5px solid; cursor: pointer; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: .82rem; background: transparent; transition: background .15s; }
+.add-banner-btn.cyan { color: var(--cyan); border-color: rgba(0,212,255,.4); } .add-banner-btn.cyan:hover { background: rgba(0,212,255,.1); }
+.add-banner-btn.gold { color: var(--gold); border-color: rgba(245,200,66,.4); } .add-banner-btn.gold:hover { background: rgba(245,200,66,.1); }
+.add-banner-btn.red { color: var(--red); border-color: rgba(255,40,60,.4); } .add-banner-btn.red:hover { background: rgba(255,40,60,.1); }
+
+/* Sections */
+.team-section-actions { display: flex; justify-content: center; gap: 8px; padding: 10px 20px 0; flex-wrap: wrap; }
+.add-section-btn { padding: 9px 22px; font-size: .85rem; border-color: rgba(245,200,66,.35)!important; color: var(--gold)!important; background: rgba(245,200,66,.06)!important; font-weight: 700; letter-spacing: .05em; }
+.add-section-btn:hover { background: rgba(245,200,66,.14)!important; }
+.del-section-btn { background: rgba(255,51,85,.12); border: 1px solid rgba(255,51,85,.3); color: var(--red); border-radius: 7px; padding: 4px 10px; cursor: pointer; font-size: .75rem; font-family: 'Rajdhani', sans-serif; font-weight: 700; transition: background .15s; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); }
+.del-section-btn:hover { background: rgba(255,51,85,.25); }
+
+/* Modifiers admin view */
+.mp-pill .delete-pill { margin-left:8px; cursor:pointer; opacity:.55; font-size:.75em; }
+.mp-pill .delete-pill:hover { opacity:1; color:#ff3355; }
+
+/* Readonly Mode Overrides */
+body.readonly .edit-btn,
+body.readonly .add-banner-btn,
+body.readonly .add-point-btn,
+body.readonly .delete-box,
+body.readonly .delete-mem,
+body.readonly .delete-team-btn,
+body.readonly .delete-pill,
+body.readonly .color-dot,
+body.readonly .clr-palette,
+body.readonly .cred-edit-btn,
+body.readonly .mod-add-row-btn,
+body.readonly .cred-add-name-btn,
+body.readonly .cred-add-section-btn,
+body.readonly .save-btn,
+body.readonly .card-drag-handle,
+body.readonly .block-handle,
+body.readonly .del-section-btn,
+body.readonly .team-section-actions,
+body.readonly .add-section-btn,
+body.readonly .add-banner-bar,
+body.readonly .float-xl,
+body.readonly .download-node-btn{display:none!important;}
+body.readonly [contenteditable="true"]{pointer-events:none!important;cursor:default!important;user-select:none!important;}
+body.readonly .mod-priority{pointer-events:none!important;}
+body.readonly .card-img-right{pointer-events:none!important;}
+body.readonly .mem-row{cursor:default!important;}
+body.readonly .section-label,
+body.readonly .team-section-label,
+body.readonly .main-title{pointer-events:none!important;cursor:default!important;}
+body.readonly .banner-announce,
+body.readonly .banner-title,
+body.readonly .banner-alert{pointer-events:none!important;}
