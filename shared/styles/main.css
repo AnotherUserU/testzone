@@ -114,12 +114,52 @@
       box-sizing: border-box;
     }
 
+    :focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Rajdhani', sans-serif;
       font-size: 15px;
       line-height: 1.5;
+    }
+
+        .nav-search {
+      margin-right: 20px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .nav-search input {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px 6px 32px;
+      color: var(--text);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: .9rem;
+      width: 160px;
+      transition: all 0.2s;
+      outline: none;
+    }
+    .nav-search input:focus {
+      width: 220px;
+      border-color: var(--cyan);
+      background: rgba(0,0,0,0.5);
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+    }
+    .nav-search svg {
+      position: absolute;
+      left: 10px;
+      color: var(--dim);
+      pointer-events: none;
     }
 
     .nav-header {
@@ -129,6 +169,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
     }
 
     .nav-menu {
@@ -188,6 +233,8 @@
 
     .mode-section.active {
       display: block;
+      line-height: 1.35;
+      margin-top: 2px;
     }
 
     .page-block {
@@ -227,8 +274,8 @@
     }
 
     #pageBody {
-      padding-left: 36px;
-      padding-right: 16px;
+      padding-left: 20px;
+      padding-right: 20px;
     }
 
     .main-title {
@@ -243,17 +290,28 @@
     }
 
     .section-label {
-      text-align: center;
-      padding: 30px 0 15px;
-      font-size: 1rem;
-      letter-spacing: .14em;
-      color: var(--gold);
-      outline: none;
       font-family: 'Orbitron', sans-serif;
-      font-weight: 700;
-      cursor: pointer;
-      transition: color 0.2s;
+      font-size: .85rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      margin-top: 50px;
+      margin-bottom: 25px;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      text-transform: uppercase;
+      outline: none;
       text-shadow: 0 0 16px rgba(245, 200, 66, .25);
+    }
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0.3;
     }
 
     .section-label:hover {
@@ -312,14 +370,22 @@
     }
 
     .team-card {
-      border: 1px solid var(--border);
-      background: var(--bg2);
+      background: rgba(30, 30, 46, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
       overflow: visible;
       position: relative;
       display: flex;
       flex-direction: column;
-      transition: box-shadow .2s, transform .2s;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+    .team-card:hover {
+      transform: translateY(-5px) scale(1.01);
+      background: rgba(40, 40, 60, 0.85);
+      border-color: var(--tc);
+      box-shadow: 0 10px 40px -15px var(--tc);
     }
 
     .team-card-inner {
@@ -369,9 +435,10 @@
 
     .card-desc {
       font-size: .82rem;
-      color: #aaa;
+      color: var(--dim);
       margin-top: 4px;
       outline: none;
+      line-height: 1.45;
     }
 
     .card-body {
@@ -421,13 +488,17 @@
       font-weight: 700;
       outline: none;
       display: block;
+      line-height: 1.35;
+      margin-top: 2px;
     }
 
     .mem-bind {
       font-size: .78rem;
-      color: #888;
+      color: var(--dim);
       outline: none;
       display: block;
+      line-height: 1.35;
+      margin-top: 2px;
     }
 
     .card-img-right {
@@ -452,6 +523,8 @@
 
     .card-img-right.loaded img {
       display: block;
+      line-height: 1.35;
+      margin-top: 2px;
     }
 
     .img-right-overlay {
@@ -461,7 +534,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #555;
+      color: var(--dim);
       font-size: .72rem;
       text-align: center;
       padding: 10px;
@@ -867,7 +940,7 @@
       min-width: 85px;
       text-align: center;
       outline: none;
-      transition: transform .15px;
+      transition: transform .15s;
     }
 
     .mp-pill.red {
@@ -1420,6 +1493,8 @@
 
     .cred-edit-btn {
       display: block;
+      line-height: 1.35;
+      margin-top: 2px;
       width: 100%;
       margin-top: 14px;
       padding: 7px 0;
@@ -1530,8 +1605,8 @@
     }
 
     .btn-cancel {
-      background: #333;
-      color: white;
+      background: var(--bg3);
+      color: var(--text);
     }
 
     .btn-apply {
@@ -2144,6 +2219,10 @@
       color: var(--dim);
       cursor: pointer;
       font-size: 1.2rem;
+      background: none;
+      border: none;
+      padding: 4px;
+      line-height: 1;
     }
 
     .dl-close:hover {
@@ -2363,7 +2442,8 @@
     }
 
     @media(max-width:1000px) {
-      .core-grid {
+      .core-grid,
+      .new-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
@@ -2451,4 +2531,16 @@
     }
     body.is-admin .add-banner-bar {
       display: flex !important;
+    }
+
+    /* Reduced motion preference */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
     }
