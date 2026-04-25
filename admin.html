@@ -1647,9 +1647,15 @@
         const dot = card.querySelector('.color-dot');
         if (dot && !dot._palWired) {
           dot._palWired = true;
+          // Hapus palette lama yang tersimpan di memori/database
+          card.querySelectorAll('.clr-palette').forEach(p => p.remove());
+          
           const color = getComputedStyle(card).getPropertyValue('--tc').trim() || '#f5c842';
-          const pal = makeColorPalette(card, color); card.appendChild(pal);
+          const pal = makeColorPalette(card, color); 
+          card.appendChild(pal);
+          
           dot.addEventListener('click', e => { e.stopPropagation(); pal.classList.toggle('open'); });
+          document.addEventListener('click', () => pal.classList.remove('open'), true);
         }
       });
       document.querySelectorAll('.mp-pill').forEach(wirePillDelete);
