@@ -637,7 +637,8 @@
         <div class="page-block" data-block="add-section-worldBoss">
           <span class="block-handle">⠿⠿</span>
           <div style="text-align:center;padding:8px 0 28px">
-            <button class="edit-btn add-section-btn" onclick="addTeamSection('worldBossGroups')">➕ Add Team Section</button>
+            <button class="edit-btn add-section-btn" onclick="addTeamSection('worldBossGroups')">➕ Add Team
+              Section</button>
           </div>
         </div>
         <div class="page-block" data-block="worldBoss-bottom">
@@ -1137,7 +1138,7 @@
     function sanitizeHTML(str) {
       if (typeof str !== 'string') return '';
       const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-      return str.replace(/[&<>"']/g, function(m) { return map[m]; });
+      return str.replace(/[&<>"']/g, function (m) { return map[m]; });
     }
 
     function buildCard(t) {
@@ -1649,11 +1650,11 @@
           dot._palWired = true;
           // Hapus palette lama yang tersimpan di memori/database
           card.querySelectorAll('.clr-palette').forEach(p => p.remove());
-          
+
           const color = getComputedStyle(card).getPropertyValue('--tc').trim() || '#f5c842';
-          const pal = makeColorPalette(card, color); 
+          const pal = makeColorPalette(card, color);
           card.appendChild(pal);
-          
+
           dot.addEventListener('click', e => { e.stopPropagation(); pal.classList.toggle('open'); });
           document.addEventListener('click', () => pal.classList.remove('open'), true);
         }
@@ -1807,7 +1808,7 @@
       const pv = {};
       ALL_MODES.forEach(m => { const el = document.getElementById(PV_MAP[m]); pv[m] = el ? el.checked : true; });
       data.pageVisibility = pv;
-      
+
       fetch('/api/save', {
         method: 'POST',
         headers: {
@@ -1833,7 +1834,7 @@
         const res = await fetch('/api/load');
         if (!res.ok) throw new Error('Cloud error');
         const data = await res.json();
-        
+
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
         ALL_MODES.forEach(m => {
           if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
