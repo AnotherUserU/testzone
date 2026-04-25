@@ -626,7 +626,7 @@
       if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
       const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
       const isLight = document.documentElement.classList.contains('light-theme');
-      const HIDE_SEL = '.download-node-btn,.admin-link';
+      const HIDE_SEL = '.download-node-btn,.admin-link,.nav-header,#roleBadge';
       const reEnableBtn = () => { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } };
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL); hide.forEach(el => el.style.display = 'none');
@@ -689,8 +689,8 @@
         el.contentEditable = 'false';
       });
       // Hide admin-only elements if they leaked from DB HTML strings
-      const adminSelectors = '.edit-btn, .block-handle, .add-banner-bar, .delete-mem, .renum-members, .delete-box, .add-point-btn, .add-tp-btn, .add-pt-btn, .cred-edit-btn, .delete-node-btn, .delete-team-btn, .del-section-btn, .color-dot, .clr-palette, .sec-color-dot';
-      document.querySelectorAll(adminSelectors).forEach(el => el.style.display = 'none');
+      const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge';
+      document.querySelectorAll(HIDE_SEL).forEach(el => el.style.display = 'none');
     }
 
     function enterAsGuest() {

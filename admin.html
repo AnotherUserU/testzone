@@ -1303,7 +1303,7 @@
     function executeDownload() {
       const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
       const isLight = document.documentElement.classList.contains('light-theme');
-      const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn';
+      const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge';
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL); hide.forEach(el => el.style.display = 'none');
         closeDlModal();
