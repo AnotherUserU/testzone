@@ -626,18 +626,35 @@
       if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
       const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
       const isLight = document.documentElement.classList.contains('light-theme');
-      const HIDE_SEL = '.download-node-btn,.admin-link,.nav-header,#roleBadge';
-      const reEnableBtn = () => { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } };
+      const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus';
+      function reEnableBtn() { if(dlBtn){ dlBtn.disabled=false; dlBtn.style.opacity=''; } }
       if (dlMode === 'fullscreen') {
-        const hide = document.querySelectorAll(HIDE_SEL); hide.forEach(el => el.style.display = 'none');
+        const hide = document.querySelectorAll(HIDE_SEL); 
+        hide.forEach(el => {
+          el.style.display = 'none';
+          if(el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
+        });
         closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
           html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
-            hide.forEach(el => el.style.display = ''); reEnableBtn();
-          }).catch(err => { console.error(err); alert('Failed to download.'); hide.forEach(el => el.style.display = ''); reEnableBtn(); });
+            hide.forEach(el => {
+              el.style.display = '';
+              if(el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
+            });
+            reEnableBtn();
+            showFbStatus('✅ Downloaded', 'ok');
+          }).catch(err => { 
+            console.error(err); 
+            alert('Failed to download.'); 
+            hide.forEach(el => {
+              el.style.display = '';
+              if(el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
+            });
+            reEnableBtn(); 
+          });
         }, 400);
       } else {
         const cards = [...document.querySelectorAll('.team-card')];
@@ -654,6 +671,7 @@
             a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             hide.forEach(el => el.style.display = ''); reEnableBtn();
+            showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => { console.error(err); alert('Failed.'); hide.forEach(el => el.style.display = ''); reEnableBtn(); });
         }, 300);
       }
