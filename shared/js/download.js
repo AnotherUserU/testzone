@@ -1,20 +1,26 @@
 export async function downloadImage(mode, sectionId) {
   const isDlMode = document.body.classList.contains('dl-mode');
   if (!isDlMode) document.body.classList.add('dl-mode');
-  let hiddenElements = [];
+
   try {
     const watermark = document.getElementById('dlWatermark');
     if (watermark) watermark.style.display = 'block';
 
-    // Hide elements that shouldn't appear in the download
+    // Physically remove elements from DOM to guarantee they aren't captured
+    const removedElements = [];
     const dlBtn = document.getElementById('downloadBtn');
     if (dlBtn && dlBtn.parentElement) {
-      hiddenElements.push({ el: dlBtn.parentElement, orig: dlBtn.parentElement.style.display });
-      dlBtn.parentElement.style.display = 'none';
+      const p = dlBtn.parentElement;
+      const ph = document.createElement('div');
+      p.parentNode.insertBefore(ph, p);
+      removedElements.push({ el: p, ph: ph });
+      p.remove();
     }
     document.querySelectorAll('.nav-header, .float-xl, #roleBadge, .toast, .admin-link').forEach(el => {
-      hiddenElements.push({ el, orig: el.style.display });
-      el.style.display = 'none';
+      const ph = document.createElement('div');
+      el.parentNode.insertBefore(ph, el);
+      removedElements.push({ el: el, ph: ph });
+      el.remove();
     });
 
     const target = mode === 'fullscreen' ? document.getElementById('pageBody') : document.getElementById(sectionId);
@@ -60,9 +66,11 @@ export async function downloadImage(mode, sectionId) {
     console.error(e);
     showToast('❌ Capture failed. Try downloading a smaller section.', true);
   } finally {
-    // Restore hidden elements
-    hiddenElements.forEach(item => {
-      if (item.el) item.el.style.display = item.orig;
+    // Restore removed elements
+    removedElements.forEach(item => {
+      if (item.ph && item.ph.parentNode) {
+        item.ph.parentNode.replaceChild(item.el, item.ph);
+      }
     });
     
     if (!isDlMode) document.body.classList.remove('dl-mode');
