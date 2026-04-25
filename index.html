@@ -31,6 +31,7 @@
         <button class="nav-btn" data-mode="battleTowers" onclick="switchMode('battleTowers')" role="tab" aria-selected="false">BATTLE TOWERS</button>
         <button class="nav-btn" data-mode="celestialTower" onclick="switchMode('celestialTower')" role="tab" aria-selected="false">CELESTIAL
           TOWER</button>
+        <button class="nav-btn" data-mode="worldBoss" onclick="switchMode('worldBoss')" role="tab" aria-selected="false">WORLD BOSS</button>
       </div>
       <div class="nav-search">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -298,6 +299,40 @@
         </div>
       </div>
 
+      <div class="mode-section" id="worldBossSection">
+        <h1 class="main-title">WORLD BOSS GUIDE</h1>
+        <div class="section-label">WORLD BOSS CORE TEAMS</div>
+        <div class="grid-wrap">
+          <div class="core-grid" id="worldBossCoreGrid"></div>
+        </div>
+        <div class="section-label">WORLD BOSS NEW TEAMS</div>
+        <div class="grid-wrap">
+          <div class="new-grid" id="worldBossNewGrid"></div>
+        </div>
+        <div id="worldBossGroups"></div>
+        <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+          <div class="mod-priority">
+            <div class="mp-chain" id="worldBossMpChain"></div>
+          </div>
+          <div class="credits-box">
+            <div class="cred-content-row">
+              <div class="cred-display" id="worldBossCredDisplay">
+                <div class="cred-pills-row">
+                  <div class="cred-pill">
+                    <div>
+                      <div class="cred-lbl">DESIGN BY</div>
+                      <div class="cred-name"
+                        style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div style="text-align:center;padding:10px 0 50px">
         <button id="downloadBtn" onclick="openDlModal()"
           style="padding:12px 28px;background:var(--cyan);color:#000;font-weight:700;border:none;border-radius:8px;font-size:1rem;cursor:pointer;">
@@ -394,8 +429,8 @@
       el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
     }
 
-    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection' };
-    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
+    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection', worldBoss: 'worldBossSection' };
+    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'];
     function switchMode(mode) {
       document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });

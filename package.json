@@ -1,0 +1,12 @@
+{
+  "name": "team-composition-guide",
+  "version": "1.0.0",
+  "description": "Team Composition Guide web application",
+  "scripts": {
+    "dev": "vercel dev --listen 3000"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "latest"
+  }
+}

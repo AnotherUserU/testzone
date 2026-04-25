@@ -42,6 +42,7 @@
         <button class="nav-btn" data-mode="battleTowers" onclick="switchMode('battleTowers')">BATTLE TOWERS</button>
         <button class="nav-btn" data-mode="celestialTower" onclick="switchMode('celestialTower')">CELESTIAL
           TOWER</button>
+        <button class="nav-btn" data-mode="worldBoss" onclick="switchMode('worldBoss')">WORLD BOSS</button>
       </div>
       <div style="flex:1;display:flex;justify-content:flex-end;gap:10px;align-items:center;">
         <button class="theme-toggle" id="pvSettingsBtn" onclick="openPvModal()"
@@ -588,6 +589,86 @@
         </div>
       </div>
 
+      <div class="mode-section" id="worldBossSection">
+        <div class="page-block" data-block="worldBoss-title">
+          <span class="block-handle">⠿⠿</span>
+          <div class="main-title" contenteditable="true">WORLD BOSS GUIDE</div>
+        </div>
+        <div class="page-block" data-block="add-banner-worldBoss">
+          <span class="block-handle">⠿⠿</span>
+          <div class="add-banner-bar">
+            <button class="add-banner-btn cyan" onclick="addBannerBlock(this,'announce','worldBoss')">📢 +
+              Announcement</button>
+            <button class="add-banner-btn gold" onclick="addBannerBlock(this,'title','worldBoss')">🏷 + Title</button>
+            <button class="add-banner-btn red" onclick="addBannerBlock(this,'alert','worldBoss')">🚨 + Alert</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="worldBoss-core-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">WORLD BOSS
+            CORE TEAMS</div>
+        </div>
+        <div class="page-block" data-block="worldBoss-core-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="core-grid" id="worldBossCoreGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericCoreTeam('worldBossCoreGrid','WORLD BOSS')">➕ Add World Boss
+              Core Team</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="worldBoss-new-label">
+          <span class="block-handle">⠿⠿</span>
+          <div class="section-label" contenteditable="true" ondblclick="openLabelColorPicker(this,event)">WORLD BOSS
+            NEW TEAMS</div>
+        </div>
+        <div class="page-block" data-block="worldBoss-new-grid">
+          <span class="block-handle">⠿⠿</span>
+          <div class="grid-wrap">
+            <div class="new-grid" id="worldBossNewGrid"></div>
+          </div>
+          <div style="text-align:center;margin:4px 0 18px">
+            <button class="edit-btn" onclick="addGenericNewTeam('worldBossNewGrid','WORLD BOSS')">➕ Add World Boss
+              New Team</button>
+          </div>
+        </div>
+        <div id="worldBossGroups"></div>
+        <div class="page-block" data-block="add-section-worldBoss">
+          <span class="block-handle">⠿⠿</span>
+          <div style="text-align:center;padding:8px 0 28px">
+            <button class="edit-btn add-section-btn" onclick="addTeamSection('worldBossGroups')">➕ Add Team Section</button>
+          </div>
+        </div>
+        <div class="page-block" data-block="worldBoss-bottom">
+          <span class="block-handle">⠿⠿</span>
+          <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
+            <div class="mod-priority">
+              <div class="mp-chain" id="worldBossMpChain"></div>
+              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+                Modifier</button>
+            </div>
+            <div class="credits-box">
+              <div class="cred-content-row">
+                <div class="cred-display" id="worldBossCredDisplay">
+                  <div class="cred-pills-row">
+                    <div class="cred-pill">
+                      <div>
+                        <div class="cred-lbl">DESIGN BY</div>
+                        <div class="cred-name"
+                          style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">
+                          AnotherUseru</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="cred-edit-btn" onclick="openCredModal()">Edit Credits</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <div class="page-block" data-block="save-local">
         <span class="block-handle">⠿⠿</span>
@@ -823,6 +904,14 @@
           <label class="pv-toggle"><input type="checkbox" id="pvCelestialTower" checked
               onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
         </div>
+        <div class="pv-row">
+          <div class="pv-row-info">
+            <div class="pv-row-name">👹 World Boss</div>
+            <div class="pv-row-desc">World boss team compositions</div>
+          </div>
+          <label class="pv-toggle"><input type="checkbox" id="pvWorldBoss" checked
+              onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
+        </div>
         <div class="pv-footer"><button class="btn btn-apply" onclick="closePvModal()">Done</button></div>
       </div>
     </div>
@@ -848,10 +937,10 @@
       el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
     }
 
-    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection' };
-    const GROUPS_MAP = { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups' };
-    const MP_MAP = { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain' };
-    const CRED_MAP = { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay' };
+    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection', worldBoss: 'worldBossSection' };
+    const GROUPS_MAP = { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups', worldBoss: 'worldBossGroups' };
+    const MP_MAP = { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain', worldBoss: 'worldBossMpChain' };
+    const CRED_MAP = { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay', worldBoss: 'worldBossCredDisplay' };
     let currentMode = 'dungeon';
     function switchMode(mode) {
       currentMode = mode;
@@ -1510,8 +1599,8 @@
     }
 
     const SAVE_KEY = 'ACB_GUIDE_SAVE';
-    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower'];
-    const PV_MAP = { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower' };
+    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'];
+    const PV_MAP = { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower', worldBoss: 'pvWorldBoss' };
     function saveLocal() {
       try {
         const data = { savedAt: new Date().toLocaleString() };
