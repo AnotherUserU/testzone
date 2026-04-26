@@ -5,8 +5,9 @@ import DOMPurify from 'isomorphic-dompurify';
 const sanitizeData = (data) => {
   if (typeof data === 'string') {
     return DOMPurify.sanitize(data, {
-      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect'],
-      ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y']
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
+      ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick'],
+      ADD_ATTR: ['onclick']
     });
   }
   if (Array.isArray(data)) {

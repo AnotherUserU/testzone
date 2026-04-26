@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -18,6 +18,8 @@ export default function handler(req, res) {
     const token = jwt.sign({ role: 'admin' }, jwtSecret, { expiresIn: '24h' });
     res.status(200).json({ success: true, token });
   } else {
+    // Artificial delay to prevent brute-force attacks
+    await new Promise(resolve => setTimeout(resolve, 2000));
     res.status(401).json({ error: 'Wrong password' });
   }
 }
