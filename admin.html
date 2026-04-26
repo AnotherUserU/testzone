@@ -1019,7 +1019,7 @@
     }
     function closeH1Modal() { document.getElementById('h1Modal').classList.remove('open'); activeH1Btn = null; }
     function applyH1() {
-      const text = document.getElementById('h1Text').value.trim() || 'Heading'; const c = h1Color;
+      const text = sanitizeHTML(document.getElementById('h1Text').value.trim() || 'Heading'); const c = h1Color;
       const block = document.createElement('div'); block.className = 'h1-block';
       block.innerHTML = `<h1 contenteditable="true" style="color:${c};text-shadow:0 0 14px ${c}66">${text}</h1><span class="delete-box" onclick="this.closest('.h1-block').remove()">✕</span>`;
       if (activeH1Btn) activeH1Btn.closest('.card-foot').querySelector('.foot-content').appendChild(block);
