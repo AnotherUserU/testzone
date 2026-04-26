@@ -38,7 +38,7 @@ export async function downloadImage(mode, sectionId) {
     // 1920x5000 * 4 = huge. For full screen use 1.5, for cards use 2
     let s = mode === 'fullscreen' ? 1.5 : 2.5;
 
-    showToast('📸 Capturing image...', false);
+    showToast('Capturing image...', false);
 
     const canvas = await html2canvas(clone, {
       scale: s,

@@ -125,7 +125,7 @@ function buildCard(team, isReadOnly) {
         </div>
       ` : ''}
     </div>
-    <div class="download-node-btn" title="Download Card as Image">📸</div>
+    <div class="download-node-btn" title="Screenshot this Card">Screenshot</div>
   `;
   
   wrap.innerHTML = html;

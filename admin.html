@@ -834,7 +834,7 @@
             </div>
           </div>
           <div class="dl-radio" id="dlFmtJpg" onclick="setDlFmt('jpg')">
-            <div class="dl-radio-icon">📸</div>
+            <div class="dl-radio-icon">🖼</div>
             <div>
               <div class="dl-radio-name">JPG</div>
               <div class="dl-radio-sub">Smaller file</div>
@@ -1317,7 +1317,7 @@
         });
         closeDlModal();
         setTimeout(() => {
-          showFbStatus('📸 Capturing...', 'loading');
+          showFbStatus('Capturing...', 'loading');
           html2canvas(document.body, { scale: 4, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
@@ -1343,7 +1343,7 @@
         const hide = card.querySelectorAll('.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.download-node-btn');
         hide.forEach(el => el.style.display = 'none'); closeDlModal();
         setTimeout(() => {
-          showFbStatus('📸 Capturing...', 'loading');
+          showFbStatus('Capturing...', 'loading');
           html2canvas(card, { scale: 4, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
             const a = document.createElement('a');
             const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
