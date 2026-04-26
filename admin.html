@@ -1660,6 +1660,21 @@
     function rewireAll() {
       document.querySelectorAll('.page-block').forEach(wireBlockDrag);
       document.querySelectorAll('.core-grid,.new-grid').forEach(wireGridDrop);
+      
+      // Restore editability to loaded elements if in admin mode
+      if (!isReadonly()) {
+        const editables = [
+          '.card-tag', '.card-title', '.card-desc', 
+          '.mem-name', '.mem-bind', 
+          '.mod-title', '.tips-title', '.mod-item', '.tips-item', '.warn-box',
+          '.team-section-label', '.main-title', '.alert-box', '.h1-block h1', 
+          '.banner-announce', '.banner-title', '.banner-alert', '.mp-pill'
+        ];
+        document.querySelectorAll(editables.join(',')).forEach(el => {
+          el.contentEditable = true;
+        });
+      }
+
       document.querySelectorAll('.team-card').forEach(card => {
         enableCardDrag(card);
         card.querySelectorAll('.mem-row').forEach(row => {
