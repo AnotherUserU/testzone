@@ -1941,6 +1941,37 @@
         saveToFirebase();
       }
     }
+    /* PREMIUM SCROLL REVEAL ENGINE */
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    function initReveal() {
+      const elements = document.querySelectorAll('.team-card, .section-label, .main-title, .page-block');
+      elements.forEach(el => {
+        el.classList.add('reveal');
+        revealObserver.observe(el);
+      });
+    }
+
+    // Hook into existing lifecycle
+    const originalRewireAll = window.rewireAll;
+    window.rewireAll = function() {
+      if (typeof originalRewireAll === 'function') originalRewireAll();
+      setTimeout(initReveal, 100);
+    };
+
+    const originalSwitchMode = window.switchMode;
+    window.switchMode = function(mode) {
+      if (typeof originalSwitchMode === 'function') {
+        originalSwitchMode(mode);
+        setTimeout(initReveal, 100);
+      }
+    };
   </script>
 
 </body>

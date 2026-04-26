@@ -1,18 +1,31 @@
 :root {
-  --bg: #0f0f17;
-  --bg2: #13131f;
-  --bg3: #1a1a2e;
-  --border: rgba(255, 255, 255, 0.07);
-  --text: #dde0f0;
-  --dim: #6b6f8f;
+  /* HSL Color Palette - Dark Mode Primary */
+  --bg-h: 230; --bg-s: 20%; --bg-l: 7%;
+  --bg: hsl(var(--bg-h), var(--bg-s), var(--bg-l));
+  --bg-surface: hsl(var(--bg-h), var(--bg-s), 11%);
+  --bg-panel: hsl(var(--bg-h), var(--bg-s), 15%);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-dim: #64748b;
+  
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-edge: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.1);
+  
+  /* Legacy Color Compatibility */
   --gold: #f5c842;
   --cyan: #00d4ff;
-  --green: #00e87a;
-  --red: #ff3355;
-  --orange: #ff8c42;
-  --purple: #c36bff;
-  --pink: #ff5fa0;
-  --blue: #4488ff;
+  --green: #10b981;
+  --red: #ef4444;
+  --orange: #f59e0b;
+  --purple: #a855f7;
+  --pink: #ec4899;
+  --blue: #3b82f6;
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.3s var(--ease);
 }
 
 :root.light-theme {
@@ -122,12 +135,19 @@
   outline: none;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&display=swap');
+
 body {
   background: var(--bg);
-  color: var(--text);
-  font-family: 'Rajdhani', sans-serif;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0, 212, 255, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(245, 200, 66, 0.03) 0px, transparent 50%);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
 
 .nav-search {
@@ -165,17 +185,16 @@ body {
 }
 
 .nav-header {
-  background: var(--bg2);
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
+  padding: 12px 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 100;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  z-index: 1000;
+  backdrop-filter: blur(20px) saturate(180%);
 }
 
 .nav-menu {
@@ -282,13 +301,16 @@ body {
 
 .main-title {
   font-family: 'Orbitron', sans-serif;
-  font-size: 2.2rem;
+  font-size: 2.8rem;
+  font-weight: 900;
   color: var(--gold);
   text-align: center;
-  padding: 30px 0;
-  outline: none;
-  text-shadow: 0 0 30px rgba(245, 200, 66, .3);
-  letter-spacing: .18em;
+  margin: 40px 0 60px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--gold) 0%, rgba(245, 200, 66, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .section-label {
@@ -373,23 +395,22 @@ body {
 }
 
 .team-card {
-  background: rgba(30, 30, 46, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  overflow: visible;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  transition: var(--transition);
+  backdrop-filter: blur(12px);
 }
 
 .team-card:hover {
-  transform: translateY(-5px) scale(1.01);
-  background: rgba(40, 40, 60, 0.85);
+  transform: translateY(-8px) scale(1.02);
+  background: var(--bg-panel);
   border-color: var(--tc);
-  box-shadow: 0 10px 40px -15px var(--tc);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 25px -5px var(--tc);
 }
 
 .team-card-inner {
@@ -2548,7 +2569,16 @@ body.is-admin .add-banner-bar {
   *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
+}
+
+/* PREMIUM SCROLL REVEAL */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s var(--ease);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
