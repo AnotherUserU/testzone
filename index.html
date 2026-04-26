@@ -19,13 +19,29 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"
     integrity="sha512-H+rglffZ6f5gF7UJgvH4Naa+fGCgjrHKMgoFOGmcPTRwR6oILo5R+gtzNrpDp7iMV3udbymBVjkeZGNz1Em4rQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 
 <body>
 
   <div id="fbStatus"></div>
 
+  <div class="scroll-progress" id="scrollProgress"></div>
+
   <div id="appContent" style="display:none;">
+
+    <header class="hero-section" id="hero">
+      <div class="hero-bg" id="heroBg"></div>
+      <div class="hero-content">
+        <h1 class="hero-title" id="heroTitle">TEAM COMPOSITION</h1>
+        <p class="hero-subtitle" id="heroSubtitle">MASTER THE DUNGEON. CONQUER THE RAIDS.</p>
+      </div>
+      <div class="scroll-indicator">
+        <span>SCROLL TO EXPLORE</span>
+        <div class="mouse"></div>
+      </div>
+    </header>
 
     <nav class="nav-header" aria-label="Mode navigation">
       <div style="flex:1;"></div>
@@ -509,6 +525,8 @@
       // Clear search on mode switch
       const searchInput = document.getElementById('teamSearch');
       if (searchInput) { searchInput.value = ''; handleSearch(''); }
+      // Refresh ScrollTrigger as section height might change
+      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
     }
 
     function handleSearch(query) {
@@ -806,37 +824,78 @@
         showFbStatus('❌ ' + err.message, 'err');
         loadDefaults();
       }
-    }
-    /* PREMIUM SCROLL REVEAL ENGINE */
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
+    // Scroll Experience Animations
+    function initScrollAnimations() {
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Hero Animations
+      gsap.to("#heroTitle", {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: "power4.out",
+        delay: 0.5
+      });
+      gsap.to("#heroSubtitle", {
+        opacity: 1,
+        y: 0,
+        duration: 1.2,
+        ease: "power3.out",
+        delay: 1
+      });
+
+      // Parallax Background
+      gsap.to("#heroBg", {
+        yPercent: 20,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true
         }
       });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-    function initReveal() {
-      const elements = document.querySelectorAll('.team-card, .section-label, .main-title, .page-block');
-      elements.forEach(el => {
-        el.classList.add('reveal');
-        revealObserver.observe(el);
+      // Scroll Progress Bar
+      gsap.to("#scrollProgress", {
+        width: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.3
+        }
+      });
+
+      // Nav Scrolled Effect
+      ScrollTrigger.create({
+        start: "top -100",
+        onToggle: self => {
+          const nav = document.querySelector(".nav-header");
+          if (nav) nav.classList.toggle("scrolled", self.isActive);
+        }
+      });
+
+      // Reveal Animations for Sections and Cards
+      const revealElements = document.querySelectorAll(".section-label, .main-title, .team-card, .alert-box, .mod-priority, .credits-box");
+      revealElements.forEach(el => {
+        el.classList.add("reveal-on-scroll");
+        
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top 92%",
+          onEnter: () => el.classList.add("revealed"),
+          once: true
+        });
       });
     }
 
-    // Hook into existing lifecycle
-    const originalRewireAll = window.rewireAll;
-    window.rewireAll = function() {
+    // Wrap rewireAll to include scroll animations
+    const originalRewireAll = rewireAll;
+    rewireAll = function() {
       if (typeof originalRewireAll === 'function') originalRewireAll();
-      setTimeout(initReveal, 100);
-    };
-
-    const originalSwitchMode = window.switchMode;
-    window.switchMode = function(mode) {
-      if (typeof originalSwitchMode === 'function') {
-        originalSwitchMode(mode);
-        setTimeout(initReveal, 100);
-      }
+      initScrollAnimations();
     };
   </script>
 
