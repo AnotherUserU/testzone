@@ -1,5 +1,5 @@
 import { AppState } from './state.js';
-import { sanitizeHTML } from './utils.js';
+import { sanitizeHTML, escapeAttr } from './utils.js';
 
 export function renderApp() {
   const isReadOnly = AppState.currentRole !== 'admin';
@@ -63,7 +63,7 @@ function buildCard(team, isReadOnly) {
 
   let html = `
     <!-- Top Bar -->
-    <div class="card-accent-bar" style="background: linear-gradient(90deg, ${team.color}, transparent);"></div>
+    <div class="card-accent-bar" style="background: linear-gradient(90deg, ${escapeAttr(team.color)}, transparent);"></div>
     <div class="card-head">
       ${!isReadOnly ? `<div class="card-drag-handle">☰</div>` : ''}
       <div class="card-tag" ${!isReadOnly ? 'contenteditable="true"' : ''}>${sanitizeHTML(team.tag)}</div>
@@ -72,7 +72,7 @@ function buildCard(team, isReadOnly) {
       
       ${!isReadOnly ? `
         <button class="delete-team-btn" title="Delete Team">🗑</button>
-        <div class="color-dot" style="background:${team.color}" title="Change Color"></div>
+        <div class="color-dot" style="background:${escapeAttr(team.color)}" title="Change Color"></div>
         <div class="clr-palette">` + 
           ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355'].map(c => 
             `<div class="cp-sw" style="background:${c}" data-c="${c}"></div>`
@@ -100,7 +100,7 @@ function buildCard(team, isReadOnly) {
 
       <!-- Image Area -->
       <div class="card-img-right ${team.image ? 'loaded' : ''}">
-        <img class="main-shot" src="${team.image || ''}">
+        <img class="main-shot" src="${escapeAttr(team.image || '')}">
         <div class="img-right-overlay">
           <div class="ov-icon">🖼️</div>
           <div>No image</div>
