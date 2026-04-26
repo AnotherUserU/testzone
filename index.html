@@ -639,7 +639,7 @@
       if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
       const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
       const isLight = document.documentElement.classList.contains('light-theme');
-      const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus';
+      const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
       function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL);
@@ -852,6 +852,7 @@
               duration: 0.8, 
               stagger: 0.15, 
               ease: "power3.out",
+              clearProps: "transform",
               scrollTrigger: {
                 trigger: grid,
                 start: "top 85%",
@@ -872,6 +873,7 @@
             y: 0, 
             duration: 0.8, 
             ease: "power2.out",
+            clearProps: "transform",
             scrollTrigger: {
               trigger: el,
               start: "top 90%",
