@@ -2529,9 +2529,12 @@ body.readonly .banner-alert {
   
   /* Touch areas in cards */
   .download-node-btn {
-    min-height: 44px; /* Touch friendly */
-    width: 100%;
-    margin-top: 12px;
+    min-height: 36px;
+    width: auto;
+    margin-top: 0;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
   }
   .card-title {
     font-size: 1.1rem;
