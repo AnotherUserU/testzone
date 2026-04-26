@@ -31,18 +31,6 @@
 
   <div id="appContent" style="display:none;">
 
-    <header class="hero-section" id="hero">
-      <div class="hero-bg" id="heroBg"></div>
-      <div class="hero-content">
-        <h1 class="hero-title" id="heroTitle">TEAM COMPOSITION</h1>
-        <p class="hero-subtitle" id="heroSubtitle">MASTER THE DUNGEON. CONQUER THE RAIDS.</p>
-      </div>
-      <div class="scroll-indicator">
-        <span>SCROLL TO EXPLORE</span>
-        <div class="mouse"></div>
-      </div>
-    </header>
-
     <nav class="nav-header" aria-label="Mode navigation">
       <div style="flex:1;"></div>
       <div class="nav-menu" role="tablist" aria-label="Game modes">
@@ -828,34 +816,6 @@
     function initScrollAnimations() {
       gsap.registerPlugin(ScrollTrigger);
 
-      // Hero Animations
-      gsap.to("#heroTitle", {
-        opacity: 1,
-        y: 0,
-        duration: 1.5,
-        ease: "power4.out",
-        delay: 0.5
-      });
-      gsap.to("#heroSubtitle", {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        delay: 1
-      });
-
-      // Parallax Background
-      gsap.to("#heroBg", {
-        yPercent: 20,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#hero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
-      });
-
       // Scroll Progress Bar
       gsap.to("#scrollProgress", {
         width: "100%",
@@ -877,17 +837,46 @@
         }
       });
 
-      // Reveal Animations for Sections and Cards
-      const revealElements = document.querySelectorAll(".section-label, .main-title, .team-card, .alert-box, .mod-priority, .credits-box");
+      // Staggered Reveal Animations for Cards
+      const grids = document.querySelectorAll(".core-grid, .new-grid");
+      grids.forEach(grid => {
+        const cards = grid.querySelectorAll(".team-card");
+        if (cards.length > 0) {
+          gsap.fromTo(cards, 
+            { opacity: 0, y: 50 }, 
+            {
+              opacity: 1, 
+              y: 0, 
+              duration: 0.8, 
+              stagger: 0.15, 
+              ease: "power3.out",
+              scrollTrigger: {
+                trigger: grid,
+                start: "top 85%",
+                toggleActions: "play none none none"
+              }
+            }
+          );
+        }
+      });
+
+      // Reveal other elements
+      const revealElements = document.querySelectorAll(".section-label, .main-title, .alert-box, .mod-priority, .credits-box");
       revealElements.forEach(el => {
-        el.classList.add("reveal-on-scroll");
-        
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 92%",
-          onEnter: () => el.classList.add("revealed"),
-          once: true
-        });
+        gsap.fromTo(el, 
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1, 
+            y: 0, 
+            duration: 0.8, 
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: el,
+              start: "top 90%",
+              toggleActions: "play none none none"
+            }
+          }
+        );
       });
     }
 
