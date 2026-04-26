@@ -2466,23 +2466,88 @@ body.readonly .banner-alert {
 }
 
 @media(max-width:1000px) {
-
   .core-grid,
   .new-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media(max-width:600px) {
+@media(max-width:768px) {
+  /* Navigation tweaks for mobile */
+  .nav-header {
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+  }
+  .nav-menu {
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+    justify-content: flex-start;
+    scrollbar-width: none; /* Firefox */
+  }
+  .nav-menu::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+  .nav-btn {
+    flex: 0 0 auto;
+    min-height: 44px; /* Touch target minimum */
+    padding: 10px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .nav-search {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 4px;
+  }
+  .nav-search input {
+    width: 100%;
+    min-height: 44px;
+  }
+  .nav-search input:focus {
+    width: 100%;
+  }
 
+  /* Grid scaling */
   .core-grid,
   .new-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
+  /* Card inner responsive tweaks */
   .card-img-right {
-    width: 140px;
-    height: 240px;
+    width: 110px;
+    height: 200px;
+  }
+  .team-card {
+    padding-bottom: 24px;
+  }
+  
+  /* Touch areas in cards */
+  .download-node-btn {
+    min-height: 44px; /* Touch friendly */
+    width: 100%;
+    margin-top: 12px;
+  }
+  .card-title {
+    font-size: 1.1rem;
+  }
+  
+  /* Make main title scale */
+  .main-title {
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  /* Make page padding smaller */
+  #pageBody {
+    padding-left: 12px;
+    padding-right: 12px;
   }
 }
 
