@@ -514,7 +514,10 @@
       const searchInput = document.getElementById('teamSearch');
       if (searchInput) { searchInput.value = ''; handleSearch(''); }
       // Refresh ScrollTrigger as section height might change
-      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+      if (typeof ScrollTrigger !== 'undefined' && typeof initScrollAnimations === 'function') {
+        ScrollTrigger.getAll().forEach(t => t.kill());
+        initScrollAnimations();
+      }
     }
 
     function handleSearch(query) {
