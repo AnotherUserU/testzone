@@ -14,8 +14,11 @@
     href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="/shared/styles/main.css">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://firebasestorage.googleapis.com https://i.imgur.com https://*.imgur.com https://i.ibb.co.com https://*.ibb.co.com; connect-src 'self' https://cdnjs.cloudflare.com;">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" integrity="sha512-H+rglffZ6f5gF7UJgvH4Naa+fGCgjrHKMgoFOGmcPTRwR6oILo5R+gtzNrpDp7iMV3udbymBVjkeZGNz1Em4rQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://firebasestorage.googleapis.com https://i.imgur.com https://*.imgur.com https://i.ibb.co.com https://*.ibb.co.com; connect-src 'self' https://cdnjs.cloudflare.com;">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"
+    integrity="sha512-H+rglffZ6f5gF7UJgvH4Naa+fGCgjrHKMgoFOGmcPTRwR6oILo5R+gtzNrpDp7iMV3udbymBVjkeZGNz1Em4rQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -631,12 +634,12 @@
       const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
       const isLight = document.documentElement.classList.contains('light-theme');
       const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus';
-      function reEnableBtn() { if(dlBtn){ dlBtn.disabled=false; dlBtn.style.opacity=''; } }
+      function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
       if (dlMode === 'fullscreen') {
-        const hide = document.querySelectorAll(HIDE_SEL); 
+        const hide = document.querySelectorAll(HIDE_SEL);
         hide.forEach(el => {
           el.style.display = 'none';
-          if(el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
+          if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
         });
         closeDlModal();
         setTimeout(() => {
@@ -646,18 +649,18 @@
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             hide.forEach(el => {
               el.style.display = '';
-              if(el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
+              if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
             reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
-          }).catch(err => { 
-            console.error(err); 
-            alert('Failed to download.'); 
+          }).catch(err => {
+            console.error(err);
+            alert('Failed to download.');
             hide.forEach(el => {
               el.style.display = '';
-              if(el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
+              if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
-            reEnableBtn(); 
+            reEnableBtn();
           });
         }, 400);
       } else {
@@ -734,7 +737,7 @@
         const data = await res.json();
 
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
-        
+
         // Define sanitization config
         const config = {
           ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
@@ -743,19 +746,19 @@
         };
 
         ALL_MODES.forEach(m => {
-          if (data[m + 'HTML']) { 
-            const el = document.getElementById(PAGE_MAP[m]); 
-            if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], config); 
+          if (data[m + 'HTML']) {
+            const el = document.getElementById(PAGE_MAP[m]);
+            if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], config);
           }
         });
         // Legacy migration
-        if (data.mpChain && !data.dungeonHTML) { 
-          const el = document.getElementById('dungeonMpChain'); 
-          if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, config); 
+        if (data.mpChain && !data.dungeonHTML) {
+          const el = document.getElementById('dungeonMpChain');
+          if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, config);
         }
-        if (data.credDisplay && !data.dungeonHTML) { 
-          const el = document.getElementById('dungeonCredDisplay'); 
-          if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, config); 
+        if (data.credDisplay && !data.dungeonHTML) {
+          const el = document.getElementById('dungeonCredDisplay');
+          if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, config);
         }
         if (data.pageVisibility) {
           ALL_MODES.forEach(m => {
@@ -804,41 +807,8 @@
         loadDefaults();
       }
     }
-
-    /* PREMIUM SCROLL REVEAL ENGINE */
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-    function initReveal() {
-      // Apply reveal class to relevant elements
-      const elements = document.querySelectorAll('.team-card, .section-label, .main-title, .page-block');
-      elements.forEach(el => {
-        el.classList.add('reveal');
-        revealObserver.observe(el);
-      });
-    }
-
-    // Call initReveal after content is loaded/rendered
-    const originalRewireAll = window.rewireAll;
-    window.rewireAll = function() {
-      if (typeof originalRewireAll === 'function') originalRewireAll();
-      setTimeout(initReveal, 100);
-    };
-
-    // Re-init when switching modes
-    const originalSwitchMode = window.switchMode;
-    window.switchMode = function(mode) {
-      if (typeof originalSwitchMode === 'function') {
-        originalSwitchMode(mode);
-        setTimeout(initReveal, 100);
-      }
-    };
   </script>
 
 </body>
-</html>
+
+</html>
