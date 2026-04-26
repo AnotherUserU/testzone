@@ -49,22 +49,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 export function sanitizeHTML(str) {
   if (typeof str !== 'string') return '';
-  const temp = document.createElement('div');
-  temp.innerHTML = str;
-  const scripts = temp.querySelectorAll('script');
-  scripts.forEach(s => s.remove());
-  const allNodes = temp.querySelectorAll('*');
-  for (let i = 0; i < allNodes.length; i++) {
-    const node = allNodes[i];
-    const attrs = node.attributes;
-    for (let j = attrs.length - 1; j >= 0; j--) {
-      if (attrs[j].name.startsWith('on')) {
-        node.removeAttribute(attrs[j].name);
-      }
-      if (attrs[j].name === 'href' && attrs[j].value.toLowerCase().startsWith('javascript:')) {
-        node.removeAttribute('href');
-      }
-    }
+  if (typeof DOMPurify !== 'undefined') {
+    return DOMPurify.sanitize(str, {
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'br'],
+      ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style']
+    });
   }
+  // Fallback if DOMPurify is not loaded
+  const temp = document.createElement('div');
+  temp.textContent = str;
   return temp.innerHTML;
 }
+

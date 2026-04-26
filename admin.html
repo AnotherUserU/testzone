@@ -10,6 +10,8 @@
     rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="stylesheet" href="/shared/styles/main.css">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://firebasestorage.googleapis.com; connect-src 'self';">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js" integrity="sha512-H996pY9UatN8Aun9Y3dIvSAsInUvL/mU8o8f42mU9OQ7Daxu967pYfV4Z9O339S4S4O2oO1Kk3Y1O4O5O5O5O5==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 
 <body>
@@ -1137,9 +1139,12 @@
 
     function sanitizeHTML(str) {
       if (typeof str !== 'string') return '';
-      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-      return str.replace(/[&<>"']/g, function (m) { return map[m]; });
+      return DOMPurify.sanitize(str, {
+        ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'br'],
+        ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style']
+      });
     }
+
 
     function buildCard(t) {
       const color = sanitizeHTML(t.color) || nextColor(); const id = t.id || 'card_' + Date.now();
@@ -1849,14 +1854,30 @@
         const res = await fetch('/api/load');
         if (!res.ok) throw new Error('Cloud error');
         const data = await res.json();
-
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
+
+        // Define sanitization config
+        const config = {
+          ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect'],
+          ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y']
+        };
+
         ALL_MODES.forEach(m => {
-          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
+          if (data[m + 'HTML']) { 
+            const el = document.getElementById(PAGE_MAP[m]); 
+            if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], config); 
+          }
         });
-        // Legacy migration: old global mpChain/credDisplay → dungeon
-        if (data.mpChain && !data.dungeonHTML) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = data.mpChain; }
-        if (data.credDisplay && !data.dungeonHTML) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = data.credDisplay; }
+        // Legacy migration
+        if (data.mpChain && !data.dungeonHTML) { 
+          const el = document.getElementById('dungeonMpChain'); 
+          if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, config); 
+        }
+        if (data.credDisplay && !data.dungeonHTML) { 
+          const el = document.getElementById('dungeonCredDisplay'); 
+          if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, config); 
+        }
+
         if (data.pageVisibility) {
           ALL_MODES.forEach(m => {
             const el = document.getElementById(PV_MAP[m]);
@@ -1872,6 +1893,7 @@
         loadLocal(true);
       }
     }
+
 
     function loadDefaults() {
       const cg = document.getElementById('coreGrid'), ng = document.getElementById('newGrid');

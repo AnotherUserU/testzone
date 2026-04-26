@@ -5,7 +5,11 @@
   "scripts": {
     "dev": "vercel dev --listen 3000"
   },
-  "dependencies": {},
+  "dependencies": {
+    "isomorphic-dompurify": "^3.10.0",
+    "jsdom": "^29.0.2",
+    "jsonwebtoken": "^9.0.3"
+  },
   "devDependencies": {
     "vercel": "latest"
   }
