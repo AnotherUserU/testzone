@@ -1712,6 +1712,7 @@
       document.getElementById('loadLocalBtn').style.display = 'none';
       document.getElementById('deleteLocalBtn').style.display = 'none';
       document.getElementById('roleBadge').style.display = 'none';
+      if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'none';
       loadFromFirebase();
     }
 
@@ -1725,6 +1726,7 @@
       document.getElementById('saveLocalBtn').style.display = '';
       document.getElementById('loadLocalBtn').style.display = '';
       document.getElementById('deleteLocalBtn').style.display = '';
+      if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'block';
       const badge = document.getElementById('roleBadge');
       badge.textContent = '👑 ADMIN'; badge.className = 'admin-badge'; badge.style.display = '';
       showToast('👑 Admin mode activated!');
@@ -1744,6 +1746,7 @@
       document.getElementById('loadLocalBtn').style.display = 'none';
       document.getElementById('deleteLocalBtn').style.display = 'none';
       document.getElementById('roleBadge').style.display = 'none';
+      if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'none';
       showToast('👁 Returned to guest mode.');
       openAdminShortcut();
     }
