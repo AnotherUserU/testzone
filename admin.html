@@ -3,6 +3,18 @@
 
 <head>
   <meta charset="UTF-8">
+  <style>
+    /* Admin UI Helpers */
+    body.is-admin [contenteditable="true"]:hover {
+      outline: 1px dashed var(--cyan);
+      background: rgba(0, 212, 255, 0.05);
+    }
+    body.is-admin .section-label, body.is-admin .main-title {
+      min-width: 50px;
+      min-height: 1.2em;
+      cursor: text;
+    }
+  </style>
   <title>Admin Panel — Team Composition Guide</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link
@@ -1763,19 +1775,25 @@
       document.querySelectorAll('.page-block').forEach(wireBlockDrag);
       document.querySelectorAll('.core-grid,.new-grid').forEach(wireGridDrop);
       
-      // Restore editability to loaded elements if in admin mode
-      if (!isReadonly()) {
-        const editables = [
-          '.card-tag', '.card-title', '.card-desc', 
-          '.mem-name', '.mem-bind', 
-          '.mod-title', '.tips-title', '.mod-item', '.tips-item', '.warn-box',
-          '.team-section-label', '.section-label', '.main-title', '.alert-box', '.h1-block h1', 
-          '.banner-announce', '.banner-title', '.banner-alert', '.mp-pill'
-        ];
-        document.querySelectorAll(editables.join(',')).forEach(el => {
-          el.contentEditable = true;
-        });
-      }
+      // Set editability based on current mode
+      const isEditable = !isReadonly();
+      const editables = [
+        '.card-tag', '.card-title', '.card-desc', 
+        '.mem-name', '.mem-bind', 
+        '.mod-title', '.tips-title', '.mod-item', '.tips-item', '.warn-box',
+        '.team-section-label', '.section-label', '.main-title', '.alert-box', '.h1-block h1', 
+        '.banner-announce', '.banner-title', '.banner-alert', '.mp-pill'
+      ];
+      
+      document.querySelectorAll(editables.join(',')).forEach(el => {
+        el.contentEditable = isEditable;
+        if (isEditable) {
+           // Ensure it has a cursor if it's a div
+           if (el.tagName === 'DIV') el.style.cursor = 'text';
+        } else {
+           if (el.tagName === 'DIV') el.style.cursor = '';
+        }
+      });
 
       document.querySelectorAll('.team-card').forEach(card => {
         enableCardDrag(card);
@@ -1849,6 +1867,7 @@
       const badge = document.getElementById('roleBadge');
       badge.textContent = '👑 ADMIN'; badge.className = 'admin-badge'; badge.style.display = '';
       showToast('👑 Admin mode activated!');
+      loadFromFirebase(); // Ensure fresh data on admin entry
     }
 
     function logoutToGuest() {
@@ -1867,6 +1886,7 @@
       document.getElementById('roleBadge').style.display = 'none';
       if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'none';
       showToast('👁 Returned to guest mode.');
+      rewireAll();
       openAdminShortcut();
     }
 
