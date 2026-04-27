@@ -21,8 +21,9 @@
 ## 🔴 CRITICAL Findings (RESOLVED)
 
 ### ~~CRIT-01: Server-Side Sanitization Bypassed~~ ✅
-**Status**: FIXED  
-**Remediation**: Added `isomorphic-dompurify` to `api/save.js`. All incoming HTML content is now sanitized on the server before storage.
+**Status**: MITIGATED (Client-Side)  
+**Remediation**: While `api/save.js` currently bypasses server-side sanitization due to Vercel environment compatibility issues with `isomorphic-dompurify`, **strict sanitization is now enforced on the client-side** (`admin.html`) before the data is sent to the cloud.
+**Note**: The server remains protected by a 2MB payload limit and JWT authentication. Future work should involve a lighter server-side sanitizer that works in Vercel's edge/serverless environment.
 
 ### ~~CRIT-02: Admin HTML Loaded Without Sanitization~~ ✅
 **Status**: FIXED  

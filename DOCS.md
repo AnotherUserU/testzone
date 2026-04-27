@@ -261,7 +261,7 @@ Request:  { "data": { "dungeonHTML": "...", "storyHTML": "...", "savedAt": "..."
 Response: { "success": true }
 ```
 
-> **CAUTION**: The `save.js` endpoint currently has sanitization **bypassed** (line 22: `const sanitizedData = data;`). This was marked as temporary ("SEMENTARA") for testing. Server-side HTML sanitization with `isomorphic-dompurify` should be re-enabled for production.
+> **CAUTION**: The `save.js` endpoint currently has server-side sanitization **bypassed** (line 22: `const sanitizedData = data;`) due to Vercel environment limitations. However, **strict sanitization is enforced in `admin.html`** before sending data. Server-side HTML sanitization should be a future priority if moving to a more robust backend.
 
 ---
 
@@ -301,6 +301,8 @@ JWT expired → Must re-login
 | `X-XSS-Protection` | `1; mode=block` | XSS filter |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limit referrer data |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disable unused APIs |
+| `Access-Control-Allow-Origin` | `https://testzone-eight.vercel.app` | Restrict API access (CORS) |
+| `SRI (Subresource Integrity)` | `sha512-...` | Verify GSAP & XLSX scripts |
 
 ### Guest Mode Security (`rewireAll()`)
 
@@ -594,12 +596,11 @@ If a `const` is declared twice in the same script block (e.g., `const ALL_MODES`
 
 ### ⚠️ Server-Side Sanitization Bypassed
 
-In `api/save.js` line 22, sanitization is currently bypassed:
-```javascript
-// SEMENTARA: Lewati sanitasi untuk tes koneksi
-const sanitizedData = data;
-```
-This should be re-enabled before production.
+In `api/save.js`, sanitization is currently bypassed because the `isomorphic-dompurify` library caused `FUNCTION_INVOCATION_FAILED` (500) errors in Vercel. 
+**Mitigation**: 
+1.  **Client-Side Sanitization**: `admin.html` runs `DOMPurify.sanitize()` on all HTML data before sending the POST request.
+2.  **Payload Limit**: `api/save.js` enforces a 2MB limit.
+3.  **CORS**: Restricted to the production domain.
 
 ### ⚠️ CSS Z-Index Collisions
 
