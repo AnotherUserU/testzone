@@ -553,6 +553,7 @@
       if (localStorage.getItem('theme') === 'light') { isDarkTheme = false; toggleTheme(); }
     });
 
+    function escapeAttr(str) { return str.replace(/"/g, '&quot;'); }
     function sanitizeHTML(str) {
       if (typeof str !== 'string') return '';
       return DOMPurify.sanitize(str, {
@@ -564,13 +565,13 @@
 
     function buildCard(t) {
       const color = sanitizeHTML(t.color) || nextColor(); const id = t.id || 'card_' + Date.now();
-      const card = document.createElement('div'); card.className = 'team-card'; card.style.setProperty('--tc', color);
+      const card = document.createElement('div'); card.className = 'team-card'; card.style.setProperty('--tc', escapeAttr(color));
       card.innerHTML = `
     <div class="team-card-inner">
-      <div class="card-accent-bar" style="background:linear-gradient(90deg,${color},transparent)"></div>
+      <div class="card-accent-bar" style="background:linear-gradient(90deg,${escapeAttr(color)},transparent)"></div>
       <div class="card-head">
-        <div class="card-tag" style="color:${color}">${sanitizeHTML(t.tag) || 'TEAM TAG'}</div>
-        <div class="card-title" style="color:${color}">${sanitizeHTML(t.title) || 'Team Name'}</div>
+        <div class="card-tag" style="color:${escapeAttr(color)}">${sanitizeHTML(t.tag) || 'TEAM TAG'}</div>
+        <div class="card-title" style="color:${escapeAttr(color)}">${sanitizeHTML(t.title) || 'Team Name'}</div>
         <div class="card-desc">${sanitizeHTML(t.desc) || ''}</div>
       </div>
       <div class="card-body">
@@ -644,6 +645,7 @@
       const isLight = document.documentElement.classList.contains('light-theme');
       const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
       function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
+
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL);
         hide.forEach(el => {
@@ -670,6 +672,7 @@
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
             reEnableBtn();
+            showFbStatus('❌ Failed', 'err');
           });
         }, 400);
       } else {
@@ -677,7 +680,7 @@
         const idx = parseInt(document.getElementById('dlNodeSelect').value);
         if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); reEnableBtn(); return; }
         const card = cards[idx];
-        const hide = card.querySelectorAll('.download-node-btn');
+        const hide = card.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
         hide.forEach(el => el.style.display = 'none'); closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
@@ -688,7 +691,12 @@
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             hide.forEach(el => el.style.display = ''); reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
-          }).catch(err => { console.error(err); alert('Failed.'); hide.forEach(el => el.style.display = ''); reEnableBtn(); });
+          }).catch(err => { 
+            console.error(err); alert('Failed.'); 
+            hide.forEach(el => el.style.display = ''); 
+            reEnableBtn();
+            showFbStatus('❌ Failed', 'err');
+          });
         }, 300);
       }
     }
