@@ -1149,18 +1149,19 @@
       });
     }
 
+    function escapeAttr(str) { return str.replace(/"/g, '&quot;'); }
 
     function buildCard(t) {
       const color = sanitizeHTML(t.color) || nextColor(); const id = t.id || 'card_' + Date.now();
-      const card = document.createElement('div'); card.className = 'team-card'; card.style.setProperty('--tc', color);
+      const card = document.createElement('div'); card.className = 'team-card'; card.style.setProperty('--tc', escapeAttr(color));
       card.innerHTML = `
     <div class="card-drag-handle" title="Drag card">⠿⠿</div>
-    <div class="color-dot" style="background:${color}" title="Change color"></div>
+    <div class="color-dot" style="background:${escapeAttr(color)}" title="Change color"></div>
     <div class="team-card-inner">
-      <div class="card-accent-bar" style="background:linear-gradient(90deg,${color},transparent)"></div>
+      <div class="card-accent-bar" style="background:linear-gradient(90deg,${escapeAttr(color)},transparent)"></div>
       <div class="card-head">
-        <div class="card-tag" contenteditable="true" style="color:${color}">${sanitizeHTML(t.tag) || 'TEAM TAG'}</div>
-        <div class="card-title" contenteditable="true" style="color:${color}">${sanitizeHTML(t.title) || 'Team Name'}</div>
+        <div class="card-tag" contenteditable="true" style="color:${escapeAttr(color)}">${sanitizeHTML(t.tag) || 'TEAM TAG'}</div>
+        <div class="card-title" contenteditable="true" style="color:${escapeAttr(color)}">${sanitizeHTML(t.title) || 'Team Name'}</div>
         <div class="card-desc" contenteditable="true">${sanitizeHTML(t.desc) || 'Click to edit...'}</div>
       </div>
       <div class="card-body">
@@ -1315,6 +1316,9 @@
       const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus';
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL);
+        const editables = document.querySelectorAll('[contenteditable="true"]');
+        editables.forEach(el => el.contentEditable = false);
+
         hide.forEach(el => {
           el.style.display = 'none';
           if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
@@ -1322,13 +1326,14 @@
         closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
-          html2canvas(document.body, { scale: 4, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
+          html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             hide.forEach(el => {
               el.style.display = '';
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
+            editables.forEach(el => el.contentEditable = true);
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => {
             console.error(err);
@@ -1337,6 +1342,8 @@
               el.style.display = '';
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
+            editables.forEach(el => el.contentEditable = true);
+            showFbStatus('❌ Failed', 'err');
           });
         }, 400);
       } else {
@@ -1351,7 +1358,7 @@
         hide.forEach(el => el.style.display = 'none'); closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
-          html2canvas(card, { scale: 4, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
+          html2canvas(card, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
             const a = document.createElement('a');
             const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
             a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
