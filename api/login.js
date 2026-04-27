@@ -10,7 +10,13 @@ export default async function handler(req, res) {
   const jwtSecret = process.env.ADMIN_TOKEN || adminPassword;
 
   if (!adminPassword) {
-    return res.status(500).json({ error: 'Admin password not configured' });
+    console.error('Critical Error: ADMIN_PASSWORD environment variable is missing.');
+    return res.status(500).json({ error: 'Server configuration error' });
+  }
+
+  // Basic input validation
+  if (!password || typeof password !== 'string' || password.length > 1024) {
+    return res.status(400).json({ error: 'Invalid password format' });
   }
 
   if (password === adminPassword) {

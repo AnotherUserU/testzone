@@ -29,6 +29,12 @@ export default async function handler(req, res) {
     jwt.verify(token, jwtSecret);
     const { data } = req.body;
 
+    // Payload size limit (roughly 512KB) to prevent resource exhaustion
+    const payloadSize = JSON.stringify(req.body).length;
+    if (payloadSize > 512 * 1024) {
+      return res.status(413).json({ error: 'Payload too large' });
+    }
+
     // Input validation
     if (!data || typeof data !== 'object') {
       return res.status(400).json({ error: 'Invalid data format' });
