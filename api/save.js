@@ -28,11 +28,6 @@ export default async function handler(req, res) {
     const cleanUrl = dbUrl.replace(/\/$/, '');
     const finalUrl = fbAuth ? `${cleanUrl}/guide.json?auth=${fbAuth}` : `${cleanUrl}/guide.json`;
 
-    console.log('Firebase Save Attempt (No-Sanitize Test):', { 
-      authEnabled: !!fbAuth,
-      url: finalUrl.split('?')[0]
-    });
-
     const response = await fetch(finalUrl, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

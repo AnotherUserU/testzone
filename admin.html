@@ -1844,9 +1844,19 @@
 
       showFbStatus('⛳ Saving...', 'loading');
       const data = { savedAt: new Date().toLocaleString() };
+      
+      // Sanitize before sending to cloud
+      const config = {
+        ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
+        ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable'],
+        ADD_ATTR: ['onclick']
+      };
+
       ALL_MODES.forEach(m => {
-        data[m + 'HTML'] = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
+        const html = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
+        data[m + 'HTML'] = DOMPurify.sanitize(html, config);
       });
+
       const pv = {};
       ALL_MODES.forEach(m => { const el = document.getElementById(PV_MAP[m]); pv[m] = el ? el.checked : true; });
       data.pageVisibility = pv;
