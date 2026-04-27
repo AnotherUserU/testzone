@@ -4,7 +4,7 @@
 > **Repository**: [AnotherUserU/imlosttho](https://github.com/AnotherUserU/imlosttho)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-04-27
+> **Last Updated**: 2026-04-27 (Hardening & Admin UI Overhaul)
 
 ---
 
@@ -441,6 +441,13 @@ Credits operate at two levels:
 | 4 | `9999` | Modals (`.modal-ov`, `.dl-ov`, etc.) |
 | 5 | `99999` | `#adminShortcutOverlay` (login modal) |
 
+### Admin UI Helpers (admin.html)
+
+Added visual indicators for editable elements in Admin mode:
+- **Focus Indicator**: Elements with `contenteditable="true"` get a dashed cyan outline on hover.
+- **Empty State**: `min-height` and `min-width` enforced on labels/titles to ensure they remain clickable even when empty.
+- **Cursor**: `cursor: text` explicitly set on editable `div` elements via `rewireAll()`.
+
 ### Stylesheet Architecture
 
 ```
@@ -466,9 +473,9 @@ admin-only.css   → Admin UI elements (edit handles, drag indicators)
 3. If response OK → parse JSON
 4. For each mode in ALL_MODES:
    a. Find section element by PAGE_MAP[mode]
-   b. Set innerHTML = data[mode + 'HTML']
-5. Call injectCardCredits() to add per-card credits
-6. Call rewireAll() (guest only) to strip admin UI
+   b. Set innerHTML = DOMPurify.sanitize(data[mode + 'HTML'], config)
+5. Call rewireAll() to restore editability and event listeners
+6. Call refreshAllCardCredits()
 7. Show "✅ Loaded" status
 ```
 
@@ -512,18 +519,27 @@ Two modes:
 ```javascript
 // Admin Mode
 function enterAsAdmin() {
-  document.body.classList.add('is-admin');
+  currentRole = 'admin';
   document.body.classList.remove('readonly');
-  document.getElementById('appContent').style.display = 'block';
-  // Enable all contenteditable fields
-  // Show edit buttons, drag handles, etc.
+  document.body.classList.add('is-admin');
+  loadFromFirebase(); // Forces a data refresh and runs rewireAll()
 }
 
 // Guest Mode
 function enterAsGuest() {
-  document.getElementById('appContent').style.display = 'block';
+  currentRole = 'guest';
+  document.body.classList.add('readonly');
+  document.body.classList.remove('is-admin');
   loadFromFirebase(); // Then rewireAll() strips admin elements
 }
+
+### `rewireAll()` — Event & Editability Restoration
+
+This function is critical for restoring functionality to HTML loaded dynamically:
+1.  **Block Dragging**: Re-attaches `wireBlockDrag` to all `.page-block` elements.
+2.  **Grid Dropping**: Re-attaches `wireGridDrop` to all `.core-grid` and `.new-grid`.
+3.  **Editability**: Iterates through the `editables` array (titles, labels, descriptions) and sets `contentEditable = true` if in admin mode, `false` otherwise.
+4.  **Card Interactions**: Re-attaches card dragging, member dragging, and color palette listeners.
 ```
 
 ---
