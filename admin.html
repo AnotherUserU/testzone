@@ -1452,12 +1452,6 @@
           });
         }, 300);
       }
-            hide.forEach(el => el.style.display = ''); 
-            editables.forEach(el => el.contentEditable = true);
-            showFbStatus('❌ Failed', 'err');
-          });
-        }, 300);
-      }
     }
 
     function openLabelColorPicker(el, event) {
@@ -1800,8 +1794,6 @@
       });
       document.querySelectorAll('.mp-pill').forEach(wirePillDelete);
     }
-
-    window.onload = () => enterAsGuest();
   </script>
 
   <script>
