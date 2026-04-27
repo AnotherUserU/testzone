@@ -1,0 +1,1085 @@
+/* 
+  Admin Dashboard Logic for Team Composition Guide
+  Design & Implementation by AnotherUseru
+  Securely handles Firebase interactions, DOM manipulation, and Admin authorization.
+*/
+
+const APP_CONFIG = {
+  PAGE_MAP: { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection', worldBoss: 'worldBossSection' },
+  GROUPS_MAP: { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups', worldBoss: 'worldBossGroups' },
+  MP_MAP: { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain', worldBoss: 'worldBossMpChain' },
+  CRED_MAP: { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay', worldBoss: 'worldBossCredDisplay' },
+  PV_MAP: { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower', worldBoss: 'pvWorldBoss' },
+  ALL_MODES: ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'],
+  TEAM_COLORS: ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355'],
+  H1_COLORS: ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355', '#ffffff', '#aaccff', '#ff9999', '#99ffcc'],
+  SECURITY: {
+    CLOUD_CONFIG: {
+      ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
+      ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
+      ALLOW_DATA_ATTR: true
+    }
+  }
+};
+
+const { PAGE_MAP, GROUPS_MAP, MP_MAP, CRED_MAP, PV_MAP, ALL_MODES, TEAM_COLORS, H1_COLORS, SECURITY } = APP_CONFIG;
+let colorIdx = 0, currentRole = 'guest', currentMode = 'dungeon';
+function nextColor() { return TEAM_COLORS[colorIdx++ % TEAM_COLORS.length]; }
+
+function isReadonly() { return document.body.classList.contains('readonly'); }
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast'); if (!t) return;
+  t.textContent = msg; t.className = 'toast' + (isErr ? ' err' : ''); t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function showFbStatus(msg, type) {
+  const el = document.getElementById('fbStatus'); if (!el) return;
+  el.textContent = msg; el.className = 'show ' + (type || 'ok'); 
+  clearTimeout(el._t); el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
+}
+
+function switchMode(mode) {
+  if (!ALL_MODES.includes(mode)) return;
+  currentMode = mode;
+  document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const sec = document.getElementById(PAGE_MAP[mode]);
+  if (sec) sec.classList.add('active');
+  const btn = document.querySelector(`.nav-btn[data-mode="${mode}"]`);
+  if (btn) btn.classList.add('active');
+}
+
+let isDarkTheme = true;
+function toggleTheme() {
+  isDarkTheme = !isDarkTheme;
+  const root = document.documentElement, btn = document.getElementById('themeToggle');
+  if (isDarkTheme) { root.classList.remove('light-theme'); btn.textContent = '🌙 Dark'; }
+  else { root.classList.add('light-theme'); btn.textContent = '☀️ Light'; }
+  localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
+}
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('theme') === 'light') { isDarkTheme = false; toggleTheme(); }
+});
+
+let activeImgId = null;
+function openModal(id) {
+  if (isReadonly()) return;
+  activeImgId = id;
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('modalInput').focus(), 60);
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); activeImgId = null; }
+function applyImg() {
+  if (!activeImgId) return closeModal();
+  const url = document.getElementById('modalInput').value.trim();
+  if (!url) { alert('Enter image link!'); return; }
+  const panel = document.getElementById('panel-' + activeImgId);
+  if (panel) {
+    let img = panel.querySelector('img');
+    if (!img) { img = document.createElement('img'); panel.appendChild(img); }
+    img.src = url; img.onerror = () => alert('Image failed to load.');
+    panel.classList.add('loaded');
+  }
+  closeModal();
+}
+document.getElementById('modalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') applyImg(); if (e.key === 'Escape') closeModal();
+});
+
+let activeH1Btn = null, h1Color = '#f5c842';
+function buildH1Grid() {
+  const g = document.getElementById('h1ColorGrid'); g.innerHTML = '';
+  H1_COLORS.forEach(c => {
+    const s = document.createElement('div'); s.className = 'h1-swatch' + (c === h1Color ? ' sel' : '');
+    s.style.background = c;
+    s.onclick = () => { h1Color = c; document.getElementById('h1Custom').value = c; g.querySelectorAll('.h1-swatch').forEach(x => x.classList.remove('sel')); s.classList.add('sel'); };
+    g.appendChild(s);
+  });
+}
+document.getElementById('h1Custom').addEventListener('input', e => {
+  h1Color = e.target.value;
+  document.getElementById('h1ColorGrid').querySelectorAll('.h1-swatch').forEach(x => x.classList.remove('sel'));
+});
+function openH1Modal(btn) {
+  activeH1Btn = btn; h1Color = '#f5c842';
+  document.getElementById('h1Text').value = ''; buildH1Grid();
+  document.getElementById('h1Modal').classList.add('open');
+  setTimeout(() => document.getElementById('h1Text').focus(), 60);
+}
+function closeH1Modal() { document.getElementById('h1Modal').classList.remove('open'); activeH1Btn = null; }
+function applyH1() {
+  const text = sanitizeHTML(document.getElementById('h1Text').value.trim() || 'Heading'); const c = h1Color;
+  const block = document.createElement('div'); block.className = 'h1-block';
+  block.innerHTML = `<h1 contenteditable="true" style="color:${c};text-shadow:0 0 14px ${c}66">${text}</h1><span class="delete-box" onclick="this.closest('.h1-block').remove()">✕</span>`;
+  if (activeH1Btn) activeH1Btn.closest('.card-foot').querySelector('.foot-content').appendChild(block);
+  closeH1Modal();
+}
+document.getElementById('h1Text').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); applyH1(); } if (e.key === 'Escape') closeH1Modal();
+});
+
+function makeColorPalette(card, initColor) {
+  const pal = document.createElement('div'); pal.className = 'clr-palette';
+  TEAM_COLORS.forEach(c => {
+    const s = document.createElement('div'); s.className = 'cp-sw'; s.style.background = c; s.title = c;
+    s.onclick = e => { e.stopPropagation(); setCardColor(card, c); pal.classList.remove('open'); };
+    pal.appendChild(s);
+  });
+  const ci = document.createElement('input'); ci.type = 'color'; ci.value = initColor || '#f5c842';
+  ci.style.cssText = 'width:22px;height:22px;border:none;border-radius:50%;cursor:pointer;padding:0;background:none;';
+  ci.title = 'Custom'; ci.addEventListener('input', e => { setCardColor(card, e.target.value); pal.classList.remove('open'); });
+  pal.appendChild(ci); return pal;
+}
+function setCardColor(card, color) {
+  card.style.setProperty('--tc', color);
+  const dot = card.querySelector('.color-dot'); if (dot) dot.style.background = color;
+  card.querySelectorAll('.card-tag,.card-title,.mem-num').forEach(el => el.style.color = color);
+  card.querySelector('.card-accent-bar').style.background = `linear-gradient(90deg,${color},transparent)`;
+}
+
+let dragBlock = null;
+function wireBlockDrag(block) {
+  const h = block.querySelector(':scope > .block-handle'); if (!h) return;
+  h.addEventListener('mousedown', () => block.setAttribute('draggable', 'true'));
+  block.addEventListener('dragstart', e => {
+    if (isReadonly()) { e.preventDefault(); return; }
+    dragBlock = block; block.classList.add('dragging-block'); e.dataTransfer.effectAllowed = 'move'; e.stopPropagation();
+  });
+  block.addEventListener('dragend', () => {
+    block.setAttribute('draggable', 'false'); block.classList.remove('dragging-block');
+    document.querySelectorAll('.block-drag-over').forEach(b => b.classList.remove('block-drag-over')); dragBlock = null;
+  });
+}
+
+function enableCardDrag(card) {
+  const handle = card.querySelector('.card-drag-handle');
+  if (handle) {
+    handle.addEventListener('mousedown', () => { if (!isReadonly()) card.setAttribute('draggable', 'true'); });
+  }
+  card.addEventListener('dragstart', e => {
+    if (isReadonly()) { e.preventDefault(); return; }
+    dragCard = card; card.classList.add('dragging-card'); e.dataTransfer.effectAllowed = 'move'; e.stopPropagation();
+  });
+  card.addEventListener('dragend', () => {
+    card.setAttribute('draggable', 'false'); card.classList.remove('dragging-card');
+    document.querySelectorAll('.drag-over-card').forEach(c => c.classList.remove('drag-over-card')); dragCard = null;
+  });
+  card.addEventListener('dragover', e => {
+    e.preventDefault(); e.stopPropagation();
+    if (dragCard && dragCard !== card) card.classList.add('drag-over-card');
+  });
+  card.addEventListener('dragleave', () => card.classList.remove('drag-over-card'));
+  card.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation(); card.classList.remove('drag-over-card');
+    if (dragCard && dragCard !== card) {
+      const dg = card.parentNode; const cards = [...dg.children]; dg.insertBefore(dragCard, cards[cards.indexOf(card)]);
+    }
+  });
+}
+function wireGridDrop(grid) {
+  grid.addEventListener('dragover', e => { e.preventDefault(); if (!isReadonly()) grid.classList.add('drag-over'); });
+  grid.addEventListener('dragleave', () => grid.classList.remove('drag-over'));
+  grid.addEventListener('drop', e => {
+    e.preventDefault(); grid.classList.remove('drag-over');
+    if (dragCard && dragCard.parentNode !== grid && !isReadonly()) grid.appendChild(dragCard);
+  });
+}
+
+let dragCard = null;
+let dragMem = null;
+function enableMemDrag(row) {
+  row.setAttribute('draggable', 'true');
+  row.addEventListener('dragstart', e => {
+    if (isReadonly()) { e.preventDefault(); return; }
+    dragMem = row; row.classList.add('dragging-mem'); e.stopPropagation(); e.dataTransfer.effectAllowed = 'move';
+  });
+  row.addEventListener('dragend', () => {
+    row.classList.remove('dragging-mem');
+    document.querySelectorAll('.over-mem').forEach(r => r.classList.remove('over-mem')); dragMem = null;
+  });
+  row.addEventListener('dragover', e => {
+    e.preventDefault(); e.stopPropagation();
+    if (dragMem && dragMem !== row) row.classList.add('over-mem');
+  });
+  row.addEventListener('dragleave', () => row.classList.remove('over-mem'));
+  row.addEventListener('drop', e => {
+    e.preventDefault(); e.stopPropagation(); row.classList.remove('over-mem');
+    if (dragMem && dragMem !== row) {
+      const c = row.parentNode; const rows = [...c.querySelectorAll('.mem-row')];
+      c.insertBefore(dragMem, rows[rows.indexOf(row)]); renumMembers(c);
+    }
+  });
+}
+function renumMembers(container) {
+  container.querySelectorAll('.mem-row').forEach((r, i) => { const n = r.querySelector('.mem-num'); if (n) n.textContent = i + 1; });
+}
+
+function sanitizeHTML(str) {
+  if (typeof str !== 'string') return '';
+  return DOMPurify.sanitize(str, { ALLOWED_TAGS: SECURITY.ALLOWED_TAGS || ['b', 'i', 'em', 'strong', 'a', 'span', 'br'], ALLOWED_ATTR: SECURITY.ALLOWED_ATTR || ['href', 'title', 'target', 'class', 'style'] });
+}
+
+function escapeAttr(str) { return str.replace(/"/g, '&quot;'); }
+
+function buildCard(t) {
+  const color = sanitizeHTML(t.color) || nextColor(); const id = t.id || 'card_' + Date.now();
+  const card = document.createElement('div'); card.className = 'team-card'; card.style.setProperty('--tc', escapeAttr(color));
+  card.innerHTML = `
+<div class="card-drag-handle" title="Drag card">⠿⠿</div>
+<div class="color-dot" style="background:${escapeAttr(color)}" title="Change color"></div>
+<div class="team-card-inner">
+  <div class="card-accent-bar" style="background:linear-gradient(90deg,${escapeAttr(color)},transparent)"></div>
+  <div class="card-head">
+    <div class="card-tag" contenteditable="true" style="color:${escapeAttr(color)}">${sanitizeHTML(t.tag) || 'TEAM TAG'}</div>
+    <div class="card-title" contenteditable="true" style="color:${escapeAttr(color)}">${sanitizeHTML(t.title) || 'Team Name'}</div>
+    <div class="card-desc" contenteditable="true">${sanitizeHTML(t.desc) || 'Click to edit...'}</div>
+  </div>
+  <div class="card-body">
+    <div class="card-members">
+      ${(t.members || []).map((m, i) => `
+        <div class="mem-row">
+          <div class="mem-num" style="color:${color}">${i + 1}</div>
+          <div style="flex:1">
+            <div class="mem-name" contenteditable="true">${sanitizeHTML(m.name)}</div>
+            <div class="mem-bind" contenteditable="true">${sanitizeHTML(m.bind)}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+    <div class="card-img-right" id="panel-${id}" onclick="openModal('${id}')">
+      <img src="" alt="">
+      <div class="img-right-overlay"><div class="ov-icon">🖼</div><div>Click to add image</div></div>
+    </div>
+  </div>
+  <div class="card-foot">
+    <div class="foot-content"></div>
+    <div class="card-footer-credits">
+      <span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span>
+      <span class="foot-cred-contributor"></span>
+    </div>
+    <div style="text-align:center;margin-top:10px;border-top:1px solid rgba(255,255,255,.05);padding-top:10px">
+      <button class="edit-btn" onclick="addModBox(this)">➕ Require Box</button>
+      <button class="edit-btn" onclick="addTipsBox(this)">➕ Tips Box</button>
+      <button class="edit-btn" onclick="addWarnBox(this)">➕ Danger Box</button>
+      <button class="edit-btn" onclick="openH1Modal(this)">➕ Heading</button>
+      <button class="edit-btn" onclick="addMember(this)">➕ Unit</button>
+    </div>
+  </div>
+</div>
+<button class="delete-team-btn" onclick="this.closest('.team-card').remove()">🗑 Delete</button>
+<button class="download-node-btn" onclick="openDlModal(this)">Screenshot</button>`;
+
+  card.querySelectorAll('.mem-row').forEach(row => {
+    enableMemDrag(row);
+    const del = document.createElement('span'); del.className = 'delete-mem'; del.innerHTML = '✕';
+    del.onclick = () => { row.remove(); renumMembers(row.closest('.card-members')); };
+    row.appendChild(del);
+  });
+
+  const dot = card.querySelector('.color-dot');
+  const pal = makeColorPalette(card, color); card.appendChild(pal);
+  dot.addEventListener('click', e => { e.stopPropagation(); pal.classList.toggle('open'); });
+  document.addEventListener('click', () => pal.classList.remove('open'), true);
+
+  enableCardDrag(card);
+  return card;
+}
+
+function getFC(btn) { return btn.closest('.card-foot').querySelector('.foot-content'); }
+function addModBox(btn) {
+  const b = document.createElement('div'); b.className = 'mod-box';
+  b.innerHTML = `<div class="mod-title" contenteditable="true">🔶 REQUIRED</div><div class="mod-list"></div><button class="add-point-btn" onclick="addPt(this)">+ Add Point</button><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
+  addPtTo(b.querySelector('.mod-list')); getFC(btn).appendChild(b);
+}
+function addPt(btn) { addPtTo(btn.parentElement.querySelector('.mod-list')); }
+function addPtTo(list) { const i = document.createElement('div'); i.className = 'mod-item'; i.contentEditable = true; i.textContent = 'New Point'; list.appendChild(i); }
+function addTipsBox(btn) {
+  const b = document.createElement('div'); b.className = 'tips-box';
+  b.innerHTML = `<div class="tips-title" contenteditable="true">💡 TIPS</div><div class="tips-list"></div><button class="add-point-btn" onclick="addTp(this)">+ Add Point</button><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
+  addTpTo(b.querySelector('.tips-list')); getFC(btn).appendChild(b);
+}
+function addTp(btn) { addTpTo(btn.parentElement.querySelector('.tips-list')); }
+function addTpTo(list) { const i = document.createElement('div'); i.className = 'tips-item'; i.contentEditable = true; i.textContent = 'New Tips'; list.appendChild(i); }
+function addWarnBox(btn) {
+  const b = document.createElement('div'); b.className = 'warn-box'; b.contentEditable = true;
+  b.innerHTML = `⚠ Write warning here...<span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`;
+  getFC(btn).appendChild(b);
+}
+function refreshAllCardCredits() {
+  ALL_MODES.forEach(mode => {
+    const section = document.getElementById(PAGE_MAP[mode]);
+    if (!section) return;
+    const credBox = section.querySelector('.cred-display');
+    if (!credBox) return;
+
+    const pills = [];
+    credBox.querySelectorAll('.cred-pill').forEach(pill => {
+      const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase() || '';
+      const nameEl = pill.querySelector('.cred-name');
+      const name = nameEl?.textContent || '';
+      const color = nameEl?.style.color || '#f5c842';
+      if (name && !name.toLowerCase().includes('anotheruseru')) {
+        pills.push({ lbl, name, color });
+      }
+    });
+
+    section.querySelectorAll('.team-card').forEach(card => {
+      const tagText = card.querySelector('.card-tag')?.textContent || '';
+      const titleText = card.querySelector('.card-title')?.textContent || '';
+      const combined = (tagText + ' ' + titleText).toUpperCase();
+      const nums = combined.match(/\d+/g) || [];
+      let contributor = null;
+
+      for (const n of nums) {
+        const cardNum = parseInt(n);
+        const match = pills.find(p => {
+          if (p.lbl.match(new RegExp('\\b' + n + '\\b'))) return true;
+          const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
+          if (rangeMatches) {
+            for (const rangeStr of rangeMatches) {
+              const [start, end] = rangeStr.split('-').map(v => parseInt(v.trim()));
+              if (cardNum >= start && cardNum <= end) return true;
+            }
+          }
+          return false;
+        });
+        if (match) { contributor = match; break; }
+      }
+
+      let footer = card.querySelector('.card-foot');
+      if (!card.querySelector('.card-footer-credits') && footer) {
+        const credContainer = document.createElement('div');
+        credContainer.className = 'card-footer-credits';
+        credContainer.innerHTML = `<span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span><span class="foot-cred-contributor"></span>`;
+        footer.appendChild(credContainer);
+      }
+
+      const contributorTarget = card.querySelector('.foot-cred-contributor');
+      if (contributorTarget) {
+        if (contributor) {
+          contributorTarget.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name" style="color:${escapeAttr(contributor.color)}">${escapeAttr(contributor.name)}</span></span>`;
+        } else {
+          contributorTarget.innerHTML = '';
+        }
+      }
+    });
+  });
+}
+
+function addMember(btn) {
+  const container = btn.closest('.team-card').querySelector('.card-members');
+  const color = getComputedStyle(btn.closest('.team-card')).getPropertyValue('--tc').trim() || '#f5c842';
+  const num = container.querySelectorAll('.mem-row').length + 1;
+  const row = document.createElement('div'); row.className = 'mem-row';
+  row.innerHTML = `<div class="mem-num" style="color:${color}">${num}</div><div style="flex:1"><div class="mem-name" contenteditable="true">New Unit Name</div><div class="mem-bind" contenteditable="true">· Binding Vow</div></div>`;
+  const del = document.createElement('span'); del.className = 'delete-mem'; del.innerHTML = '✕';
+  del.onclick = () => { row.remove(); renumMembers(container); };
+  row.appendChild(del); enableMemDrag(row); container.appendChild(row);
+}
+
+function addNewCoreTeam() {
+  const card = buildCard({ id: 'core_' + Date.now(), tag: 'NEW CORE TEAM', title: 'New Core Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  document.getElementById('coreGrid').appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function addNewTeam() {
+  const card = buildCard({ id: 'new_' + Date.now(), tag: 'NEW TEAM', title: 'New Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  document.getElementById('newGrid').appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function addNewStoryCoreTeam() {
+  const grid = document.getElementById('storyCoreGrid'); if (!grid) return;
+  const card = buildCard({ id: 'story_core_' + Date.now(), tag: 'STORY CORE TEAM', title: 'Story Core Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function addNewStoryTeam() {
+  const grid = document.getElementById('storyNewGrid'); if (!grid) return;
+  const card = buildCard({ id: 'story_new_' + Date.now(), tag: 'STORY NEW TEAM', title: 'Story New Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function addGenericCoreTeam(gridId, prefix) {
+  const grid = document.getElementById(gridId); if (!grid) return;
+  const card = buildCard({ id: gridId + '_' + Date.now(), tag: prefix + ' CORE TEAM', title: prefix + ' Core Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function addGenericNewTeam(gridId, prefix) {
+  const grid = document.getElementById(gridId); if (!grid) return;
+  const card = buildCard({ id: gridId + '_' + Date.now(), tag: prefix + ' NEW TEAM', title: prefix + ' New Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+let dlMode = 'fullscreen', dlFmt = 'png';
+window.downloadNode = function (btn) { openDlModal(btn); }; // Fallback for older database versions
+function openDlModal(btn) {
+  const sel = document.getElementById('dlNodeSelect'); sel.innerHTML = '<option value="">-- Select card --</option>';
+  document.querySelectorAll('.team-card').forEach((card, i) => {
+    const title = card.querySelector('.card-title')?.textContent.trim() || ('Card ' + (i + 1));
+    const opt = document.createElement('option'); opt.value = i; opt.textContent = title; sel.appendChild(opt);
+  });
+  if (btn) {
+    setDlMode('node');
+    const cards = [...document.querySelectorAll('.team-card')];
+    const idx = cards.indexOf(btn.closest('.team-card')); if (idx >= 0) sel.value = idx;
+  } else { setDlMode('fullscreen'); }
+  setDlFmt('png'); document.getElementById('dlModal').classList.add('open');
+}
+function closeDlModal() { document.getElementById('dlModal').classList.remove('open'); }
+function setDlMode(m) {
+  dlMode = m;
+  document.getElementById('dlModeFullscreen').classList.toggle('active', m === 'fullscreen');
+  document.getElementById('dlModeNode').classList.toggle('active', m === 'node');
+  document.getElementById('dlNodePicker').style.display = m === 'node' ? 'block' : 'none';
+}
+function setDlFmt(f) {
+  dlFmt = f;
+  document.getElementById('dlFmtPng').classList.toggle('active', f === 'png');
+  document.getElementById('dlFmtJpg').classList.toggle('active', f === 'jpg');
+  document.getElementById('dlQualityWrap').style.display = f === 'jpg' ? 'block' : 'none';
+}
+function doDlDownload() {
+  if (typeof html2canvas === 'undefined') {
+    showFbStatus('⏳ Loading capture tools...', 'loading');
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = () => executeDownload();
+    document.head.appendChild(script);
+  } else {
+    executeDownload();
+  }
+}
+
+function executeDownload() {
+  const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
+  const isLight = document.documentElement.classList.contains('light-theme');
+  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus';
+  
+  if (dlMode === 'fullscreen') {
+    const hide = document.querySelectorAll(HIDE_SEL);
+    const editables = document.querySelectorAll('[contenteditable="true"]');
+    
+    editables.forEach(el => el.contentEditable = false);
+
+    hide.forEach(el => {
+      el.style.display = 'none';
+      if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
+    });
+    closeDlModal();
+    setTimeout(() => {
+      showFbStatus('Capturing...', 'loading');
+      html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
+        const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
+        a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
+        hide.forEach(el => {
+          el.style.display = '';
+          if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
+        });
+        editables.forEach(el => el.contentEditable = true);
+        showFbStatus('✅ Downloaded', 'ok');
+      }).catch(err => {
+        console.error(err);
+        alert('Failed to download.');
+        hide.forEach(el => {
+          el.style.display = '';
+          if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
+        });
+        editables.forEach(el => el.contentEditable = true);
+        showFbStatus('❌ Failed', 'err');
+      });
+    }, 400);
+  } else {
+    const cards = [...document.querySelectorAll('.team-card')];
+    const idx = parseInt(document.getElementById('dlNodeSelect').value);
+    if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); return; }
+    const card = cards[idx];
+    const editables = card.querySelectorAll('[contenteditable="true"]');
+    const cardCredits = card.querySelectorAll('.card-footer-credits');
+    
+    editables.forEach(el => el.contentEditable = false);
+    cardCredits.forEach(el => el.style.display = 'flex');
+
+    const hide = card.querySelectorAll('.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.download-node-btn');
+    hide.forEach(el => el.style.display = 'none'); closeDlModal();
+    setTimeout(() => {
+      showFbStatus('Capturing...', 'loading');
+      html2canvas(card, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
+        const a = document.createElement('a');
+        const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
+        a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
+        a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
+        hide.forEach(el => el.style.display = '');
+        editables.forEach(el => el.contentEditable = true);
+        cardCredits.forEach(el => el.style.display = '');
+        showFbStatus('✅ Downloaded', 'ok');
+      }).catch(err => { 
+        console.error(err); alert('Failed.'); 
+        hide.forEach(el => el.style.display = ''); 
+        editables.forEach(el => el.contentEditable = true);
+        cardCredits.forEach(el => el.style.display = '');
+        showFbStatus('❌ Failed', 'err');
+      });
+    }, 300);
+  }
+}
+
+function openLabelColorPicker(el, event) {
+  if (isReadonly()) return; if (event) event.stopPropagation();
+  const picker = document.createElement('input'); picker.type = 'color';
+  picker.value = rgbToHex(window.getComputedStyle(el).color); picker.style.display = 'none';
+  document.body.appendChild(picker); picker.click();
+  picker.oninput = e => el.style.color = e.target.value; picker.onchange = () => picker.remove();
+}
+function rgbToHex(rgb) {
+  if (!rgb) return '#f5c842'; const r = rgb.match(/\d+/g);
+  if (!r || r.length < 3) return '#f5c842';
+  return '#' + r.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
+}
+
+function addTeamSection(containerId) {
+  const container = document.getElementById(containerId); if (!container) return;
+  const sectionId = 'ts_' + Date.now(); const gridId = 'grid_' + sectionId;
+  const section = document.createElement('div'); section.className = 'team-section page-block'; section.dataset.sectionId = sectionId;
+  section.innerHTML = `<span class="block-handle">⠿⠿</span><div class="team-section-header"><div class="team-section-label" contenteditable="true" spellcheck="false" ondblclick="openLabelColorPicker(this,event)">NEW SECTION</div><button class="del-section-btn" onclick="deleteTeamSection(this)">🗑 Delete Section</button></div><div class="grid-wrap"><div class="core-grid" id="${gridId}"></div></div><div class="team-section-actions"><button class="edit-btn" onclick="addTeamToSection('${gridId}')">➕ Add Team</button></div>`;
+  container.appendChild(section);
+  wireBlockDrag(section);
+  wireGridDrop(section.querySelector('.core-grid'));
+  setTimeout(() => { const lbl = section.querySelector('.team-section-label'); if (lbl) { lbl.focus(); selectAll(lbl); } }, 80);
+  section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function addTeamToSection(gridId) {
+  const grid = document.getElementById(gridId); if (!grid) return;
+  const card = buildCard({ id: 'sec_' + Date.now(), tag: 'NEW TEAM', title: 'New Team', desc: 'Click text to edit...', members: [{ name: 'New Unit', bind: 'Binding Vow' }] });
+  grid.appendChild(card); card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function deleteTeamSection(btn) {
+  const section = btn.closest('.team-section'); if (!section) return;
+  const cc = section.querySelectorAll('.team-card').length;
+  if (!confirm(cc > 0 ? 'Delete this section and all ' + cc + ' team(s) inside?' : 'Delete this section?')) return;
+  section.remove();
+}
+function selectAll(el) { const range = document.createRange(); range.selectNodeContents(el); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); }
+
+const CORE_TEAMS = [
+  { id: 't1', color: '#f5c842', tag: 'TEAM 1 · COLUMN 1', title: '130+ Floors Push', desc: 'Best used from Floor 130+.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Merged Beast', bind: 'Fallen Knight' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }] },
+  { id: 't2', color: '#c36bff', tag: 'TEAM 2 · COLUMN 2', title: 'Best Dungeon Team', desc: 'Best overall dungeon & boss team.', members: [{ name: 'Cosmic Villain', bind: 'Binding Vow' }, { name: 'Awakened Eclipseborn Hawk', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Herald', bind: 'Binding Vow' }] },
+  { id: 't3', color: '#00d4ff', tag: 'TEAM 3 · COLUMN 3', title: 'Speed Run Team', desc: 'Fast clear team.', members: [{ name: 'Cosmic Villain', bind: 'Binding Vow' }, { name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'King of Hell — Hades', bind: 'Demonic Gift' }, { name: 'Divine Emperor', bind: 'Binding Vow' }] },
+  { id: 't4', color: '#00e87a', tag: 'TEAM 4 · COLUMN 4', title: 'Late Game Variant', desc: 'Version of Team 2 for Floor 140–200+.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Sacred Arch Priestess', bind: 'Binding Vow' }] },
+];
+const NEW_TEAMS = [
+  { id: 't5', color: '#ff8c42', tag: 'TEAM 5', title: 'New Team Alpha', desc: 'One of the newest and best teams.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Herald', bind: 'Binding Vow' }] },
+  { id: 't6', color: '#ff5fa0', tag: 'TEAM 6', title: 'New Team Beta', desc: 'One of the best teams. 220+ floors minimum.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Merged Beast', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Sacred Arch Priestess', bind: 'Binding Vow' }] },
+];
+const STORY_CORE_TEAMS = [{ id: 'st1', color: '#f5c842', tag: 'STORY TEAM 1', title: 'Story Progression Team', desc: 'Best for advancing through story chapters.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Merged Beast', bind: 'Fallen Knight' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }] }];
+const STORY_NEW_TEAMS = [{ id: 'st5', color: '#ff8c42', tag: 'STORY TEAM 5', title: 'Story New Team Alpha', desc: 'New team for story mode.', members: [{ name: 'Awakened Eclipseborn Hawk', bind: 'Binding Vow' }, { name: 'Healing Fist', bind: 'Binding Light' }, { name: 'Divine Emperor', bind: 'Binding Vow' }, { name: 'Herald', bind: 'Binding Vow' }] }];
+
+function createMpPill(text, cls) {
+  const p = document.createElement('span'); p.className = `mp-pill ${cls}`; p.contentEditable = true;
+  p.innerHTML = `${text}<span class="delete-pill" contenteditable="false"> ✕</span>`;
+  wirePillDelete(p); return p;
+}
+function wirePillDelete(p) {
+  const dp = p.querySelector('.delete-pill'); if (!dp || dp._wired) return; dp._wired = true;
+  dp.addEventListener('click', e => {
+    e.stopPropagation();
+    const nx = p.nextSibling, pv = p.previousSibling;
+    if (nx && nx.classList && nx.classList.contains('mp-arrow')) nx.remove();
+    else if (pv && pv.classList && pv.classList.contains('mp-arrow')) pv.remove();
+    p.remove();
+  });
+}
+function mkArrow() { const a = document.createElement('span'); a.className = 'mp-arrow'; a.textContent = ' › '; return a; }
+
+const MOD_COLORS = ['#ff3355', '#f5c842', '#00d4ff', '#00e87a', '#ff8c42', '#c36bff', '#ff5fa0', '#4488ff'];
+let modInputs = [];
+function openModModal() { modInputs = []; document.getElementById('modInputList').innerHTML = ''; addModifierInputRow(); document.getElementById('modModal').classList.add('open'); }
+function closeModModal() { document.getElementById('modModal').classList.remove('open'); }
+function getUsedColors() { return modInputs.map(m => m.color); }
+function getRandomColor() { const used = getUsedColors(); let c; do { c = MOD_COLORS[Math.floor(Math.random() * MOD_COLORS.length)]; } while (used.includes(c)); return c; }
+function addModifierInputRow() {
+  const color = getRandomColor(); const idx = modInputs.length; const obj = { text: '', color }; modInputs.push(obj);
+  const list = document.getElementById('modInputList'); const row = document.createElement('div'); row.className = 'mod-input-row';
+  row.innerHTML = `<input type="text" placeholder="Modifier name..." value="" onchange="modInputs[${idx}].text=this.value" onkeyup="modInputs[${idx}].text=this.value"><div class="mod-color-preview" style="background:${color}" onclick="changeModColor(${idx})"></div><button class="mod-del-btn" onclick="deleteModifierRow(${idx})">✕</button>`;
+  list.appendChild(row);
+}
+function changeModColor(idx) {
+  const used = getUsedColors().filter((_, i) => i !== idx); const avail = MOD_COLORS.filter(c => !used.includes(c));
+  if (!avail.length) return; modInputs[idx].color = avail[0];
+  document.querySelectorAll('.mod-color-preview')[idx].style.background = avail[0];
+}
+function deleteModifierRow(idx) {
+  modInputs.splice(idx, 1); const list = document.getElementById('modInputList'); list.innerHTML = '';
+  modInputs.forEach((m, i) => {
+    const row = document.createElement('div'); row.className = 'mod-input-row';
+    row.innerHTML = `<input type="text" placeholder="Modifier name..." value="${m.text}" onchange="modInputs[${i}].text=this.value" onkeyup="modInputs[${i}].text=this.value"><div class="mod-color-preview" style="background:${m.color}" onclick="changeModColor(${i})"></div><button class="mod-del-btn" onclick="deleteModifierRow(${i})">✕</button>`;
+    list.appendChild(row);
+  });
+}
+function applyAllModifiers() {
+  const chain = document.getElementById(MP_MAP[currentMode]);
+  if (!chain) return;
+  const colorMap = { '#ff3355': 'red', '#f5c842': 'gold', '#00d4ff': 'cyan', '#00e87a': 'green', '#ff8c42': 'orange', '#c36bff': 'purple', '#ff5fa0': 'pink', '#4488ff': 'blue' };
+  modInputs.forEach(m => {
+    if (!m.text.trim()) return;
+    if (chain.children.length > 0) chain.appendChild(mkArrow());
+    chain.appendChild(createMpPill(m.text, colorMap[m.color] || 'gray'));
+  });
+  closeModModal();
+}
+
+let xlData = null, xlTarget = 'core';
+function openXl() {
+  const list = document.getElementById('xlTargetList'); list.querySelectorAll('.xl-radio.dynamic').forEach(el => el.remove());
+  const allGroupIds = Object.values(GROUPS_MAP);
+  const allSections = []; allGroupIds.forEach(gid => { const el = document.getElementById(gid); if (el) allSections.push(...el.querySelectorAll('.team-section')); });
+  allSections.forEach(sec => {
+    const gridEl = sec.querySelector('.core-grid'); if (!gridEl || !gridEl.id) return;
+    const label = sec.querySelector('.team-section-label')?.textContent.trim() || 'Unnamed';
+    const pill = document.createElement('div'); pill.className = 'xl-radio dynamic core';
+    pill.dataset.target = gridEl.id; pill.textContent = '🗂 ' + label;
+    pill.onclick = () => setTarget(gridEl.id); list.appendChild(pill);
+  });
+  document.getElementById('xlModal').classList.add('open'); resetXl();
+}
+function closeXl() { document.getElementById('xlModal').classList.remove('open'); }
+function setTarget(t) {
+  xlTarget = t; document.querySelectorAll('#xlTargetList .xl-radio').forEach(el => el.className = 'xl-radio');
+  const a = document.querySelector('#xlTargetList .xl-radio[data-target="' + t + '"]');
+  if (a) a.classList.add(t.startsWith('story') ? 'new' : 'core');
+}
+function resetXl() { xlData = null; document.getElementById('xlFname').style.display = 'none'; document.getElementById('xlStatus').style.display = 'none'; setTarget('core'); }
+const xlDrop = document.getElementById('xlDrop');
+if (xlDrop) {
+  xlDrop.addEventListener('dragover', e => { e.preventDefault(); xlDrop.classList.add('on'); });
+  xlDrop.addEventListener('dragleave', () => xlDrop.classList.remove('on'));
+  xlDrop.addEventListener('drop', e => {
+    e.preventDefault(); xlDrop.classList.remove('on'); const f = e.dataTransfer.files[0];
+    if (f) { const inp = document.getElementById('xlFile'); const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files; handleXlFile(inp); }
+  });
+}
+function handleXlFile(inp) {
+  if (!inp.files || !inp.files[0]) return; const file = inp.files[0];
+  document.getElementById('xlFname').textContent = '📄 ' + file.name; document.getElementById('xlFname').style.display = 'block';
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' }); const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+      xlData = parseTemplate(raw); if (!xlData.length) throw new Error('No team data found.');
+      showXlStatus('ok', '✅ ' + xlData.length + ' teams ready.');
+    } catch (err) { showXlStatus('err', '❌ ' + err.message); xlData = null; }
+  };
+  reader.readAsArrayBuffer(file);
+}
+function parseTemplate(rows) {
+  const KW = { require: 'require', required: 'require', tips: 'tips', tip: 'tips', warning: 'warning', warn: 'warning', danger: 'warning' };
+  const teams = []; let cur = null, section = null;
+  const flush = () => { if (cur && cur.title) teams.push(cur); };
+  for (let i = 0; i < rows.length; i++) {
+    const cell = String(rows[i][0] || rows[i][1] || '').trim(); if (!cell) { flush(); cur = null; section = null; continue; }
+    const low = cell.toLowerCase(); if (KW[low]) { if (cur) { section = KW[low]; if (!cur[section]) cur[section] = []; } continue; }
+    const mm = cell.match(/^(\d+)[.)]\s*(.+)/);
+    if (mm && cur) { section = null; const parts = mm[2].split(/[,|]/); cur.members.push({ name: (parts[0] || '').trim(), bind: (parts[1] || 'Binding Vow').trim() }); continue; }
+    if (section && cur) { cur[section].push(cell); continue; }
+    if (!cur) { cur = { title: cell, tag: cell.toUpperCase(), desc: '', members: [], require: [], tips: [], warning: [] }; section = null; }
+    else if (!cur.desc) { cur.desc = cell; }
+  }
+  flush(); return teams;
+}
+function showXlStatus(type, msg) { const el = document.getElementById('xlStatus'); el.className = 'xl-status ' + type; el.style.display = 'block'; el.textContent = msg; }
+function doImport() {
+  if (!xlData || !xlData.length) { showXlStatus('err', '❌ Upload file first!'); return; }
+  let gridId;
+  if (xlTarget === 'core') gridId = 'coreGrid';
+  else if (xlTarget === 'new') gridId = 'newGrid';
+  else if (xlTarget === 'story-core') gridId = 'storyCoreGrid';
+  else if (xlTarget === 'story-new') gridId = 'storyNewGrid';
+  else gridId = xlTarget;
+  const grid = document.getElementById(gridId);
+  xlData.forEach(t => {
+    const color = TEAM_COLORS[colorIdx++ % TEAM_COLORS.length];
+    const card = buildCard({ id: 'xl_' + Date.now() + Math.random(), tag: t.tag, title: t.title, desc: t.desc, color, members: t.members });
+    const fc = card.querySelector('.foot-content');
+    if (t.require && t.require.length) { const b = document.createElement('div'); b.className = 'mod-box'; b.innerHTML = `<div class="mod-title" contenteditable="true">🔶 REQUIRED</div><div class="mod-list">${t.require.map(x => `<div class="mod-item" contenteditable="true">${x}</div>`).join('')}</div><button class="add-point-btn" onclick="addPt(this)">+ Add Point</button><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`; fc.appendChild(b); }
+    if (t.tips && t.tips.length) { const b = document.createElement('div'); b.className = 'tips-box'; b.innerHTML = `<div class="tips-title" contenteditable="true">💡 TIPS</div><div class="tips-list">${t.tips.map(x => `<div class="tips-item" contenteditable="true">${x}</div>`).join('')}</div><button class="add-point-btn" onclick="addTp(this)">+ Add Point</button><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`; fc.appendChild(b); }
+    if (t.warning && t.warning.length) { const w = document.createElement('div'); w.className = 'warn-box'; w.contentEditable = true; w.innerHTML = `⚠ ${t.warning.join(' — ')}<span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`; fc.appendChild(w); }
+    grid.appendChild(card);
+  });
+  showXlStatus('ok', '✅ ' + xlData.length + ' teams added!'); setTimeout(() => closeXl(), 1500);
+}
+function downloadTemplate() {
+  const tmpl = [['Team 1'], ['Floor 130'], ['1.Divine Emperor,Demonic Gift'], ['2.Awakened Eclipseborn Hawk,Binding Vow'], ['3.Healing Fist,Binding Light'], ['4.Merged Beast,Fallen Knight'], ['require'], ['Max Damage Reduction'], ['tips'], ['Use on floor 140+'], ['warning'], ['Do not use Merged Beast Secret'], [''], ['Team 2'], ['Best Dungeon 140-190+'], ['1.Cosmic Villain,Binding Vow'], ['2.Awakened Eclipseborn Hawk,Binding Light'], ['3.Divine Emperor,Binding Vow'], ['4.Herald,Binding Vow']];
+  const ws = XLSX.utils.aoa_to_sheet(tmpl); ws['!cols'] = [{ wch: 45 }];
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Teams'); XLSX.writeFile(wb, 'Team_Template.xlsx');
+}
+
+const CRED_COLORS = ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355', '#ffffff'];
+let credSectionsMap = {};
+let credSections = [];
+function openCredModal() {
+  credSections = credSectionsMap[currentMode] || [];
+  if (credSections.length === 0) {
+    const credEl = document.getElementById(CRED_MAP[currentMode]);
+    if (credEl) {
+      const pills = credEl.querySelectorAll('.cred-pill'); const map = {};
+      pills.forEach(pill => {
+        const lbl = pill.querySelector('.cred-lbl')?.textContent.trim() || 'SECTION';
+        const name = pill.querySelector('.cred-name')?.textContent.trim() || '';
+        let color = pill.querySelector('.cred-name')?.style.color || '#f5c842';
+        if (color.startsWith('rgb')) { const m = color.match(/\d+/g); if (m) color = '#' + m.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join(''); }
+        if (!map[lbl]) map[lbl] = { label: lbl, color, names: [] }; if (name) map[lbl].names.push(name);
+      });
+      credSections = Object.values(map);
+    }
+  }
+  renderCredFormSections(); document.getElementById('credModal').classList.add('open');
+}
+function closeCredModal() { document.getElementById('credModal').classList.remove('open'); }
+function renderCredFormSections() {
+  const list = document.getElementById('cf-sections-list'); list.innerHTML = '';
+  credSections.forEach((sec, si) => {
+    const block = document.createElement('div'); block.className = 'cred-sec-block'; block.dataset.si = si;
+    const swatches = CRED_COLORS.map(c => `<div class="sec-cp-sw" style="background:${c}" onclick="credSetColor(${si},'${c}')"></div>`).join('');
+    block.innerHTML = `<div class="sec-header"><input class="sec-label-input" type="text" value="${sec.label}" placeholder="Section name..." oninput="credSections[${si}].label=this.value"><div class="sec-color-dot" style="background:${sec.color}" onclick="credTogglePalette(${si},event)"><div class="sec-color-palette" id="pal-${si}">${swatches}<input type="color" class="sec-cp-custom" value="${sec.color}" oninput="credSetColor(${si},this.value)"></div></div><button class="sec-rm-btn" onclick="credRemoveSection(${si})">🗑</button></div><div class="cred-field-rows" id="names-${si}">${sec.names.map((n, ni) => credNameRowHTML(si, ni, n)).join('')}</div><button class="cred-add-name-btn" onclick="credAddName(${si})">+ Add Name</button>`;
+    list.appendChild(block);
+  });
+}
+function credNameRowHTML(si, ni, val) { return `<div class="cred-field-row" data-ni="${ni}"><input type="text" value="${val.replace(/"/g, '&quot;')}" placeholder="Name..." oninput="credSections[${si}].names[${ni}]=this.value"><button class="cred-rm-btn" onclick="credRemoveName(${si},${ni})">✕</button></div>`; }
+function credTogglePalette(si, e) {
+  e.stopPropagation(); const pal = document.getElementById('pal-' + si); const isOpen = pal.classList.contains('open');
+  document.querySelectorAll('.sec-color-palette.open').forEach(p => p.classList.remove('open')); if (!isOpen) pal.classList.add('open');
+}
+document.addEventListener('click', () => document.querySelectorAll('.sec-color-palette.open').forEach(p => p.classList.remove('open')));
+function credSetColor(si, color) {
+  credSections[si].color = color;
+  const block = document.querySelector(`.cred-sec-block[data-si="${si}"]`);
+  if (block) { block.querySelector('.sec-color-dot').style.background = color; block.querySelector('.sec-cp-custom').value = color; }
+  document.querySelectorAll('.sec-color-palette.open').forEach(p => p.classList.remove('open'));
+}
+function credRemoveSection(si) { credSections.splice(si, 1); renderCredFormSections(); }
+function credAddSection() { credSections.push({ label: 'NEW SECTION', color: '#00d4ff', names: [''] }); renderCredFormSections(); document.querySelector('.cred-modal-box').scrollTop = 9999; }
+function credAddName(si) { credSections[si].names.push(''); renderCredFormSections(); const rows = document.querySelectorAll(`#names-${si} .cred-field-row input`); if (rows.length) rows[rows.length - 1].focus(); }
+function credRemoveName(si, ni) { credSections[si].names.splice(ni, 1); renderCredFormSections(); }
+function applyCredits() {
+  document.querySelectorAll('.cred-sec-block').forEach((block, si) => {
+    const lbl = block.querySelector('.sec-label-input'); if (lbl && credSections[si]) credSections[si].label = lbl.value.trim().toUpperCase() || 'SECTION';
+    block.querySelectorAll('.cred-field-rows .cred-field-row').forEach((row, ni) => { const inp = row.querySelector('input'); if (inp && credSections[si]) credSections[si].names[ni] = inp.value.trim(); });
+  });
+  let html = '<div class="cred-pills-row">';
+  credSections.forEach(sec => {
+    const names = sec.names.filter(Boolean); if (!names.length) return;
+    names.forEach(n => { html += `<div class="cred-pill"><div><div class="cred-lbl">${sec.label}</div><div class="cred-name" style="color:${sec.color};text-shadow:0 0 12px ${sec.color}55">${n}</div></div></div>`; });
+  });
+  html += '</div>';
+  const credEl = document.getElementById(CRED_MAP[currentMode]);
+  if (credEl) credEl.innerHTML = html;
+  credSectionsMap[currentMode] = []; credSections = []; closeCredModal();
+  refreshAllCardCredits();
+}
+
+function addBannerBlock(btn, type, section) {
+  const cls = { announce: 'banner-announce', title: 'banner-title', alert: 'banner-alert' }[type];
+  const emoji = { announce: '📢', title: '🏷', alert: '🚨' }[type];
+  const blockKey = 'add-banner-' + section;
+  const placeholder = { announce: 'Write announcement here...', title: 'Write title here...', alert: 'Write alert here...' }[type];
+  const block = document.createElement('div'); block.className = 'page-block'; block.dataset.block = 'banner-' + Date.now();
+  block.innerHTML = `<span class="block-handle">⠿⠿</span><div class="alert-wrap"><div class="${cls}" contenteditable="true">${emoji} &nbsp;${placeholder}</div><div style="text-align:center;margin-top:6px;"><button class="edit-btn" style="font-size:.72rem;padding:4px 10px;" onclick="this.closest('.page-block').remove()">🗑 Remove Banner</button></div></div>`;
+  const btnBlock = document.querySelector(`[data-block="${blockKey}"]`); btnBlock.parentNode.insertBefore(block, btnBlock);
+  wireBlockDrag(block);
+  const ed = block.querySelector('[contenteditable="true"]'); ed.focus();
+  const range = document.createRange(); const sel = window.getSelection(); range.selectNodeContents(ed); sel.removeAllRanges(); sel.addRange(range);
+}
+
+const SAVE_KEY = 'ACB_GUIDE_SAVE';
+function saveLocal() {
+  try {
+    const data = { savedAt: new Date().toLocaleString() };
+    ALL_MODES.forEach(m => {
+      data[m + 'HTML'] = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
+    });
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    document.getElementById('saveStatus').textContent = '✅ Saved at ' + data.savedAt;
+    showToast('✅ Data saved!');
+  } catch (e) { showToast('❌ Failed: ' + e.message, true); }
+}
+function loadLocal(silent) {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY); if (!raw) { if (!silent) showToast('⚠ No save found.', true); return; }
+    const data = JSON.parse(raw);
+    ALL_MODES.forEach(m => {
+      if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], SECURITY.CLOUD_CONFIG); }
+    });
+    // Legacy support
+    if (data.mpChain) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, SECURITY.CLOUD_CONFIG); }
+    if (data.credDisplay) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, SECURITY.CLOUD_CONFIG); }
+    rewireAll(); document.getElementById('saveStatus').textContent = '📂 Loaded from ' + data.savedAt;
+    if (!silent) showToast('📂 Loaded!');
+  } catch (e) { if (!silent) showToast('❌ Failed: ' + e.message, true); }
+}
+function deleteLocal() {
+  if (!localStorage.getItem(SAVE_KEY)) { showToast('⚠ No save found.', true); return; }
+  if (!confirm('Delete all saved data?')) return;
+  localStorage.removeItem(SAVE_KEY); document.getElementById('saveStatus').textContent = ''; showToast('🗑 Save deleted.');
+}
+
+function rewireAll() {
+  document.querySelectorAll('.page-block').forEach(wireBlockDrag);
+  document.querySelectorAll('.core-grid,.new-grid').forEach(wireGridDrop);
+  
+  const isEditable = !isReadonly();
+  const editables = [
+    '.card-tag', '.card-title', '.card-desc', 
+    '.mem-name', '.mem-bind', 
+    '.mod-title', '.tips-title', '.mod-item', '.tips-item', '.warn-box',
+    '.team-section-label', '.section-label', '.main-title', '.alert-box', '.h1-block h1', 
+    '.banner-announce', '.banner-title', '.banner-alert', '.mp-pill'
+  ];
+  
+  document.querySelectorAll(editables.join(',')).forEach(el => {
+    el.contentEditable = isEditable;
+    if (isEditable) { if (el.tagName === 'DIV') el.style.cursor = 'text'; }
+    else { if (el.tagName === 'DIV') el.style.cursor = ''; }
+  });
+
+  document.querySelectorAll('.team-card').forEach(card => {
+    enableCardDrag(card);
+    card.querySelectorAll('.mem-row').forEach(row => {
+      enableMemDrag(row);
+      if (!row.querySelector('.delete-mem')) {
+        const del = document.createElement('span'); del.className = 'delete-mem'; del.innerHTML = '✕';
+        del.onclick = () => { row.remove(); renumMembers(row.closest('.card-members')); }; row.appendChild(del);
+      }
+    });
+    const dot = card.querySelector('.color-dot');
+    if (dot && !dot._palWired) {
+      dot._palWired = true;
+      card.querySelectorAll('.clr-palette').forEach(p => p.remove());
+      const color = getComputedStyle(card).getPropertyValue('--tc').trim() || '#f5c842';
+      const pal = makeColorPalette(card, color);
+      card.appendChild(pal);
+      dot.addEventListener('click', e => { e.stopPropagation(); pal.classList.toggle('open'); });
+      document.addEventListener('click', () => pal.classList.remove('open'), true);
+    }
+  });
+  document.querySelectorAll('.mp-pill').forEach(wirePillDelete);
+}
+
+async function initApp() {
+  if (sessionStorage.getItem('access_granted') === 'true' && localStorage.getItem('adminToken')) { enterAsAdmin(); }
+  else { enterAsGuest(); openAdminShortcut(); }
+}
+document.addEventListener('DOMContentLoaded', iApp);
+function iApp() { initApp(); }
+
+function enterAsGuest() {
+  currentRole = 'guest';
+  document.getElementById('appContent').style.display = 'block';
+  document.body.classList.add('readonly');
+  document.body.classList.remove('is-admin');
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('saveCloudBtn').style.display = 'none';
+  document.getElementById('pvSettingsBtn').style.display = 'none';
+  document.getElementById('saveLocalBtn').style.display = 'none';
+  document.getElementById('loadLocalBtn').style.display = 'none';
+  document.getElementById('deleteLocalBtn').style.display = 'none';
+  document.getElementById('roleBadge').style.display = 'none';
+  if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'none';
+  loadFromFirebase();
+}
+
+function enterAsAdmin() {
+  currentRole = 'admin';
+  document.getElementById('appContent').style.display = 'block';
+  document.body.classList.remove('readonly');
+  document.body.classList.add('is-admin');
+  document.getElementById('logoutBtn').style.display = '';
+  document.getElementById('saveCloudBtn').style.display = '';
+  document.getElementById('pvSettingsBtn').style.display = '';
+  document.getElementById('saveLocalBtn').style.display = '';
+  document.getElementById('loadLocalBtn').style.display = '';
+  document.getElementById('deleteLocalBtn').style.display = '';
+  if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'block';
+  const badge = document.getElementById('roleBadge');
+  badge.textContent = '👑 ADMIN'; badge.className = 'admin-badge'; badge.style.display = '';
+  showToast('👑 Admin mode activated!');
+  loadFromFirebase();
+}
+
+function logoutToGuest() {
+  if (!confirm('Log out from admin?')) return;
+  localStorage.removeItem('adminToken');
+  sessionStorage.removeItem('access_granted');
+  currentRole = 'guest';
+  document.body.classList.add('readonly');
+  document.body.classList.remove('is-admin');
+  document.getElementById('logoutBtn').style.display = 'none';
+  document.getElementById('saveCloudBtn').style.display = 'none';
+  document.getElementById('pvSettingsBtn').style.display = 'none';
+  document.getElementById('saveLocalBtn').style.display = 'none';
+  document.getElementById('loadLocalBtn').style.display = 'none';
+  document.getElementById('deleteLocalBtn').style.display = 'none';
+  document.getElementById('roleBadge').style.display = 'none';
+  if (document.querySelector('.float-xl')) document.querySelector('.float-xl').style.display = 'none';
+  showToast('👁 Returned to guest mode.');
+  rewireAll();
+  openAdminShortcut();
+}
+
+(function () {
+  const SEQ = ['ArrowUp', 'ArrowDown', 'Backspace'];
+  let step = 0, timer = null;
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeAdminShortcut(); return; }
+    if (e.key === SEQ[step]) {
+      if (e.key === 'Backspace' && step === 2) e.preventDefault();
+      step++; clearTimeout(timer);
+      if (step === SEQ.length) { step = 0; if (currentRole !== 'admin') openAdminShortcut(); }
+      else { timer = setTimeout(() => { step = 0; }, 3000); }
+    } else {
+      step = 0; clearTimeout(timer);
+      if (e.key === SEQ[0]) { step = 1; timer = setTimeout(() => { step = 0; }, 3000); }
+    }
+  });
+})();
+
+function openAdminShortcut() {
+  document.getElementById('ascPwInput').value = '';
+  document.getElementById('ascErr').style.display = 'none';
+  document.getElementById('adminShortcutOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('ascPwInput').focus(), 80);
+}
+function closeAdminShortcut() {
+  document.getElementById('adminShortcutOverlay').classList.remove('open');
+  document.getElementById('ascPwInput').value = '';
+  document.getElementById('ascErr').style.display = 'none';
+}
+
+const ascPwInput = document.getElementById('ascPwInput');
+if (ascPwInput) {
+  ascPwInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') submitAdminShortcut();
+    if (e.key === 'Escape') closeAdminShortcut();
+  });
+}
+
+function submitAdminShortcut() {
+  const pw = document.getElementById('ascPwInput').value;
+  const err = document.getElementById('ascErr');
+  err.style.display = 'none';
+
+  fetch('/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success && data.token) {
+        localStorage.setItem('adminToken', data.token);
+        sessionStorage.setItem('access_granted', 'true');
+        closeAdminShortcut();
+        enterAsAdmin();
+      } else {
+        err.style.display = 'block';
+        document.getElementById('ascPwInput').value = '';
+        document.getElementById('ascPwInput').focus();
+      }
+    })
+    .catch(err => { console.error('Login error:', err); showToast('❌ Network error', true); });
+}
+
+function saveToFirebase() {
+  if (currentRole !== 'admin') { showToast('❌ Admin only!', true); return; }
+  const token = localStorage.getItem('adminToken');
+  if (!token) { showToast('❌ Auth token missing, please re-login.', true); return; }
+  refreshAllCardCredits();
+  showFbStatus('⛳ Saving...', 'loading');
+  const data = { savedAt: new Date().toLocaleString() };
+  ALL_MODES.forEach(m => {
+    const html = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
+    data[m + 'HTML'] = DOMPurify.sanitize(html, SECURITY.CLOUD_CONFIG);
+  });
+  const pv = {};
+  ALL_MODES.forEach(m => { const el = document.getElementById(PV_MAP[m]); pv[m] = el ? el.checked : true; });
+  data.pageVisibility = pv;
+
+  fetch('/api/save', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ data })
+  })
+    .then(async (res) => {
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || 'Server rejected save'); }
+      return res.json();
+    })
+    .then(() => { showFbStatus('✅ Saved!', 'ok'); showToast('☁️ Saved to Cloud!'); document.getElementById('saveStatus').textContent = '☁️ Saved at ' + data.savedAt; })
+    .catch(err => { showFbStatus('❌ ' + err.message, 'err'); showToast('❌ Save failed!', true); });
+}
+
+async function loadFromFirebase() {
+  showFbStatus('⏳ Loading...', 'loading');
+  try {
+    const res = await fetch('/api/load');
+    if (!res.ok) throw new Error('Cloud error');
+    const data = await res.json();
+    if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
+
+    ALL_MODES.forEach(m => {
+      if (data[m + 'HTML']) {
+        const el = document.getElementById(PAGE_MAP[m]);
+        if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], SECURITY.CLOUD_CONFIG);
+      }
+    });
+    if (data.mpChain && !data.dungeonHTML) {
+      const el = document.getElementById('dungeonMpChain');
+      if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, SECURITY.CLOUD_CONFIG);
+    }
+    if (data.credDisplay && !data.dungeonHTML) {
+      const el = document.getElementById('dungeonCredDisplay');
+      if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, SECURITY.CLOUD_CONFIG);
+    }
+    if (data.pageVisibility) {
+      ALL_MODES.forEach(m => {
+        const el = document.getElementById(PV_MAP[m]);
+        if (el) el.checked = data.pageVisibility[m] !== false;
+      });
+      applyPageVisibility();
+    }
+    rewireAll();
+    refreshAllCardCredits();
+    showFbStatus('✅ Loaded!', 'ok');
+    document.getElementById('saveStatus').textContent = '☁️ Loaded (' + (data.savedAt || 'unknown') + ')';
+  } catch (err) { showFbStatus('❌ ' + err.message, 'err'); loadLocal(true); }
+}
+
+function loadDefaults() {
+  const cg = document.getElementById('coreGrid'), ng = document.getElementById('newGrid');
+  if (cg) CORE_TEAMS.forEach(t => cg.appendChild(buildCard(t)));
+  if (ng) NEW_TEAMS.forEach(t => ng.appendChild(buildCard(t)));
+  const scg = document.getElementById('storyCoreGrid'), sng = document.getElementById('storyNewGrid');
+  if (scg) STORY_CORE_TEAMS.forEach(t => scg.appendChild(buildCard(t)));
+  if (sng) STORY_NEW_TEAMS.forEach(t => sng.appendChild(buildCard(t)));
+  rewireAll(); showFbStatus('✅ Defaults loaded', 'ok');
+}
+
+function openPvModal() {
+  ALL_MODES.forEach(m => {
+    const el = document.getElementById(PV_MAP[m]);
+    const btn = document.querySelector('.nav-btn[data-mode="' + m + '"]');
+    if (el && btn) el.checked = btn.style.display !== 'none';
+  });
+  document.getElementById('pvModal').classList.add('open');
+}
+function closePvModal() { document.getElementById('pvModal').classList.remove('open'); }
+function applyPageVisibility(saveToCloud) {
+  const vis = {};
+  ALL_MODES.forEach(m => {
+    const el = document.getElementById(PV_MAP[m]);
+    vis[m] = el ? el.checked : true;
+    const btn = document.querySelector('.nav-btn[data-mode="' + m + '"]');
+    if (btn) btn.style.display = vis[m] ? '' : 'none';
+  });
+  const activeSection = document.querySelector('.mode-section.active');
+  const activeMode = Object.keys(PAGE_MAP).find(m => document.getElementById(PAGE_MAP[m]) === activeSection) || 'dungeon';
+  if (!vis[activeMode]) {
+    const firstVisible = ALL_MODES.find(m => vis[m]);
+    if (firstVisible) switchMode(firstVisible);
+  }
+  if (currentRole === 'admin' && saveToCloud) { saveToFirebase(); }
+}
