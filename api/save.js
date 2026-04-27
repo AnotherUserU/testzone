@@ -1,5 +1,9 @@
 import jwt from 'jsonwebtoken';
-import DOMPurify from 'isomorphic-dompurify';
+import { JSDOM } from 'jsdom';
+import createDOMPurify from 'dompurify';
+
+const window = new JSDOM('').window;
+const DOMPurify = createDOMPurify(window);
 
 // Recursive sanitizer for objects containing HTML strings
 const sanitizeData = (data) => {
