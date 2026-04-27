@@ -1268,11 +1268,22 @@
           }
 
           const target = card.querySelector('.foot-cred-contributor');
-          if (target) {
+          let footer = card.querySelector('.card-foot');
+          
+          // If the new credits container is missing (old cards), inject it
+          if (!card.querySelector('.card-footer-credits') && footer) {
+            const credContainer = document.createElement('div');
+            credContainer.className = 'card-footer-credits';
+            credContainer.innerHTML = `<span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span><span class="foot-cred-contributor"></span>`;
+            footer.appendChild(credContainer);
+          }
+
+          const contributorTarget = card.querySelector('.foot-cred-contributor');
+          if (contributorTarget) {
             if (contributor) {
-              target.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name">${escapeAttr(contributor)}</span></span>`;
+              contributorTarget.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name">${escapeAttr(contributor)}</span></span>`;
             } else {
-              target.innerHTML = '';
+              contributorTarget.innerHTML = '';
             }
           }
         });
