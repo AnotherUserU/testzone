@@ -581,6 +581,35 @@ body {
   background: rgba(0, 0, 0, .25);
 }
 
+.card-footer-credits {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.foot-cred-item {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.foot-cred-name {
+  color: var(--gold);
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(245, 200, 66, 0.2);
+}
+
+.foot-cred-sep {
+  color: rgba(255, 255, 255, 0.1);
+}
+
 .mod-box,
 .tips-box,
 .warn-box,

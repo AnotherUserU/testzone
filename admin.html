@@ -1182,6 +1182,10 @@
       </div>
       <div class="card-foot">
         <div class="foot-content"></div>
+        <div class="card-footer-credits">
+          <span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span>
+          <span class="foot-cred-contributor"></span>
+        </div>
         <div style="text-align:center;margin-top:10px;border-top:1px solid rgba(255,255,255,.05);padding-top:10px">
           <button class="edit-btn" onclick="addModBox(this)">➕ Require Box</button>
           <button class="edit-btn" onclick="addTipsBox(this)">➕ Tips Box</button>
@@ -1230,6 +1234,51 @@
       b.innerHTML = `⚠ Write warning here...<span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`;
       getFC(btn).appendChild(b);
     }
+    function refreshAllCardCredits() {
+      ALL_MODES.forEach(mode => {
+        const section = document.getElementById(PAGE_MAP[mode]);
+        if (!section) return;
+        const credBox = section.querySelector('.cred-display');
+        if (!credBox) return;
+
+        // Parse all contributor pills from global box
+        const pills = [];
+        credBox.querySelectorAll('.cred-pill').forEach(pill => {
+          const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase() || '';
+          const name = pill.querySelector('.cred-name')?.textContent || '';
+          if (name && !name.toLowerCase().includes('anotheruseru')) {
+            pills.push({ lbl, name });
+          }
+        });
+
+        // Update each card in this section
+        section.querySelectorAll('.team-card').forEach(card => {
+          const tagText = card.querySelector('.card-tag')?.textContent || '';
+          const titleText = card.querySelector('.card-title')?.textContent || '';
+          const combined = (tagText + ' ' + titleText).toUpperCase();
+          
+          // Find first matching number in card text
+          const nums = combined.match(/\d+/g) || [];
+          let contributor = '';
+
+          // Try to match based on numbers found in card title/tag
+          for (const n of nums) {
+            const match = pills.find(p => p.lbl.match(new RegExp('\\b' + n + '\\b')));
+            if (match) { contributor = match.name; break; }
+          }
+
+          const target = card.querySelector('.foot-cred-contributor');
+          if (target) {
+            if (contributor) {
+              target.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name">${escapeAttr(contributor)}</span></span>`;
+            } else {
+              target.innerHTML = '';
+            }
+          }
+        });
+      });
+    }
+
     function addMember(btn) {
       const container = btn.closest('.team-card').querySelector('.card-members');
       const color = getComputedStyle(btn.closest('.team-card')).getPropertyValue('--tc').trim() || '#f5c842';
@@ -1625,6 +1674,7 @@
       const credEl = document.getElementById(CRED_MAP[currentMode]);
       if (credEl) credEl.innerHTML = html;
       credSectionsMap[currentMode] = []; credSections = []; closeCredModal();
+      refreshAllCardCredits();
     }
 
     function addBannerBlock(btn, type, section) {
@@ -1859,6 +1909,9 @@
       const token = localStorage.getItem('adminToken');
       if (!token) { showToast('❌ Auth token missing, please re-login.', true); return; }
 
+      // Sync with global credits
+      refreshAllCardCredits();
+      
       showFbStatus('⛳ Saving...', 'loading');
       const data = { savedAt: new Date().toLocaleString() };
       
@@ -1936,6 +1989,7 @@
           applyPageVisibility();
         }
         rewireAll();
+        refreshAllCardCredits();
         showFbStatus('✅ Loaded!', 'ok');
         document.getElementById('saveStatus').textContent = '☁️ Loaded (' + (data.savedAt || 'unknown') + ')';
       } catch (err) {

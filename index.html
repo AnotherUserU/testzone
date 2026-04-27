@@ -513,6 +513,7 @@
       // Clear search on mode switch
       const searchInput = document.getElementById('teamSearch');
       if (searchInput) { searchInput.value = ''; handleSearch(''); }
+      refreshAllCardCredits();
       // Refresh ScrollTrigger as section height might change
       if (typeof ScrollTrigger !== 'undefined' && typeof initScrollAnimations === 'function') {
         ScrollTrigger.getAll().forEach(t => t.kill());
@@ -592,6 +593,10 @@
       </div>
       <div class="card-foot">
         <div class="foot-content"></div>
+        <div class="card-footer-credits">
+          <span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span>
+          <span class="foot-cred-contributor"></span>
+        </div>
       </div>
     </div>
     <button class="download-node-btn" onclick="openDlModal(this)" aria-label="Screenshot this card"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Screenshot</button>`;
@@ -636,6 +641,44 @@
       } else {
         executeDownload();
       }
+    }
+
+    function refreshAllCardCredits() {
+      ALL_MODES.forEach(mode => {
+        const section = document.getElementById(PAGE_MAP[mode]);
+        if (!section) return;
+        const credBox = section.querySelector('.cred-display');
+        if (!credBox) return;
+
+        const pills = [];
+        credBox.querySelectorAll('.cred-pill').forEach(pill => {
+          const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase() || '';
+          const name = pill.querySelector('.cred-name')?.textContent || '';
+          if (name && !name.toLowerCase().includes('anotheruseru')) {
+            pills.push({ lbl, name });
+          }
+        });
+
+        section.querySelectorAll('.team-card').forEach(card => {
+          const tagText = card.querySelector('.card-tag')?.textContent || '';
+          const titleText = card.querySelector('.card-title')?.textContent || '';
+          const combined = (tagText + ' ' + titleText).toUpperCase();
+          const nums = combined.match(/\d+/g) || [];
+          let contributor = '';
+          for (const n of nums) {
+            const match = pills.find(p => p.lbl.match(new RegExp('\\b' + n + '\\b')));
+            if (match) { contributor = match.name; break; }
+          }
+          const target = card.querySelector('.foot-cred-contributor');
+          if (target) {
+            if (contributor) {
+              target.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name">${escapeAttr(contributor)}</span></span>`;
+            } else {
+              target.innerHTML = '';
+            }
+          }
+        });
+      });
     }
 
     function executeDownload() {
@@ -799,6 +842,7 @@
           NEW_TEAMS.forEach(t => ng.appendChild(buildCard(t)));
         }
         rewireAll();
+        refreshAllCardCredits();
 
         // Fallback credits dungeon if empty 
         const dungeonCred = document.getElementById('dungeonCredDisplay');
