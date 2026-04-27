@@ -1,9 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JSDOM } from 'jsdom';
-import createDOMPurify from 'dompurify';
-
-const window = new JSDOM('').window;
-const DOMPurify = createDOMPurify(window);
+import DOMPurify from 'isomorphic-dompurify';
 
 // Recursive sanitizer for objects containing HTML strings
 const sanitizeData = (data) => {
@@ -27,30 +23,24 @@ const sanitizeData = (data) => {
 };
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
-  
-  // 1. Verify Authentication
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Missing token' });
+    return res.status(401).json({ error: 'Unauthorized' });
   }
+
   const token = authHeader.split(' ')[1];
-  const jwtSecret = process.env.ADMIN_TOKEN || process.env.ADMIN_PASSWORD;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  const jwtSecret = process.env.ADMIN_TOKEN || adminPassword;
 
   try {
     jwt.verify(token, jwtSecret);
-  } catch (err) {
-    return res.status(401).json({ error: 'Invalid or expired token' });
-  }
+    const { data } = req.body;
+    const sanitizedData = sanitizeData(data);
 
-  // 2. Validate and Sanitize Input
-  const { data } = req.body;
-  if (!data) return res.status(400).json({ error: 'Missing data' });
-
-  const sanitizedData = sanitizeData(data);
-
-  // 3. Save to Firebase
-  try {
     const dbUrl = process.env.FIREBASE_DB_URL;
     if (!dbUrl) return res.status(500).json({ error: 'Database URL not configured' });
     
@@ -60,7 +50,7 @@ export default async function handler(req, res) {
 
     console.log('Firebase Save Attempt:', { 
       authEnabled: !!fbAuth,
-      url: finalUrl.split('?')[0] // Log URL tanpa token untuk keamanan
+      url: finalUrl.split('?')[0]
     });
 
     const response = await fetch(finalUrl, {
@@ -68,8 +58,12 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sanitizedData)
     });
-    
-    if (!response.ok) throw new Error('Firebase REST error: ' + response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Firebase error (${response.status}): ${errorText}`);
+    }
+
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Save error:', error);
@@ -80,4 +74,3 @@ export default async function handler(req, res) {
     });
   }
 }
-
