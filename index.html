@@ -601,8 +601,9 @@
 
         // Define sanitization config
         const config = {
-          ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
-          ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'spellcheck', 'ondblclick']
+          ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
+          ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
+          ALLOW_DATA_ATTR: true
         };
 
         ALL_MODES.forEach(m => {
