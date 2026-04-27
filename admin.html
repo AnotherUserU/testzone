@@ -940,7 +940,38 @@
   </div>
 
   <!-- Core Admin Logic (Obfuscated) -->
-  <script src="shared/js/admin.min.js?v=1.0.0"></script>
+  <script type="module" src="shared/js/admin.min.js?v=1.0.0"></script>
+  
+  <script>
+    // These functions need to be global for inline event handlers in the static HTML
+    // even before the module finishes loading.
+    window.submitAdminShortcut = function() {
+      const pw = document.getElementById('ascPwInput').value;
+      const err = document.getElementById('ascErr');
+      err.style.display = 'none';
+
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.token) {
+          localStorage.setItem('adminToken', data.token);
+          sessionStorage.setItem('access_granted', 'true');
+          document.getElementById('adminShortcutOverlay').classList.remove('open');
+          if (window.enterAsAdmin) window.enterAsAdmin();
+          else location.reload(); // Fallback if module not loaded
+        } else {
+          err.style.display = 'block';
+          document.getElementById('ascPwInput').value = '';
+          document.getElementById('ascPwInput').focus();
+        }
+      })
+      .catch(err => { console.error('Login error:', err); });
+    }
+  </script>
 
 </body>
 
