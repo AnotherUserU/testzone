@@ -926,23 +926,21 @@
               onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
         </div>
         <div class="pv-row">
-          <div class="pv-row-info"  <!-- Core Admin Logic -->
-  <script src="shared/js/admin.js?v=1.0.0"></script>l.checked : true;
-        const btn = document.querySelector('.nav-btn[data-mode="' + m + '"]');
-        if (btn) btn.style.display = vis[m] ? '' : 'none';
-      });
-      // If current active page just got hidden, switch to first visible
-      const activeSection = document.querySelector('.mode-section.active');
-      const activeMode = Object.keys(PAGE_MAP).find(m => document.getElementById(PAGE_MAP[m]) === activeSection) || 'dungeon';
-      if (!vis[activeMode]) {
-        const firstVisible = ALL_MODES.find(m => vis[m]);
-        if (firstVisible) switchMode(firstVisible);
-      }
-      if (currentRole === 'admin' && saveToCloud) {
-        saveToFirebase();
-      }
-    }
-  </script>
+          <div class="pv-row-info">
+            <div class="pv-row-name">👹 World Boss</div>
+            <div class="pv-row-desc">World boss team compositions</div>
+          </div>
+          <label class="pv-toggle"><input type="checkbox" id="pvWorldBoss" checked
+              onchange="applyPageVisibility(true)"><span class="pv-slider"></span></label>
+        </div>
+        <div class="pv-footer"><button class="btn btn-apply" onclick="closePvModal()">Done</button></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Core Admin Logic (Obfuscated) -->
+  <script src="shared/js/admin.min.js?v=1.0.0"></script>
 
 </body>
 
