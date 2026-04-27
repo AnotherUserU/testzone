@@ -940,38 +940,48 @@
   </div>
 
   <script>
-    const TEAM_COLORS = ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355'];
-    const H1_COLORS = [...TEAM_COLORS, '#ffffff', '#aaccff', '#ff9999', '#99ffcc'];
-    let colorIdx = 0;
+    const APP_CONFIG = {
+      PAGE_MAP: { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection', worldBoss: 'worldBossSection' },
+      GROUPS_MAP: { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups', worldBoss: 'worldBossGroups' },
+      MP_MAP: { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain', worldBoss: 'worldBossMpChain' },
+      CRED_MAP: { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay', worldBoss: 'worldBossCredDisplay' },
+      PV_MAP: { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower', worldBoss: 'pvWorldBoss' },
+      ALL_MODES: ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'],
+      TEAM_COLORS: ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355'],
+      H1_COLORS: ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355', '#ffffff', '#aaccff', '#ff9999', '#99ffcc'],
+      SECURITY: {
+        CLOUD_CONFIG: {
+          ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
+          ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
+          ALLOW_DATA_ATTR: true
+        }
+      }
+    };
+
+    const { PAGE_MAP, GROUPS_MAP, MP_MAP, CRED_MAP, PV_MAP, ALL_MODES, TEAM_COLORS, H1_COLORS, SECURITY } = APP_CONFIG;
+    let colorIdx = 0, currentRole = 'guest', currentMode = 'dungeon';
     function nextColor() { return TEAM_COLORS[colorIdx++ % TEAM_COLORS.length]; }
-    let currentRole = 'guest';
 
     function isReadonly() { return document.body.classList.contains('readonly'); }
     function showToast(msg, isErr) {
-      const t = document.getElementById('toast'); t.textContent = msg;
-      t.className = 'toast' + (isErr ? ' err' : ''); t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2800);
+      const t = document.getElementById('toast'); if (!t) return;
+      t.textContent = msg; t.className = 'toast' + (isErr ? ' err' : ''); t.classList.add('show');
+      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2800);
     }
     function showFbStatus(msg, type) {
-      const el = document.getElementById('fbStatus'); el.textContent = msg;
-      el.className = 'show ' + (type || 'ok'); clearTimeout(el._t);
-      el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
+      const el = document.getElementById('fbStatus'); if (!el) return;
+      el.textContent = msg; el.className = 'show ' + (type || 'ok'); 
+      clearTimeout(el._t); el._t = setTimeout(() => { el.className = ''; el.textContent = ''; }, 3500);
     }
 
-    const PAGE_MAP = { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection', worldBoss: 'worldBossSection' };
-    const GROUPS_MAP = { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups', worldBoss: 'worldBossGroups' };
-    const MP_MAP = { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain', worldBoss: 'worldBossMpChain' };
-    const CRED_MAP = { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay', worldBoss: 'worldBossCredDisplay' };
-    const PV_MAP = { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower', worldBoss: 'pvWorldBoss' };
-    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'];
-    let currentMode = 'dungeon';
     function switchMode(mode) {
+      if (!ALL_MODES.includes(mode)) return;
       currentMode = mode;
       document.querySelectorAll('.mode-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       const sec = document.getElementById(PAGE_MAP[mode]);
       if (sec) sec.classList.add('active');
-      const btn = document.querySelector('.nav-btn[data-mode="' + mode + '"]');
+      const btn = document.querySelector(`.nav-btn[data-mode="${mode}"]`);
       if (btn) btn.classList.add('active');
     }
 
@@ -1159,10 +1169,7 @@
 
     function sanitizeHTML(str) {
       if (typeof str !== 'string') return '';
-      return DOMPurify.sanitize(str, {
-        ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'br'],
-        ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style']
-      });
+      return DOMPurify.sanitize(str, { ALLOWED_TAGS: SECURITY.ALLOWED_TAGS || ['b', 'i', 'em', 'strong', 'a', 'span', 'br'], ALLOWED_ATTR: SECURITY.ALLOWED_ATTR || ['href', 'title', 'target', 'class', 'style'] });
     }
 
     function escapeAttr(str) { return str.replace(/"/g, '&quot;'); }
@@ -1749,18 +1756,12 @@
       try {
         const raw = localStorage.getItem(SAVE_KEY); if (!raw) { if (!silent) showToast('⚠ No save found.', true); return; }
         const data = JSON.parse(raw);
-        // Sanitize loaded HTML to prevent stored XSS from tampered localStorage
-        const localConfig = {
-          ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
-          ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
-          ALLOW_DATA_ATTR: true
-        };
         ALL_MODES.forEach(m => {
-          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], localConfig); }
+          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], SECURITY.CLOUD_CONFIG); }
         });
         // Legacy support
-        if (data.mpChain) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, localConfig); }
-        if (data.credDisplay) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, localConfig); }
+        if (data.mpChain) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, SECURITY.CLOUD_CONFIG); }
+        if (data.credDisplay) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, SECURITY.CLOUD_CONFIG); }
         rewireAll(); document.getElementById('saveStatus').textContent = '📂 Loaded from ' + data.savedAt;
         if (!silent) showToast('📂 Loaded!');
       } catch (e) { if (!silent) showToast('❌ Failed: ' + e.message, true); }
@@ -1969,16 +1970,9 @@
       showFbStatus('⛳ Saving...', 'loading');
       const data = { savedAt: new Date().toLocaleString() };
       
-      // Sanitize before sending to cloud
-      const config = {
-        ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
-        ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
-        ALLOW_DATA_ATTR: true
-      };
-
       ALL_MODES.forEach(m => {
         const html = document.getElementById(PAGE_MAP[m])?.innerHTML || '';
-        data[m + 'HTML'] = DOMPurify.sanitize(html, config);
+        data[m + 'HTML'] = DOMPurify.sanitize(html, SECURITY.CLOUD_CONFIG);
       });
 
       const pv = {};
@@ -2012,27 +2006,20 @@
         const data = await res.json();
         if (!data) { showFbStatus('⚠ No cloud data', 'err'); loadDefaults(); return; }
 
-        // Define sanitization config (Admin needs interaction tags and event handlers)
-        const config = {
-          ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
-          ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
-          ALLOW_DATA_ATTR: true
-        };
-
         ALL_MODES.forEach(m => {
           if (data[m + 'HTML']) {
             const el = document.getElementById(PAGE_MAP[m]);
-            if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], config);
+            if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], SECURITY.CLOUD_CONFIG);
           }
         });
         // Legacy migration
         if (data.mpChain && !data.dungeonHTML) {
           const el = document.getElementById('dungeonMpChain');
-          if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, config);
+          if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, SECURITY.CLOUD_CONFIG);
         }
         if (data.credDisplay && !data.dungeonHTML) {
           const el = document.getElementById('dungeonCredDisplay');
-          if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, config);
+          if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, SECURITY.CLOUD_CONFIG);
         }
 
         if (data.pageVisibility) {
