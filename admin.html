@@ -1388,7 +1388,9 @@
         const credits = document.querySelectorAll('.card-footer-credits');
         
         editables.forEach(el => el.contentEditable = false);
-        credits.forEach(el => el.style.display = 'flex');
+        // In fullscreen mode, we DO NOT show individual card credits (they are display:none by default)
+        // Only the global credits at the bottom of each section will be visible.
+
 
         hide.forEach(el => {
           el.style.display = 'none';
@@ -1405,7 +1407,6 @@
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
             editables.forEach(el => el.contentEditable = true);
-            credits.forEach(el => el.style.display = '');
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => {
             console.error(err);
@@ -1415,7 +1416,6 @@
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
             editables.forEach(el => el.contentEditable = true);
-            credits.forEach(el => el.style.display = '');
             showFbStatus('❌ Failed', 'err');
           });
         }, 400);

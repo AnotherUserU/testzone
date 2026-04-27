@@ -481,7 +481,8 @@
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL);
         const credits = document.querySelectorAll('.card-footer-credits');
-        credits.forEach(el => el.style.display = 'flex');
+        // In fullscreen mode, we DO NOT show individual card credits (they remain display:none)
+
         hide.forEach(el => {
           el.style.display = 'none';
           if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
@@ -496,7 +497,6 @@
               el.style.display = '';
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
-            credits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => {
@@ -506,7 +506,6 @@
               el.style.display = '';
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
-            credits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('❌ Failed', 'err');
           });
