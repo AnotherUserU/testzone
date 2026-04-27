@@ -1241,36 +1241,30 @@
         const credBox = section.querySelector('.cred-display');
         if (!credBox) return;
 
-        // Parse all contributor pills from global box
         const pills = [];
         credBox.querySelectorAll('.cred-pill').forEach(pill => {
           const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase() || '';
-          const name = pill.querySelector('.cred-name')?.textContent || '';
+          const nameEl = pill.querySelector('.cred-name');
+          const name = nameEl?.textContent || '';
+          const color = nameEl?.style.color || '#f5c842';
           if (name && !name.toLowerCase().includes('anotheruseru')) {
-            pills.push({ lbl, name });
+            pills.push({ lbl, name, color });
           }
         });
 
-        // Update each card in this section
         section.querySelectorAll('.team-card').forEach(card => {
           const tagText = card.querySelector('.card-tag')?.textContent || '';
           const titleText = card.querySelector('.card-title')?.textContent || '';
           const combined = (tagText + ' ' + titleText).toUpperCase();
-          
-          // Find first matching number in card text
           const nums = combined.match(/\d+/g) || [];
-          let contributor = '';
+          let contributor = null;
 
-          // Try to match based on numbers found in card title/tag
           for (const n of nums) {
             const match = pills.find(p => p.lbl.match(new RegExp('\\b' + n + '\\b')));
-            if (match) { contributor = match.name; break; }
+            if (match) { contributor = match; break; }
           }
 
-          const target = card.querySelector('.foot-cred-contributor');
           let footer = card.querySelector('.card-foot');
-          
-          // If the new credits container is missing (old cards), inject it
           if (!card.querySelector('.card-footer-credits') && footer) {
             const credContainer = document.createElement('div');
             credContainer.className = 'card-footer-credits';
@@ -1281,7 +1275,7 @@
           const contributorTarget = card.querySelector('.foot-cred-contributor');
           if (contributorTarget) {
             if (contributor) {
-              contributorTarget.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name">${escapeAttr(contributor)}</span></span>`;
+              contributorTarget.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name" style="color:${escapeAttr(contributor.color)}">${escapeAttr(contributor.name)}</span></span>`;
             } else {
               contributorTarget.innerHTML = '';
             }
@@ -1374,10 +1368,14 @@
       const quality = parseInt(document.getElementById('dlQualitySlider').value) / 100;
       const isLight = document.documentElement.classList.contains('light-theme');
       const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus';
+      
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL);
         const editables = document.querySelectorAll('[contenteditable="true"]');
+        const credits = document.querySelectorAll('.card-footer-credits');
+        
         editables.forEach(el => el.contentEditable = false);
+        credits.forEach(el => el.style.display = 'flex');
 
         hide.forEach(el => {
           el.style.display = 'none';
@@ -1394,6 +1392,7 @@
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
             editables.forEach(el => el.contentEditable = true);
+            credits.forEach(el => el.style.display = '');
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => {
             console.error(err);
@@ -1403,6 +1402,7 @@
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
             editables.forEach(el => el.contentEditable = true);
+            credits.forEach(el => el.style.display = '');
             showFbStatus('❌ Failed', 'err');
           });
         }, 400);
@@ -1412,7 +1412,10 @@
         if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); return; }
         const card = cards[idx];
         const editables = card.querySelectorAll('[contenteditable="true"]');
+        const cardCredits = card.querySelectorAll('.card-footer-credits');
+        
         editables.forEach(el => el.contentEditable = false);
+        cardCredits.forEach(el => el.style.display = 'flex');
 
         const hide = card.querySelectorAll('.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.download-node-btn');
         hide.forEach(el => el.style.display = 'none'); closeDlModal();
@@ -1425,9 +1428,17 @@
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             hide.forEach(el => el.style.display = '');
             editables.forEach(el => el.contentEditable = true);
+            cardCredits.forEach(el => el.style.display = '');
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => { 
             console.error(err); alert('Failed.'); 
+            hide.forEach(el => el.style.display = ''); 
+            editables.forEach(el => el.contentEditable = true);
+            cardCredits.forEach(el => el.style.display = '');
+            showFbStatus('❌ Failed', 'err');
+          });
+        }, 300);
+      }
             hide.forEach(el => el.style.display = ''); 
             editables.forEach(el => el.contentEditable = true);
             showFbStatus('❌ Failed', 'err');

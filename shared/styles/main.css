@@ -582,10 +582,10 @@ body {
 }
 
 .card-footer-credits {
+  display: none;
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
-  display: flex;
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;

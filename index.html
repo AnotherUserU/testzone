@@ -653,9 +653,11 @@
         const pills = [];
         credBox.querySelectorAll('.cred-pill').forEach(pill => {
           const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase() || '';
-          const name = pill.querySelector('.cred-name')?.textContent || '';
+          const nameEl = pill.querySelector('.cred-name');
+          const name = nameEl?.textContent || '';
+          const color = nameEl?.style.color || '#f5c842';
           if (name && !name.toLowerCase().includes('anotheruseru')) {
-            pills.push({ lbl, name });
+            pills.push({ lbl, name, color });
           }
         });
 
@@ -664,14 +666,13 @@
           const titleText = card.querySelector('.card-title')?.textContent || '';
           const combined = (tagText + ' ' + titleText).toUpperCase();
           const nums = combined.match(/\d+/g) || [];
-          let contributor = '';
+          let contributor = null;
           for (const n of nums) {
             const match = pills.find(p => p.lbl.match(new RegExp('\\b' + n + '\\b')));
-            if (match) { contributor = match.name; break; }
+            if (match) { contributor = match; break; }
           }
-          const target = card.querySelector('.foot-cred-contributor');
-          let footer = card.querySelector('.card-foot');
           
+          let footer = card.querySelector('.card-foot');
           if (!card.querySelector('.card-footer-credits') && footer) {
             const credContainer = document.createElement('div');
             credContainer.className = 'card-footer-credits';
@@ -682,7 +683,7 @@
           const contributorTarget = card.querySelector('.foot-cred-contributor');
           if (contributorTarget) {
             if (contributor) {
-              contributorTarget.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name">${escapeAttr(contributor)}</span></span>`;
+              contributorTarget.innerHTML = `<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name" style="color:${escapeAttr(contributor.color)}">${escapeAttr(contributor.name)}</span></span>`;
             } else {
               contributorTarget.innerHTML = '';
             }
@@ -701,6 +702,8 @@
 
       if (dlMode === 'fullscreen') {
         const hide = document.querySelectorAll(HIDE_SEL);
+        const credits = document.querySelectorAll('.card-footer-credits');
+        credits.forEach(el => el.style.display = 'flex');
         hide.forEach(el => {
           el.style.display = 'none';
           if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
@@ -715,6 +718,7 @@
               el.style.display = '';
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
+            credits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => {
@@ -724,6 +728,7 @@
               el.style.display = '';
               if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
             });
+            credits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('❌ Failed', 'err');
           });
@@ -734,6 +739,8 @@
         if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); reEnableBtn(); return; }
         const card = cards[idx];
         const hide = card.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
+        const cardCredits = card.querySelectorAll('.card-footer-credits');
+        cardCredits.forEach(el => el.style.display = 'flex');
         hide.forEach(el => el.style.display = 'none'); closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
@@ -742,11 +749,14 @@
             const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
             a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
-            hide.forEach(el => el.style.display = ''); reEnableBtn();
+            hide.forEach(el => el.style.display = '');
+            cardCredits.forEach(el => el.style.display = '');
+            reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => { 
             console.error(err); alert('Failed.'); 
             hide.forEach(el => el.style.display = ''); 
+            cardCredits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('❌ Failed', 'err');
           });
