@@ -1,4 +1,5 @@
 .vercel
 .env*.local
 node_modules/
-
+tests/__pycache__
+.pytest_cache
