@@ -12,7 +12,7 @@
 | Severity | Count | Description |
 |----------|-------|-------------|
 | 🔴 **CRITICAL** | 2 | ✅ ~~Server-side sanitization bypassed, Admin innerHTML without sanitization~~ (DONE) |
-| 🟠 **HIGH** | 4 | ✅ ~~Debug info leak~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added), Missing CORS (Added to vercel.json) |
+| 🟠 **HIGH** | 4 | ✅ ~~Debug info leak, Missing CORS (Added to vercel.json)~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added) |
 | 🟡 **MEDIUM** | 5 | ✅ ~~No input validation, No payload size limit, Missing SRI (Added to GSAP & XLSX)~~ (DONE) |
 | 🔵 **LOW** | 3 | No logging/alerting, no CSRF token, no session timeout UI |
 
@@ -41,9 +41,9 @@
 **Status**: FIXED  
 **Remediation**: Removed the `debug` object from error responses in `api/save.js` and ensured internal error messages are only logged to the server console.
 
-### HIGH-04: No CORS Configuration (Mitigated)
-**Status**: MITIGATED  
-**Remediation**: Added CORS rules to `vercel.json` to restrict access to production domain.
+### ~~HIGH-04: No CORS Configuration~~ ✅
+**Status**: FIXED  
+**Remediation**: Added explicit CORS rules to `vercel.json` and `api/save.js` to restrict API access to the production domain (`testzone-eight.vercel.app`).
 
 ---
 
@@ -70,7 +70,7 @@ ENTRY POINTS:
 ├── /api/config    [GET]  → Public — exposes Firebase identifiers
 ├── /api/load      [GET]  → Public — returns all guide data (no auth)
 ├── /api/login     [POST] → Password → JWT (2s delay, validation added ✅)
-├── /api/save      [POST] → JWT-protected (sanitization added ✅, size limit added ✅)
+├── /api/save      [POST] → JWT-protected (sanitization added ✅, size limit added ✅, CORS restricted ✅)
 ├── /index.html    [GET]  → Guest view (SRI added ✅)
 └── /admin.html    [GET]  → Admin view (Sanitization on load added ✅, SRI added ✅)
 ```
