@@ -668,7 +668,18 @@
           const nums = combined.match(/\d+/g) || [];
           let contributor = null;
           for (const n of nums) {
-            const match = pills.find(p => p.lbl.match(new RegExp('\\b' + n + '\\b')));
+            const cardNum = parseInt(n);
+            const match = pills.find(p => {
+              if (p.lbl.match(new RegExp('\\b' + n + '\\b'))) return true;
+              const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
+              if (rangeMatches) {
+                for (const rangeStr of rangeMatches) {
+                  const [start, end] = rangeStr.split('-').map(v => parseInt(v.trim()));
+                  if (cardNum >= start && cardNum <= end) return true;
+                }
+              }
+              return false;
+            });
             if (match) { contributor = match; break; }
           }
           
