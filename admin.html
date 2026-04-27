@@ -948,6 +948,8 @@
     const GROUPS_MAP = { dungeon: 'dungeonGroups', story: 'storyGroups', raid: 'raidGroups', storyTowers: 'storyTowersGroups', battleTowers: 'battleTowersGroups', celestialTower: 'celestialTowerGroups', worldBoss: 'worldBossGroups' };
     const MP_MAP = { dungeon: 'dungeonMpChain', story: 'storyMpChain', raid: 'raidMpChain', storyTowers: 'storyTowersMpChain', battleTowers: 'battleTowersMpChain', celestialTower: 'celestialTowerMpChain', worldBoss: 'worldBossMpChain' };
     const CRED_MAP = { dungeon: 'dungeonCredDisplay', story: 'storyCredDisplay', raid: 'raidCredDisplay', storyTowers: 'storyTowersCredDisplay', battleTowers: 'battleTowersCredDisplay', celestialTower: 'celestialTowerCredDisplay', worldBoss: 'worldBossCredDisplay' };
+    const PV_MAP = { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower', worldBoss: 'pvWorldBoss' };
+    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'];
     let currentMode = 'dungeon';
     function switchMode(mode) {
       currentMode = mode;
@@ -1724,8 +1726,6 @@
     }
 
     const SAVE_KEY = 'ACB_GUIDE_SAVE';
-    const ALL_MODES = ['dungeon', 'story', 'raid', 'storyTowers', 'battleTowers', 'celestialTower', 'worldBoss'];
-    const PV_MAP = { dungeon: 'pvDungeon', story: 'pvStory', raid: 'pvRaid', storyTowers: 'pvStoryTowers', battleTowers: 'pvBattleTowers', celestialTower: 'pvCelestialTower', worldBoss: 'pvWorldBoss' };
     function saveLocal() {
       try {
         const data = { savedAt: new Date().toLocaleString() };
@@ -1836,6 +1836,7 @@
 
     function enterAsAdmin() {
       currentRole = 'admin';
+      document.getElementById('appContent').style.display = 'block';
       document.body.classList.remove('readonly');
       document.body.classList.add('is-admin');
       document.getElementById('logoutBtn').style.display = '';
