@@ -5,7 +5,8 @@ export default async function handler(req, res) {
     if (!dbUrl) return res.status(500).json({ error: 'Database URL not configured' });
     
     const fbAuth = process.env.FIREBASE_AUTH;
-    const finalUrl = fbAuth ? `${dbUrl}/guide.json?auth=${fbAuth}` : `${dbUrl}/guide.json`;
+    const cleanUrl = dbUrl.replace(/\/$/, '');
+    const finalUrl = fbAuth ? `${cleanUrl}/guide.json?auth=${fbAuth}` : `${cleanUrl}/guide.json`;
 
     const response = await fetch(finalUrl);
     if (!response.ok) throw new Error('Firebase REST error: ' + response.status);
