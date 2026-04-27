@@ -1,4 +1,15 @@
 import jwt from 'jsonwebtoken';
+import createDOMPurify from 'isomorphic-dompurify';
+
+const DOMPurify = createDOMPurify();
+
+// Server-side sanitization config — matches client-side config in admin.html & index.html
+const SANITIZE_CONFIG = {
+  ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
+  ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable', 'spellcheck', 'ondblclick'],
+  ADD_ATTR: ['onclick', 'ondblclick'],
+  ALLOW_DATA_ATTR: true
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -17,9 +28,23 @@ export default async function handler(req, res) {
   try {
     jwt.verify(token, jwtSecret);
     const { data } = req.body;
-    
-    // SEMENTARA: Lewati sanitasi untuk tes koneksi
-    const sanitizedData = data; 
+
+    // Input validation
+    if (!data || typeof data !== 'object') {
+      return res.status(400).json({ error: 'Invalid data format' });
+    }
+
+    // Server-side sanitization — sanitize all HTML string fields
+    const sanitizedData = {};
+    for (const [key, value] of Object.entries(data)) {
+      if (typeof value === 'string' && key.endsWith('HTML')) {
+        // Sanitize HTML content fields
+        sanitizedData[key] = DOMPurify.sanitize(value, SANITIZE_CONFIG);
+      } else {
+        // Pass through non-HTML fields (savedAt, pageVisibility, etc.)
+        sanitizedData[key] = value;
+      }
+    }
 
     const dbUrl = process.env.FIREBASE_DB_URL;
     if (!dbUrl) return res.status(500).json({ error: 'Database URL not configured' });
@@ -36,16 +61,14 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Firebase error (${response.status}): ${errorText}`);
+      console.error('Firebase write error:', response.status, errorText);
+      throw new Error('Database write failed');
     }
 
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Save error:', error);
-    res.status(500).json({ 
-      error: 'Failed to save data', 
-      details: error.message,
-      debug: { authPresent: !!process.env.FIREBASE_AUTH }
-    });
+    // Do NOT expose internal details to the client
+    res.status(500).json({ error: 'Failed to save data' });
   }
 }

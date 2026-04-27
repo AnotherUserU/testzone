@@ -1735,12 +1735,18 @@
       try {
         const raw = localStorage.getItem(SAVE_KEY); if (!raw) { if (!silent) showToast('⚠ No save found.', true); return; }
         const data = JSON.parse(raw);
+        // Sanitize loaded HTML to prevent stored XSS from tampered localStorage
+        const localConfig = {
+          ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
+          ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable', 'spellcheck', 'ondblclick'],
+          ADD_ATTR: ['onclick', 'ondblclick']
+        };
         ALL_MODES.forEach(m => {
-          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = data[m + 'HTML']; }
+          if (data[m + 'HTML']) { const el = document.getElementById(PAGE_MAP[m]); if (el) el.innerHTML = DOMPurify.sanitize(data[m + 'HTML'], localConfig); }
         });
         // Legacy support
-        if (data.mpChain) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = data.mpChain; }
-        if (data.credDisplay) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = data.credDisplay; }
+        if (data.mpChain) { const el = document.getElementById('dungeonMpChain'); if (el) el.innerHTML = DOMPurify.sanitize(data.mpChain, localConfig); }
+        if (data.credDisplay) { const el = document.getElementById('dungeonCredDisplay'); if (el) el.innerHTML = DOMPurify.sanitize(data.credDisplay, localConfig); }
         rewireAll(); document.getElementById('saveStatus').textContent = '📂 Loaded from ' + data.savedAt;
         if (!silent) showToast('📂 Loaded!');
       } catch (e) { if (!silent) showToast('❌ Failed: ' + e.message, true); }
@@ -1944,8 +1950,8 @@
       // Sanitize before sending to cloud
       const config = {
         ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
-        ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable'],
-        ADD_ATTR: ['onclick']
+        ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable', 'spellcheck', 'ondblclick'],
+        ADD_ATTR: ['onclick', 'ondblclick']
       };
 
       ALL_MODES.forEach(m => {
@@ -1987,8 +1993,8 @@
         // Define sanitization config (Admin needs interaction tags and event handlers)
         const config = {
           ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'a', 'span', 'div', 'p', 'br', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'img', 'svg', 'path', 'circle', 'rect', 'button', 'input', 'select', 'option', 'textarea', 'label'],
-          ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable'],
-          ADD_ATTR: ['onclick']
+          ALLOWED_ATTR: ['href', 'title', 'target', 'class', 'style', 'id', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y', 'type', 'value', 'placeholder', 'readonly', 'disabled', 'checked', 'data-mode', 'aria-label', 'onclick', 'contenteditable', 'spellcheck', 'ondblclick'],
+          ADD_ATTR: ['onclick', 'ondblclick']
         };
 
         ALL_MODES.forEach(m => {
