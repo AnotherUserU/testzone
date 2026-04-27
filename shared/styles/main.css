@@ -414,6 +414,7 @@ body {
   height: 15px;
   border-left: 2px solid var(--tc, var(--gold));
   border-bottom: 2px solid var(--tc, var(--gold));
+  border-bottom-left-radius: 12px;
   pointer-events: none;
   opacity: 0.6;
 }
