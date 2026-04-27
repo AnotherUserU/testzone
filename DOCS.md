@@ -114,6 +114,8 @@ imlosttho-main/
 │   ├── data/
 │   │   └── defaults.js     # Default team compositions (fallback data)
 │   ├── js/
+│   │   ├── admin.js        # [SOURCE] Master admin logic (Readable)
+│   │   ├── admin.min.js    # [PRODUCTION] Obfuscated & encrypted admin logic
 │   │   ├── state.js        # Application state (AppState singleton)
 │   │   ├── firebase.js     # Firebase init, load, save, realtime listener
 │   │   ├── renderer.js     # DOM renderer (buildCard, renderApp)
@@ -139,7 +141,7 @@ imlosttho-main/
 └── .env.local              # Environment variables (secrets — NOT in git)
 ```
 
-> **IMPORTANT**: `admin.html` and `index.html` are **monolithic** files. They contain all HTML structure, inline `<script>` blocks, and event handlers. The `shared/js/` modules exist as a **planned refactor** but are not fully integrated yet — the main files still use inline scripts.
+> **SECURITY NOTE**: The `admin.html` file now uses `admin.min.js`. This is a highly obfuscated version of the master `admin.js` to prevent unauthorized users from understanding the internal logic, API interactions, or authentication flows even if they view the script source.
 
 ---
 
@@ -322,6 +324,24 @@ function rewireAll() {
 ```
 
 > **TIP**: Elements are **removed from the DOM**, not hidden with CSS. This means even if a user inspects the page, admin controls don't exist in the DOM tree.
+
+### 6.1 Code Obfuscation (Admin Logic)
+
+To prevent unauthorized users from reverse-engineering the admin dashboard, the core logic is obfuscated using `javascript-obfuscator`.
+
+- **Master File**: `shared/js/admin.js` (Readable source code).
+- **Production File**: `shared/js/admin.min.js` (Encrypted/Acak).
+- **Features Enabled**:
+    - **Self-Defending**: Code breaks if tampered with or prettified.
+    - **Dead Code Injection**: Adds decoy logic to confuse analyzers.
+    - **String Array Rotation/Encoding**: Encrypts sensitive strings (API endpoints, identifiers).
+    - **Debug Protection**: Attempts to block browser DevTools if it detects inspection of the script.
+
+**How to update obfuscated code:**
+```bash
+# After editing shared/js/admin.js
+javascript-obfuscator shared/js/admin.js --output shared/js/admin.min.js [options]
+```
 
 ---
 
