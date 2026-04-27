@@ -405,6 +405,19 @@ body {
   -webkit-backdrop-filter: blur(14px);
 }
 
+.team-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  border-left: 2px solid var(--tc, var(--gold));
+  border-bottom: 2px solid var(--tc, var(--gold));
+  pointer-events: none;
+  opacity: 0.6;
+}
+
 .team-card:hover {
   transform: translateY(-5px) scale(1.01);
   background: rgba(40, 40, 60, 0.85);
@@ -485,6 +498,17 @@ body {
   align-items: flex-start;
 }
 
+.mem-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 24px;
+  bottom: -10px;
+  width: 1px;
+  background: var(--border);
+  z-index: 1;
+}
+
 .mem-row.dragging-mem {
   opacity: .35;
 }
@@ -506,6 +530,8 @@ body {
   font-weight: 700;
   flex-shrink: 0;
   color: var(--tc, #f5c842);
+  position: relative;
+  z-index: 2;
 }
 
 .mem-name {

@@ -13,6 +13,18 @@
   flex-direction: column;
   transition: box-shadow .2s, transform .2s;
 }
+.team-card::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 15px;
+  height: 15px;
+  border-left: 2px solid var(--tc, var(--gold));
+  border-bottom: 2px solid var(--tc, var(--gold));
+  pointer-events: none;
+  opacity: 0.6;
+}
 .team-card-inner {
   border-radius: 12px;
   overflow: hidden;
@@ -85,6 +97,18 @@
   font-weight: 700;
   flex-shrink: 0;
   color: var(--tc, #f5c842);
+  position: relative;
+  z-index: 2;
+}
+.mem-row:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 24px;
+  bottom: -10px;
+  width: 1px;
+  background: var(--border);
+  z-index: 1;
 }
 .mem-name {
   font-weight: 700;
