@@ -107,12 +107,16 @@ export function refreshAllCardCredits() {
       let contributor = null;
 
       // 1. Try High-Precision Match: Check if the pill label contains the specific Tag or Title text
-      // This handles cases like "SLIME CITY 1" matching "SLIME CITY 1 CREATOR" correctly.
-      if (tagText.length > 2) {
-        contributor = pills.find(p => p.lbl.includes(tagText));
+      // We use word boundaries to avoid "TEAM 1" matching "TEAM 10".
+      const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      
+      if (tagText.length > 1) {
+        const reg = new RegExp('\\b' + escapeRegex(tagText) + '\\b', 'i');
+        contributor = pills.find(p => reg.test(p.lbl));
       }
-      if (!contributor && titleText.length > 2) {
-        contributor = pills.find(p => p.lbl.includes(titleText));
+      if (!contributor && titleText.length > 1) {
+        const reg = new RegExp('\\b' + escapeRegex(titleText) + '\\b', 'i');
+        contributor = pills.find(p => reg.test(p.lbl));
       }
 
       // 2. Fallback to Number Match (Existing Logic)
