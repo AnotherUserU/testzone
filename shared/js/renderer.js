@@ -73,17 +73,28 @@ export function refreshAllCardCredits() {
     if (!credBox) return;
 
     const pills = [];
+    let mainDesigner = null;
+
     credBox.querySelectorAll('.cred-pill').forEach(pill => {
       const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase() || '';
       const nameEl = pill.querySelector('.cred-name');
       const name = nameEl?.textContent || '';
       const color = nameEl?.style.color || '#f5c842';
-      if (name && !name.toLowerCase().includes('anotheruseru')) {
+      
+      if (lbl.includes('DESIGN') || lbl === 'AUTHOR' || lbl === 'CREATOR') {
+        mainDesigner = { lbl, name, color };
+      } else if (name && !name.toLowerCase().includes('anotheruseru')) {
         pills.push({ lbl, name, color });
       }
     });
 
     section.querySelectorAll('.team-card').forEach(card => {
+      const mainTarget = card.querySelector('.card-footer-credits > .foot-cred-item');
+      if (mainTarget && mainDesigner) {
+        // Update the hardcoded "AnotherUseru" main credit to match the section's actual main designer
+        mainTarget.innerHTML = `${escapeAttr(mainDesigner.lbl)} <span class="foot-cred-name" style="color:${escapeAttr(mainDesigner.color)}">${escapeAttr(mainDesigner.name)}</span>`;
+      }
+
       const tagText = card.querySelector('.card-tag')?.textContent || '';
       const titleText = card.querySelector('.card-title')?.textContent || '';
       const combined = (tagText + ' ' + titleText).toUpperCase();
