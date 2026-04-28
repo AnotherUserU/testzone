@@ -957,12 +957,11 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.token) {
-          localStorage.setItem('adminToken', data.token);
-          sessionStorage.setItem('access_granted', 'true');
+        if (data.success) {
+          sessionStorage.setItem('adminKey', pw);
           document.getElementById('adminShortcutOverlay').classList.remove('open');
           if (window.enterAsAdmin) window.enterAsAdmin();
-          else location.reload(); // Fallback if module not loaded
+          else location.reload(); 
         } else {
           err.style.display = 'block';
           document.getElementById('ascPwInput').value = '';
