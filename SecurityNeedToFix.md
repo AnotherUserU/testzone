@@ -3,7 +3,7 @@
 > **Scanned by**: vulnerability-scanner skill (OWASP 2025 methodology)  
 > **Date**: 2026-04-27  
 > **Scope**: Full codebase (`admin.html`, `index.html`, `api/`, `shared/js/`, `shared/styles/`, config)  
-> **Total Findings**: 15
+> **Total Findings**: 14
 
 ---
 
@@ -12,8 +12,8 @@
 | Severity | Count | Description |
 |----------|-------|-------------|
 | 🔴 **CRITICAL** | 2 | ✅ ~~Server-side sanitization bypassed, Admin innerHTML without sanitization~~ (DONE) |
-| 🟠 **HIGH** | 4 | ✅ ~~Debug info leak, Missing CORS (Added to vercel.json), JWT in localStorage (Removed)~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added) |
-| 🟡 **MEDIUM** | 6 | ✅ ~~No input validation, No payload size limit, Missing SRI, Admin Obfuscation~~ (DONE) |
+| 🟠 **HIGH** | 4 | ✅ ~~Debug info leak, Missing CORS (Added to vercel.json)~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added) |
+| 🟡 **MEDIUM** | 5 | ✅ ~~No input validation, No payload size limit, Missing SRI (Added to GSAP & XLSX)~~ (DONE) |
 | 🔵 **LOW** | 3 | No logging/alerting, no CSRF token, no session timeout UI |
 
 ---
@@ -33,9 +33,9 @@
 
 ## 🟠 HIGH Findings
 
-### ~~HIGH-01: JWT Token Stored in localStorage (XSS-Accessible)~~ ✅
-**Status**: FIXED  
-**Remediation**: The entire JWT system has been completely removed. Authentication is now handled by passing the raw admin password directly via headers (`x-admin-password`). The password itself is temporarily kept in `sessionStorage` which is cleared when the browser tab closes, significantly reducing the attack window compared to a 24h JWT.
+### HIGH-01: JWT Token Stored in localStorage (XSS-Accessible)
+**Status**: PENDING  
+**Recommendation**: Move to HttpOnly cookies.
 
 ### ~~HIGH-03: Debug Information Leaked in Error Response~~ ✅
 **Status**: FIXED  
@@ -55,15 +55,11 @@
 
 ### ~~MED-03: No Payload Size Limit on Save Endpoint~~ ✅
 **Status**: FIXED  
-**Remediation**: Implemented a **2MB** payload size check in `api/save.js` to prevent resource exhaustion attacks.
+**Remediation**: Implemented a 512KB payload size check in `api/save.js` to prevent resource exhaustion attacks.
 
 ### ~~MED-04: GSAP & XLSX Script Loaded Without SRI~~ ✅
 **Status**: FIXED  
 **Remediation**: Added Subresource Integrity (SRI) hashes to all external script tags in `index.html` and `admin.html`.
-
-### ~~MED-05: Admin Logic Exposed (Reversed)~~ ✅
-**Status**: FIXED  
-**Remediation**: Modularized `admin.js` and implemented high-security obfuscation (`admin.min.js`) with dead code injection and string array encryption.
 
 ---
 
@@ -73,8 +69,8 @@
 ENTRY POINTS:
 ├── /api/config    [GET]  → Public — exposes Firebase identifiers
 ├── /api/load      [GET]  → Public — returns all guide data (no auth)
-├── /api/login     [POST] → Password (2s delay, validation added ✅)
-├── /api/save      [POST] → Password-protected (sanitization added ✅, size limit added ✅, CORS restricted ✅)
+├── /api/login     [POST] → Password → JWT (2s delay, validation added ✅)
+├── /api/save      [POST] → JWT-protected (sanitization added ✅, size limit added ✅, CORS restricted ✅)
 ├── /index.html    [GET]  → Guest view (SRI added ✅)
-└── /admin.html    [GET]  → Admin view (Sanitization on load added ✅, SRI added ✅, Logic Obfuscated ✅)
+└── /admin.html    [GET]  → Admin view (Sanitization on load added ✅, SRI added ✅)
 ```

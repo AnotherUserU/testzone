@@ -8,8 +8,8 @@ import { refreshAllCardCredits } from './renderer.js';
 
 export async function saveToFirebase() {
   if (AppState.currentRole !== 'admin') { showToast('❌ Admin only!', true); return; }
-  const password = sessionStorage.getItem('adminKey');
-  if (!password) { showToast('❌ Auth missing, please re-login.', true); return; }
+  const token = localStorage.getItem('adminToken');
+  if (!token) { showToast('❌ Auth token missing, please re-login.', true); return; }
   
   refreshAllCardCredits();
   showFbStatus('⛳ Saving...', 'loading');
@@ -30,10 +30,7 @@ export async function saveToFirebase() {
   try {
     const res = await fetch('/api/save', {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'x-admin-password': password 
-      },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
       body: JSON.stringify({ data })
     });
     if (!res.ok) {

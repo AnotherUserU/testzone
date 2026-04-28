@@ -957,8 +957,9 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          sessionStorage.setItem('adminKey', pw);
+        if (data.success && data.token) {
+          localStorage.setItem('adminToken', data.token);
+          sessionStorage.setItem('access_granted', 'true');
           document.getElementById('adminShortcutOverlay').classList.remove('open');
           if (window.enterAsAdmin) window.enterAsAdmin();
           else location.reload(); // Fallback if module not loaded

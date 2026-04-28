@@ -207,7 +207,7 @@ window.enterAsAdmin = function() {
 };
 
 window.initApp = function() {
-  if (sessionStorage.getItem('adminKey')) { 
+  if (sessionStorage.getItem('access_granted') === 'true' && localStorage.getItem('adminToken')) { 
     enterAsAdmin(); 
   } else { 
     enterAsGuest(); 
