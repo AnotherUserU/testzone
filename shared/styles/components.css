@@ -655,7 +655,7 @@
 .add-section-btn:hover {
   background: rgba(245, 200, 66, .14) !important;
 }
-  /* Touch areas in cards */
+@media (max-width: 768px) {
   .download-node-btn {
     min-height: 36px;
     width: auto;
@@ -664,14 +664,11 @@
     right: 12px;
     padding: 6px 12px;
   }
-  /* Make main title scale */
   .main-title {
     font-size: clamp(1.8rem, 6vw, 2.8rem);
     text-align: center;
     margin-top: 10px;
   }
-  
-  /* Make page padding smaller */
   #pageBody {
     padding-left: 12px;
     padding-right: 12px;

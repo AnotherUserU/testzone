@@ -292,7 +292,7 @@
   transform: scale(1.3);
   border-color: white;
 }
-  /* Card inner responsive tweaks */
+@media (max-width: 768px) {
   .card-img-right {
     width: 110px;
     height: 200px;
@@ -303,3 +303,4 @@
   .card-title {
     font-size: 1.1rem;
   }
+}
