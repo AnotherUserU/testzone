@@ -97,8 +97,13 @@ export function refreshAllCardCredits() {
 
       const tagText = card.querySelector('.card-tag')?.textContent || '';
       const titleText = card.querySelector('.card-title')?.textContent || '';
-      const combined = (tagText + ' ' + titleText).toUpperCase();
-      const nums = combined.match(/\d+/g) || [];
+      
+      // Prioritize numbers found in the title over the tag.
+      // This prevents "STORY 2" in the tag from hijacking "TEAM 1" in the title.
+      const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
+      const tagNums = tagText.toUpperCase().match(/\d+/g) || [];
+      const nums = [...titleNums, ...tagNums];
+      
       let contributor = null;
 
       for (const n of nums) {
