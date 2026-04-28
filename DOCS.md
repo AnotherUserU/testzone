@@ -291,8 +291,7 @@ JWT expired → Must re-login
 
 | Storage | Key | Value |
 |---------|-----|-------|
-| `localStorage` | `adminToken` | JWT string |
-| `sessionStorage` | `access_granted` | `"true"` |
+| `sessionStorage` | `adminKey` | Raw admin password (cleared when browser closes) |
 
 ### Security Headers (vercel.json)
 

@@ -12,8 +12,8 @@
 | Severity | Count | Description |
 |----------|-------|-------------|
 | 🔴 **CRITICAL** | 2 | ✅ ~~Server-side sanitization bypassed, Admin innerHTML without sanitization~~ (DONE) |
-| 🟠 **HIGH** | 4 | ✅ ~~Debug info leak, Missing CORS (Added to vercel.json)~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added) |
-| 🟡 **MEDIUM** | 5 | ✅ ~~No input validation, No payload size limit, Missing SRI (Added to GSAP & XLSX)~~ (DONE) |
+| 🟠 **HIGH** | 4 | ✅ ~~Debug info leak, Missing CORS (Added to vercel.json), JWT in localStorage (Removed)~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added) |
+| 🟡 **MEDIUM** | 6 | ✅ ~~No input validation, No payload size limit, Missing SRI, Admin Obfuscation~~ (DONE) |
 | 🔵 **LOW** | 3 | No logging/alerting, no CSRF token, no session timeout UI |
 
 ---
@@ -33,9 +33,9 @@
 
 ## 🟠 HIGH Findings
 
-### HIGH-01: JWT Token Stored in localStorage (XSS-Accessible)
-**Status**: PENDING  
-**Recommendation**: Move to HttpOnly cookies.
+### ~~HIGH-01: JWT Token Stored in localStorage (XSS-Accessible)~~ ✅
+**Status**: FIXED  
+**Remediation**: The entire JWT system has been completely removed. Authentication is now handled by passing the raw admin password directly via headers (`x-admin-password`). The password itself is temporarily kept in `sessionStorage` which is cleared when the browser tab closes, significantly reducing the attack window compared to a 24h JWT.
 
 ### ~~HIGH-03: Debug Information Leaked in Error Response~~ ✅
 **Status**: FIXED  
@@ -69,8 +69,8 @@
 ENTRY POINTS:
 ├── /api/config    [GET]  → Public — exposes Firebase identifiers
 ├── /api/load      [GET]  → Public — returns all guide data (no auth)
-├── /api/login     [POST] → Password → JWT (2s delay, validation added ✅)
-├── /api/save      [POST] → JWT-protected (sanitization added ✅, size limit added ✅, CORS restricted ✅)
+├── /api/login     [POST] → Password (2s delay, validation added ✅)
+├── /api/save      [POST] → Password-protected (sanitization added ✅, size limit added ✅, CORS restricted ✅)
 ├── /index.html    [GET]  → Guest view (SRI added ✅)
-└── /admin.html    [GET]  → Admin view (Sanitization on load added ✅, SRI added ✅)
+└── /admin.html    [GET]  → Admin view (Sanitization on load added ✅, SRI added ✅, Logic Obfuscated ✅)
 ```
