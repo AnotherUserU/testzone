@@ -138,13 +138,17 @@ export function refreshAllCardCredits() {
             }
             if (!hasNum) return false;
 
-            // B. Context Check: Significant words in label must appear in card text
-            // e.g., If label is "HEROS PALACE 1", "HEROS" must be in card text.
-            const labelWords = p.lbl.replace(/[\d-]/g, '')
-                                   .replace(/CREATOR|BY|GUIDE|TEAM/g, '')
-                                   .trim().split(/\s+/);
-            for (const word of labelWords) {
-              if (word.length > 2 && !combined.includes(word)) return false;
+            // B. Context Check: The prefix (text before numbers) must match significantly.
+            // e.g., "HEROS PALACE" must match between card and credit label.
+            const getPrefix = (s) => s.split(/\d/)[0].replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase();
+            const pPrefix = getPrefix(p.lbl);
+            const tagPrefix = getPrefix(tagText);
+            const titlePrefix = getPrefix(titleText);
+            
+            if (pPrefix) {
+              const matchedTag = tagPrefix && (tagPrefix.includes(pPrefix) || pPrefix.includes(tagPrefix));
+              const matchedTitle = titlePrefix && (titlePrefix.includes(pPrefix) || pPrefix.includes(titlePrefix));
+              if (!matchedTag && !matchedTitle) return false;
             }
             return true;
           });
