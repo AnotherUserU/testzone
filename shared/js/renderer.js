@@ -98,11 +98,11 @@ export function refreshAllCardCredits() {
       const tagText = card.querySelector('.card-tag')?.textContent || '';
       const titleText = card.querySelector('.card-title')?.textContent || '';
       
-      // Prioritize numbers found in the title over the tag.
-      // This prevents "STORY 2" in the tag from hijacking "TEAM 1" in the title.
-      const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
+      // Prioritize numbers found in the tag over the title based on user request.
+      // E.g., "Heros Palace 2" in the tag will dictate the credit even if title has "TEAM 1".
       const tagNums = tagText.toUpperCase().match(/\d+/g) || [];
-      const nums = [...titleNums, ...tagNums];
+      const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
+      const nums = [...tagNums, ...titleNums];
       
       let contributor = null;
 
