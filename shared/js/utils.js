@@ -38,9 +38,10 @@ export function escapeAttr(str) {
   return str.replace(/"/g, '&quot;');
 }
 
-export function rgbToHex(rgb) {
-  if (!rgb) return '#f5c842';
-  const r = rgb.match(/\d+/g);
+export function rgbToHex(color) {
+  if (!color) return '#f5c842';
+  if (color.startsWith('#')) return color;
+  const r = color.match(/\d+/g);
   if (!r || r.length < 3) return '#f5c842';
   return '#' + r.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join('');
 }

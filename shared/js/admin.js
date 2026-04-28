@@ -149,8 +149,9 @@ window.addWarnBox = function(btn) {
 };
 
 window.addBannerBlock = function(btn, type, sectionKey) {
-  const container = document.getElementById(sectionKey + 'Groups');
-  if (!container) return;
+  const section = btn.closest('.mode-section');
+  const titleBlock = section?.querySelector('[data-block$="-title"]');
+  
   const block = document.createElement('div');
   block.className = 'page-block';
   block.dataset.block = 'banner';
@@ -176,9 +177,17 @@ window.addBannerBlock = function(btn, type, sectionKey) {
   
   block.appendChild(banner);
   block.appendChild(del);
-  container.appendChild(block);
+  
+  if (titleBlock) {
+    titleBlock.after(block);
+  } else {
+    const container = document.getElementById(sectionKey + 'Groups');
+    if (container) container.appendChild(block);
+  }
   wireBlockDrag(block);
+  saveToFirebase();
 };
+
 
 window.addGenericCoreTeam = function(gridId, modeName) {
   const grid = document.getElementById(gridId);
@@ -417,14 +426,16 @@ window.applyPageVisibility = function(saveToCloud) {
 };
 
 // --- Credits Modal Logic ---
-window.openCredModal = function() {
+window.openCredModal = function(btn) {
   const modal = document.getElementById('credModal');
   const list = document.getElementById('cf-sections-list');
   if (!modal || !list) return;
   
   list.innerHTML = '';
-  const section = document.querySelector('.mode-section.active');
-  const credDisplay = section?.querySelector('.cred-display');
+  // If button passed, target its specific display box
+  const credBox = btn ? btn.closest('.credits-box') : document.querySelector('.mode-section.active .credits-box');
+  const credDisplay = credBox?.querySelector('.cred-display');
+  AppState.activeCredDisplay = credDisplay;
   
   if (credDisplay) {
     credDisplay.querySelectorAll('.cred-pill').forEach(pill => {
@@ -446,7 +457,7 @@ function addCredRow(lbl, name, color) {
   div.innerHTML = `
     <input type="text" class="cred-input-lbl" value="${lbl}" placeholder="Label (e.g. TEAM 1 CREATOR)">
     <input type="text" class="cred-input-name" value="${name}" placeholder="Name">
-    <input type="color" class="cred-input-clr" value="${rgbToHex(color) || color}">
+    <input type="color" class="cred-input-clr" value="${rgbToHex(color)}">
     <span class="cred-row-del" onclick="this.parentElement.remove()">✕</span>
   `;
   list.appendChild(div);
@@ -455,12 +466,12 @@ function addCredRow(lbl, name, color) {
 window.credAddSection = () => addCredRow('', '', '#c36bff');
 
 window.applyCredits = function() {
-  const section = document.querySelector('.mode-section.active');
-  const credBox = section?.querySelector('.cred-content-row');
-  if (!credBox) return;
+  const credDisplay = AppState.activeCredDisplay || document.querySelector('.mode-section.active .cred-display');
+  if (!credDisplay) return;
   
-  let html = `<div class="cred-display"><div class="cred-pills-row">
-    <div class="cred-pill"><div><div class="cred-lbl">DESIGN BY</div><div class="cred-name" style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru</div></div></div>`;
+  const pillsRow = credDisplay.querySelector('.cred-pills-row') || credDisplay;
+  
+  let html = `<div class="cred-pill"><div><div class="cred-lbl">DESIGN BY</div><div class="cred-name" style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru</div></div></div>`;
   
   document.querySelectorAll('.cred-modal-row').forEach(row => {
     const lbl = row.querySelector('.cred-input-lbl').value.toUpperCase();
@@ -470,8 +481,7 @@ window.applyCredits = function() {
     html += `<div class="cred-pill"><div><div class="cred-lbl">${lbl}</div><div class="cred-name" style="color:${color};text-shadow:0 0 12px ${color}55;margin-bottom:0">${name}</div></div></div>`;
   });
   
-  html += `</div></div>`;
-  credBox.innerHTML = html;
+  pillsRow.innerHTML = html;
   closeCredModal();
   refreshAllCardCredits();
   saveToFirebase();
