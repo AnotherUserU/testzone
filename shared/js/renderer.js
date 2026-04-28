@@ -106,20 +106,32 @@ export function refreshAllCardCredits() {
       
       let contributor = null;
 
-      for (const n of nums) {
-        const cardNum = parseInt(n);
-        const match = pills.find(p => {
-          if (p.lbl.match(new RegExp('\\b' + n + '\\b'))) return true;
-          const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
-          if (rangeMatches) {
-            for (const rangeStr of rangeMatches) {
-              const [start, end] = rangeStr.split('-').map(v => parseInt(v.trim()));
-              if (cardNum >= start && cardNum <= end) return true;
+      // 1. Try High-Precision Match: Check if the pill label contains the specific Tag or Title text
+      // This handles cases like "SLIME CITY 1" matching "SLIME CITY 1 CREATOR" correctly.
+      if (tagText.length > 2) {
+        contributor = pills.find(p => p.lbl.includes(tagText));
+      }
+      if (!contributor && titleText.length > 2) {
+        contributor = pills.find(p => p.lbl.includes(titleText));
+      }
+
+      // 2. Fallback to Number Match (Existing Logic)
+      if (!contributor) {
+        for (const n of nums) {
+          const cardNum = parseInt(n);
+          const match = pills.find(p => {
+            if (p.lbl.match(new RegExp('\\b' + n + '\\b'))) return true;
+            const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
+            if (rangeMatches) {
+              for (const rangeStr of rangeMatches) {
+                const [start, end] = rangeStr.split('-').map(v => parseInt(v.trim()));
+                if (cardNum >= start && cardNum <= end) return true;
+              }
             }
-          }
-          return false;
-        });
-        if (match) { contributor = match; break; }
+            return false;
+          });
+          if (match) { contributor = match; break; }
+        }
       }
 
       const contributorTarget = card.querySelector('.foot-cred-contributor');
