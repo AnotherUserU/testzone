@@ -1,0 +1,114 @@
+.nav-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-header.scrolled {
+  background: rgba(15, 15, 23, 0.85);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-search {
+  margin-right: 20px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-search input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px 6px 32px;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: .9rem;
+  width: 160px;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.nav-search input:focus {
+  width: 220px;
+  border-color: var(--cyan);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.15);
+}
+
+.nav-search svg {
+  position: absolute;
+  left: 10px;
+  color: var(--text-dim);
+  pointer-events: none;
+}
+
+.nav-menu {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.nav-btn {
+  padding: 8px 14px;
+  background: var(--bg3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+  transition: background .2s, color .2s;
+}
+
+.nav-btn.active {
+  background: var(--gold);
+  color: #000;
+  border-color: var(--gold);
+}
+
+.nav-btn:hover {
+  background: var(--cyan);
+  color: #000;
+}
+
+.theme-toggle {
+  padding: 8px 14px;
+  background: rgba(0, 212, 255, .1);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 212, 255, .3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+  transition: all .2s;
+  white-space: nowrap;
+}
+
+.theme-toggle:hover {
+  background: rgba(0, 212, 255, .2);
+  box-shadow: 0 0 10px rgba(0, 212, 255, .3);
+}
+
+.mode-section {
+  display: none;
+}
+
+.mode-section.active {
+  display: block;
+  line-height: 1.35;
+  margin-top: 2px;
+}

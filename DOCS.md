@@ -98,54 +98,53 @@ Browser → POST /api/save {data} + Bearer JWT → Vercel verifies JWT → PUT F
 
 ```
 imlosttho-main/
-├── admin.html              # Admin CMS (116KB, ~2070 lines) — monolithic
-├── index.html              # Guest view (40KB, ~747 lines) — read-only
-├── DOCS.md                 # This documentation file
-├── package.json            # Node.js dependencies
-├── vercel.json             # Vercel routing & security headers
+├── admin.html              # Admin CMS (Modules enabled)
+├── index.html              # Guest view (Read-only)
+├── DOCS.md                 # Technical Documentation
+├── vercel.json             # Vercel configuration & security
 │
 ├── api/                    # Vercel Serverless Functions
-│   ├── config.js           # Public Firebase config (non-sensitive)
-│   ├── login.js            # Admin authentication → JWT
-│   ├── load.js             # Read data from Firebase
-│   └── save.js             # Write data to Firebase (JWT-protected)
+│   ├── login.js            # Password -> JWT Auth
+│   ├── load.js             # Firebase GET proxy
+│   └── save.js             # Firebase PUT proxy (JWT Required)
 │
-├── shared/                 # Shared assets between admin & guest
-│   ├── data/
-│   │   └── defaults.js     # Default team compositions (fallback data)
-│   ├── js/
-│   │   ├── admin.js        # [SOURCE] Master admin logic (Readable)
-│   │   ├── admin.min.js    # [PRODUCTION] Obfuscated & encrypted admin logic
-│   │   ├── state.js        # Application state (AppState singleton)
-│   │   ├── firebase.js     # Firebase init, load, save, realtime listener
-│   │   ├── renderer.js     # DOM renderer (buildCard, renderApp)
-│   │   ├── download.js     # Screenshot engine (html2canvas wrapper)
-│   │   ├── theme.js        # Dark/Light theme toggle
-│   │   └── utils.js        # Utilities (sanitizeHTML, escapeAttr, showToast)
-│   └── styles/
-│       ├── variables.css   # Design tokens (colors, theme vars)
-│       ├── base.css        # Reset, typography, buttons, toasts, banners
-│       ├── navigation.css  # Nav bar, mode tabs, role badge
-│       ├── cards.css       # Team card styles
-│       ├── modals.css      # Overlay modals (download, credentials, etc.)
-│       ├── main.css        # Legacy monolithic stylesheet (47KB)
-│       └── responsive.css  # Breakpoint overrides
-│
-├── admin/                  # Admin-only assets
-│   ├── js/
-│   │   ├── drag.js         # Drag-and-drop logic
-│   │   └── editor.js       # Inline editing utilities
-│   └── styles/
-│       └── admin-only.css  # Admin UI elements (edit buttons, handles)
-│
-└── .env.local              # Environment variables (secrets — NOT in git)
+├── shared/                 # Shared resources
+│   ├── js/                 # Modular JavaScript logic
+│   │   ├── admin.js        # [ENTRY] Master modular logic
+│   │   ├── admin.min.js    # [PROD] Obfuscated bundle
+│   │   └── ...             # Other JS modules (state, renderer, etc.)
+│   └── styles/             # Modular CSS system
+│       ├── main.css        # [ENTRY] CSS Import master
+│       ├── variables.css   # Design tokens & Themes
+│       ├── base.css        # Global resets & Layout
+│       ├── navigation.css  # Header & Menu UI
+│       ├── cards.css       # Team & Member styles
+│       ├── components.css  # Toasts, Banners, Pills
+│       ├── modals.css      # Popups & Overlays
+│       └── admin.css       # Admin-only tools & logic
 ```
 
 > **SECURITY NOTE**: The `admin.html` file now uses `admin.min.js`. This is a highly obfuscated version of the master `admin.js` to prevent unauthorized users from understanding the internal logic, API interactions, or authentication flows even if they view the script source.
 
 ---
 
-## 4. Data Model
+## 4. Design System & CSS Modules
+
+Project ini menggunakan arsitektur CSS modular untuk mempermudah pemeliharaan:
+
+| File | Deskripsi |
+|------|-----------|
+| `variables.css` | Mendefinisikan color palette, spacing, dan transisi untuk tema Dark/Light. |
+| `base.css` | Reset CSS global, tipografi (Rajdhani/Orbitron), dan layout dasar `<body>`. |
+| `navigation.css` | Mengatur tampilan Header, Navigasi Tab, Search Bar, dan transisi `scrolled`. |
+| `cards.css` | Logika visual untuk Team Grid, Kartu Anggota, dan layout kartu tim. |
+| `components.css` | Gaya untuk elemen reusable: Toasts, Banners, Mp-Pills, dan Credits box. |
+| `modals.css` | Mengatur semua overlay modal, animasi popup, dan input form di dalam modal. |
+| `admin.css` | Mengatur visual Drag-and-Drop, tombol editor, dan pembatasan mode `readonly`. |
+
+---
+
+## 5. Data Model
 
 ### Firebase Schema (`/guide.json`)
 
@@ -196,74 +195,25 @@ The entire application state is stored as a single JSON document:
 ---
 
 ## 5. API Reference
-
-### `GET /api/config`
-
-Returns public Firebase configuration (non-sensitive identifiers only).
-
-```json
-{
-  "authDomain": "this-is-the-real-one-4640e.firebaseapp.com",
-  "projectId": "this-is-the-real-one-4640e",
-  "storageBucket": "this-is-the-real-one-4640e.firebasestorage.app",
-  "messagingSenderId": "660941883787"
-}
-```
-
-> **NOTE**: `apiKey` and `databaseURL` are intentionally **not exposed**. All database access is proxied through `/api/load` and `/api/save`.
-
----
+I'm using the `@api-documentation-generator` skill to provide precise endpoint specifications:
 
 ### `POST /api/login`
-
-Authenticates admin users and returns a JWT.
-
-| Field | Type | Required |
-|-------|------|----------|
-| `password` | string | Yes |
-
-```
-Request:  { "password": "your_admin_password" }
-Response: { "success": true, "token": "eyJhbGciOiJIUzI1NiIs..." }
-Error:    { "error": "Wrong password" }  (401, 2s delay)
-```
-
-**Security Features:**
-- 2-second artificial delay on failed attempts (brute-force mitigation)
-- JWT expires after 24 hours
-- Secret key: `process.env.ADMIN_TOKEN || process.env.ADMIN_PASSWORD`
-
----
+Authenticates admin and returns a session JWT.
+- **Request Body**: `{ "password": "..." }`
+- **Success (200)**: `{ "success": true, "token": "JWT_STRING" }`
+- **Error (401)**: `{ "error": "Wrong password" }` (Includes 2s delay)
 
 ### `GET /api/load`
-
-Fetches all guide data from Firebase. No authentication required.
-
-```json
-{
-  "dungeonHTML": "...",
-  "storyHTML": "...",
-  "savedAt": "..."
-}
-```
-
----
+Fetches the entire guide dataset. Public access.
+- **Response**: Full JSON object containing all mode HTML strings.
 
 ### `POST /api/save`
+Updates the guide data. **JWT Required.**
+- **Header**: `Authorization: Bearer <token>`
+- **Request Body**: `{ "data": { ... } }`
+- **Error (413)**: If payload > 2MB.
 
-Saves guide data to Firebase. **Requires valid JWT.**
-
-| Header | Value |
-|--------|-------|
-| `Authorization` | `Bearer <jwt_token>` |
-| `Content-Type` | `application/json` |
-
-```
-Request:  { "data": { "dungeonHTML": "...", "storyHTML": "...", "savedAt": "..." } }
-Response: { "success": true }
-```
-
-> **CAUTION**: The `save.js` endpoint currently has server-side sanitization **bypassed** (line 22: `const sanitizedData = data;`) due to Vercel environment limitations. However, **strict sanitization is enforced in `admin.html`** before sending data. Server-side HTML sanitization should be a future priority if moving to a more robust backend.
+---
 
 ---
 
@@ -291,8 +241,7 @@ JWT expired → Must re-login
 
 | Storage | Key | Value |
 |---------|-----|-------|
-| `localStorage` | `adminToken` | JWT string |
-| `sessionStorage` | `access_granted` | `"true"` |
+| `sessionStorage` | `adminKey` | Raw admin password (cleared when browser closes) |
 
 ### Security Headers (vercel.json)
 
@@ -343,19 +292,21 @@ To prevent unauthorized users from reverse-engineering the admin dashboard, the 
 javascript-obfuscator shared/js/admin.js --output shared/js/admin.min.js [options]
 ```
 
+> 🛑 **CRITICAL DEPLOYMENT WARNING** 🛑
+> Setiap kali Anda melakukan perubahan pada file JavaScript di dalam `shared/js/` (terutama `admin.js`), **Anda WAJIB menjalankan perintah obfuscator di atas SEBELUM melakukan `git commit` & `git push`**. 
+> Jika Anda lupa meng-obfuscate, versi production web Anda (yang membaca `admin.min.js`) **TIDAK AKAN** mendapatkan update terbaru yang Anda tulis, yang bisa menyebabkan bug yang sangat membingungkan saat dideploy ke Vercel.
+
 ---
 
 ## 7. Frontend Architecture
 
-### Dual-File Strategy
+### Modular Module Strategy
 
-**admin.html** contains:
-- Script Block 1 (~870 lines): `switchMode`, `buildCard`, `executeDownload`, `saveLocal`, `loadLocal`, drag/drop, color palettes
-- Script Block 2 (~270 lines): `initApp`, `enterAsAdmin`, `enterAsGuest`, `loadFromFirebase`, `saveToFirebase`, login logic
+**admin.html** & **index.html** sekarang berfungsi sebagai shell minimal yang memuat modul dari `shared/js/`.
 
-**index.html** contains:
-- Script Block 1 (~450 lines): `switchMode`, `buildCard`, `executeDownload` (read-only variants)
-- Script Block 2 (~160 lines): `loadFromFirebase`, `enterAsGuest`, `rewireAll`
+- **Entry Point**: `shared/js/admin.js` (memuat semua sub-modul).
+- **Core Logic**: Terbagi ke dalam `renderer.js`, `drag.js`, `firebase.js`, dan `utils.js`.
+- **State Management**: Terpusat di `state.js` menggunakan pola singleton.
 
 ### Mode Navigation (`switchMode`)
 
@@ -471,96 +422,38 @@ Added visual indicators for editable elements in Admin mode:
 ### Stylesheet Architecture
 
 ```
-variables.css    → Design tokens (loaded first)
-base.css         → Reset, typography, buttons, toasts
-navigation.css   → Nav bar, tabs, role badge
-cards.css        → Team card components
-modals.css       → Overlay modals
-main.css         → Legacy monolithic (gradually migrating out)
-responsive.css   → Breakpoint overrides
-admin-only.css   → Admin UI elements (edit handles, drag indicators)
+variables.css    → Design tokens (Warna, Font, Transisi)
+base.css         → Reset, typography, layout global
+navigation.css   → Header, Nav Tabs, Search, Role Badge
+cards.css        → Team Cards, Grids, Member Rows
+components.css   → Toasts, Banners, Mp-Pills, Credits
+modals.css       → Semua overlay modal & popups
+admin.css        → Drag indicators, editor tools, readonly overrides
+main.css         → CSS Entry Point (Import Master)
 ```
 
 ---
 
 ## 9. Key Functions Walkthrough
 
-### `loadFromFirebase()` — Data Loading
+### 9.1 The Modular System
+I'm using the `@code-documentation-code-explain` skill to break down the new modular flow:
 
-```
-1. Show "Loading..." status
-2. GET /api/load
-3. If response OK → parse JSON
-4. For each mode in ALL_MODES:
-   a. Find section element by PAGE_MAP[mode]
-   b. Set innerHTML = DOMPurify.sanitize(data[mode + 'HTML'], config)
-5. Call rewireAll() to restore editability and event listeners
-6. Call refreshAllCardCredits()
-7. Show "✅ Loaded" status
-```
+1. **`shared/js/config.js`**: Central truth for `PAGE_MAP`, `ALL_MODES`, and `SECURITY` settings.
+2. **`shared/js/state.js`**: Tracks `AppState.currentRole` and `AppState.dragCard` to prevent logic collisions during complex UI interactions.
+3. **`shared/js/drag.js`**: A specialized engine that manages:
+    - **Block Dragging**: Reordering entire sections.
+    - **Card Dragging**: Moving team cards between grids.
+    - **Member Dragging**: Reordering units within a single card (triggers `renumMembers`).
 
-> **WARNING**: On guest mode, `loadFromFirebase` runs the HTML through DOMPurify's `sanitize()` before injecting into the DOM. The allowed tags/attributes list must be carefully maintained to avoid breaking the UI while preventing XSS.
+### 9.2 Credit Matching Logic (`renderer.js`)
+The `refreshAllCardCredits` function performs a "Smart Scan":
+- It reads contributor pills from the section footer.
+- It parses number ranges (e.g., "1-10").
+- It extracts numbers from team titles (e.g., "Team 5").
+- If the team number falls within the contributor's range, it injects the "UNIT BY [Name]" badge into that card.
 
-### `saveToFirebase()` — Data Saving (Admin Only)
-
-```
-1. Verify admin role
-2. Collect HTML from each section:
-   ALL_MODES.forEach(m => {
-     data[m + 'HTML'] = document.getElementById(PAGE_MAP[m]).innerHTML;
-   })
-3. POST /api/save with Bearer JWT
-4. Server verifies JWT → PUT to Firebase
-5. Show success/error toast
-```
-
-### `executeDownload()` — Screenshot Engine
-
-Two modes:
-
-| Mode | Target | Credits Shown |
-|------|--------|---------------|
-| **Fullscreen** | `document.body` | Section-level only (per-card hidden) |
-| **Node** | Individual `.team-card` | Per-card credits visible |
-
-**Process:**
-```
-1. Hide admin UI elements (buttons, handles, etc.)
-2. Set contenteditable to false
-3. Wait 300-400ms for DOM to settle
-4. html2canvas captures the target at 2x scale
-5. Generate PNG or JPG based on format selection
-6. Trigger download via <a> element
-7. Restore hidden elements
-```
-
-### `enterAsAdmin()` / `enterAsGuest()`
-
-```javascript
-// Admin Mode
-function enterAsAdmin() {
-  currentRole = 'admin';
-  document.body.classList.remove('readonly');
-  document.body.classList.add('is-admin');
-  loadFromFirebase(); // Forces a data refresh and runs rewireAll()
-}
-
-// Guest Mode
-function enterAsGuest() {
-  currentRole = 'guest';
-  document.body.classList.add('readonly');
-  document.body.classList.remove('is-admin');
-  loadFromFirebase(); // Then rewireAll() strips admin elements
-}
-
-### `rewireAll()` — Event & Editability Restoration
-
-This function is critical for restoring functionality to HTML loaded dynamically:
-1.  **Block Dragging**: Re-attaches `wireBlockDrag` to all `.page-block` elements.
-2.  **Grid Dropping**: Re-attaches `wireGridDrop` to all `.core-grid` and `.new-grid`.
-3.  **Editability**: Iterates through the `editables` array (titles, labels, descriptions) and sets `contentEditable = true` if in admin mode, `false` otherwise.
-4.  **Card Interactions**: Re-attaches card dragging, member dragging, and color palette listeners.
-```
+---
 
 ---
 
@@ -613,26 +506,23 @@ This starts a local Vercel dev server at `http://localhost:3000` with full serve
 
 ## 11. Known Pitfalls & Gotchas
 
-### ⚠️ Monolithic Script Blocks
+### ⚠️ ES6 Module Loading
 
-Both `admin.html` and `index.html` contain large inline `<script>` blocks. A **single syntax error** anywhere in a block will cause the **entire block to fail silently**, breaking all functions defined within it.
+Karena menggunakan `<script type="module">`, modul JavaScript dimuat secara *asynchronous*. Fungsi yang didefinisikan di dalam modul (seperti `switchMode`) harus diekspos ke `window` secara eksplisit agar bisa dipanggil dari atribut `onclick` di HTML.
 
-**Mitigation:** Use the syntax checker:
-```bash
-node scratch/check_syntax.js
+**Contoh:**
+```javascript
+window.switchMode = switchMode;
 ```
 
-### ⚠️ Duplicate Constant Declarations
+### ⚠️ Obfuscation Out-of-Sync
 
-If a `const` is declared twice in the same script block (e.g., `const ALL_MODES`), the entire block crashes with `SyntaxError`. This has happened during refactoring.
-
-### ⚠️ `window.onload` vs `DOMContentLoaded`
-
-`window.onload` fires **after** `DOMContentLoaded`. If both are used, `window.onload` can overwrite state set by `DOMContentLoaded`. A problematic `window.onload = () => enterAsGuest()` in `admin.html` was removed for this reason — it was resetting admin mode back to guest.
+Setiap kali melakukan perubahan pada `shared/js/admin.js`, Anda **WAJIB** menjalankan obfuscator untuk memperbarui `admin.min.js`. Jika tidak, perubahan tersebut tidak akan muncul di browser karena `admin.html` memanggil file `.min.js`.
 
 ### ⚠️ Server-Side Sanitization Bypassed
 
 In `api/save.js`, sanitization is currently bypassed because the `isomorphic-dompurify` library caused `FUNCTION_INVOCATION_FAILED` (500) errors in Vercel. 
+
 **Mitigation**: 
 1.  **Client-Side Sanitization**: `admin.html` runs `DOMPurify.sanitize()` on all HTML data before sending the POST request.
 2.  **Payload Limit**: `api/save.js` enforces a 2MB limit.
@@ -652,4 +542,4 @@ The app stores rendered HTML in Firebase, not structured data. This means:
 
 ---
 
-> **For new developers / AI agents**: Start by reading `shared/js/state.js` for the data model, then `shared/js/renderer.js` for how data becomes UI. The inline scripts in `admin.html` are where most of the actual logic lives today.
+> **For new developers / AI agents**: Start by reading `shared/js/state.js` for the data model, then `shared/js/admin.js` for the application lifecycle and entry point. The core logic is now fully modularized in `shared/js/` (Renderer, Drag engine, Firebase bridge), while `admin.html` serves only as a shell with ES6 module entry point.
