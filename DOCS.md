@@ -4,7 +4,7 @@
 > **Repository**: [AnotherUserU/imlosttho](https://github.com/AnotherUserU/imlosttho)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-04-27 (Hardening & Admin UI Overhaul)
+> **Last Updated**: 2026-04-29 (Credit System Overhaul & Admin Modular Refactor)
 
 ---
 
@@ -42,7 +42,7 @@ The app supports **7 game modes** (Dungeon, Story, Raid, Story Towers, Battle To
 | Frontend | Vanilla HTML/CSS/JS (no framework) |
 | Backend | Vercel Serverless Functions (Node.js) |
 | Database | Firebase Realtime Database (REST API) |
-| Auth | JWT (jsonwebtoken) |
+| Auth | Password via `x-admin-password` header (sessionStorage) |
 | Sanitization | DOMPurify (client), isomorphic-dompurify (server) |
 | Screenshot | html2canvas |
 
@@ -98,50 +98,50 @@ Browser → POST /api/save {data} + Bearer JWT → Vercel verifies JWT → PUT F
 
 ```
 imlosttho-main/
-├── admin.html              # Admin CMS (116KB, ~2070 lines) — monolithic
-├── index.html              # Guest view (40KB, ~747 lines) — read-only
+├── admin.html              # Admin CMS — uses ES module imports
+├── index.html              # Guest view (~800 lines) — read-only, inline scripts
 ├── DOCS.md                 # This documentation file
+├── SecurityNeedToFix.md    # Security vulnerability tracker
 ├── package.json            # Node.js dependencies
 ├── vercel.json             # Vercel routing & security headers
 │
 ├── api/                    # Vercel Serverless Functions
 │   ├── config.js           # Public Firebase config (non-sensitive)
-│   ├── login.js            # Admin authentication → JWT
+│   ├── login.js            # Admin authentication → password check
 │   ├── load.js             # Read data from Firebase
-│   └── save.js             # Write data to Firebase (JWT-protected)
+│   └── save.js             # Write data to Firebase (password-protected)
 │
-├── shared/                 # Shared assets between admin & guest
-│   ├── data/
-│   │   └── defaults.js     # Default team compositions (fallback data)
+├── shared/                 # Shared assets
 │   ├── js/
-│   │   ├── admin.js        # [SOURCE] Master admin logic (Readable)
-│   │   ├── admin.min.js    # [PRODUCTION] Obfuscated & encrypted admin logic
+│   │   ├── admin.js        # Master admin logic (ES module, imported by admin.html)
+│   │   ├── config.js       # Constants: ALL_MODES, PAGE_MAP, CRED_MAP, etc.
 │   │   ├── state.js        # Application state (AppState singleton)
-│   │   ├── firebase.js     # Firebase init, load, save, realtime listener
-│   │   ├── renderer.js     # DOM renderer (buildCard, renderApp)
-│   │   ├── download.js     # Screenshot engine (html2canvas wrapper)
-│   │   ├── theme.js        # Dark/Light theme toggle
+│   │   ├── firebase.js     # Firebase load/save (imports refreshAllCardCredits)
+│   │   ├── renderer.js     # ⚠️ Credit matching + buildCard (ADMIN version)
+│   │   ├── drag.js         # Drag-and-drop logic
 │   │   └── utils.js        # Utilities (sanitizeHTML, escapeAttr, showToast)
 │   └── styles/
 │       ├── variables.css   # Design tokens (colors, theme vars)
 │       ├── base.css        # Reset, typography, buttons, toasts, banners
 │       ├── navigation.css  # Nav bar, mode tabs, role badge
 │       ├── cards.css       # Team card styles
-│       ├── modals.css      # Overlay modals (download, credentials, etc.)
-│       ├── main.css        # Legacy monolithic stylesheet (47KB)
-│       └── responsive.css  # Breakpoint overrides
+│       ├── components.css  # UI components
+│       ├── modals.css      # Overlay modals
+│       ├── admin.css       # Admin-specific UI styles
+│       └── main.css        # Master import file
 │
-├── admin/                  # Admin-only assets
-│   ├── js/
-│   │   ├── drag.js         # Drag-and-drop logic
-│   │   └── editor.js       # Inline editing utilities
-│   └── styles/
-│       └── admin-only.css  # Admin UI elements (edit buttons, handles)
+├── scratch/                # Development utilities
+│   └── check_syntax.js     # JS syntax validator
+│
+├── tests/                  # Jest test suite
+│   ├── login.test.js
+│   ├── save.test.js
+│   └── renderer.test.js
 │
 └── .env.local              # Environment variables (secrets — NOT in git)
 ```
 
-> **SECURITY NOTE**: The `admin.html` file now uses `admin.min.js`. This is a highly obfuscated version of the master `admin.js` to prevent unauthorized users from understanding the internal logic, API interactions, or authentication flows even if they view the script source.
+> **⚠️ CRITICAL**: `refreshAllCardCredits()` exists in **TWO places**: `shared/js/renderer.js` (for admin.html) and inline in `index.html` (for the public page). **Both MUST be kept in sync** when modifying credit matching logic. See [Pitfall: Dual Credit Functions](#️-dual-credit-functions-indexhtml-vs-rendererjs).
 
 ---
 
@@ -348,13 +348,16 @@ javascript-obfuscator shared/js/admin.js --output shared/js/admin.min.js [option
 
 ### Dual-File Strategy
 
-**admin.html** contains:
-- Script Block 1 (~870 lines): `switchMode`, `buildCard`, `executeDownload`, `saveLocal`, `loadLocal`, drag/drop, color palettes
-- Script Block 2 (~270 lines): `initApp`, `enterAsAdmin`, `enterAsGuest`, `loadFromFirebase`, `saveToFirebase`, login logic
+**admin.html** uses **ES modules**:
+- Imports from `shared/js/admin.js` → which imports `config.js`, `state.js`, `utils.js`, `renderer.js`, `drag.js`, `firebase.js`
+- `renderer.js` exports `refreshAllCardCredits()` with **strict location-based credit matching**
+- `firebase.js` exports `loadFromFirebase()` / `saveToFirebase()` and calls `refreshAllCardCredits()` after data load
 
-**index.html** contains:
-- Script Block 1 (~450 lines): `switchMode`, `buildCard`, `executeDownload` (read-only variants)
-- Script Block 2 (~160 lines): `loadFromFirebase`, `enterAsGuest`, `rewireAll`
+**index.html** uses **inline `<script>` blocks** (NO ES modules):
+- Script Block 1 (~500 lines): `switchMode`, `buildCard`, `executeDownload`, `refreshAllCardCredits` (DUPLICATE of renderer.js logic)
+- Script Block 2 (~100 lines): `loadFromFirebase`, `enterAsGuest`, `rewireAll`, scroll animations
+
+> **⚠️ WARNING**: Because `index.html` cannot import ES modules, it has its OWN copy of `refreshAllCardCredits()`. Any changes to credit matching logic in `renderer.js` **MUST** also be manually applied to `index.html`.
 
 ### Mode Navigation (`switchMode`)
 
@@ -409,19 +412,31 @@ CSS: `.mode-section { display: none; }` / `.mode-section.active { display: block
 Credits operate at two levels:
 
 1. **Section-level Credits** (`credDisplay`): Shown at the bottom of each mode section. Contains contributor pills with colored names.
-2. **Per-card Credits** (`.card-footer-credits`): Dynamically injected by `injectCardCredits()`. Maps credit pill ranges to specific cards.
+2. **Per-card Credits** (`.card-footer-credits`): Dynamically computed by `refreshAllCardCredits()`. Maps credit pills to specific cards.
 
-**Range Matching Logic:**
+**Three-Step Matching Logic (Priority Order):**
+
+| Step | Method | Example |
+|------|--------|---------|
+| 1️⃣ Tag Priority | Exact/regex match of `.card-tag` text against pill labels | `"SLIME CITY 1"` matches pill `"SLIME CITY 1"` |
+| 2️⃣ Title Priority | Exact/regex match of `.card-title` text (only if Step 1 fails) | `"Celestial"` matches pill `"CELESTIAL"` |
+| 3️⃣ Number Fallback | Number/range match WITH strict location prefix verification | `"1"` in card + prefix `"HEROS PALACE"` must match pill prefix |
+
+**Strict Context Check (Step 3):**
 ```javascript
-// Credit pill: "TEAM 1-4" → contributor "GUDEX"
-// For card "TEAM 3":
-// 1. Extracts numbers from card tag/title → [3]
-// 2. Checks each credit pill's label for range "1-4"
-// 3. Since 3 >= 1 && 3 <= 4, it matches
-// 4. Injects "UNIT BY GUDEX" into the card footer
+// Card tag: "Slime City 1" → tagPrefix = "SLIME CITY"
+// Pill label: "HEROS PALACE 1-2" → pPrefix = "HEROS PALACE"
+// Number 1 is in range [1,2] ✓ BUT "SLIME CITY" ≠ "HEROS PALACE" ✗
+// → REJECTED (prevents cross-section credit pollution)
+
+// Pill label: "SLIME CITY 1" → pPrefix = "SLIME CITY"
+// Number 1 matches ✓ AND "SLIME CITY" === "SLIME CITY" ✓
+// → ACCEPTED → Injects "UNIT BY ytgravytraps"
 ```
 
 > **NOTE**: Per-card credits are **only visible when downloading individual cards** (Node mode). In fullscreen download, they remain hidden — only section-level credits are shown.
+
+> **⚠️ CRITICAL PITFALL**: This function exists in TWO files. See [Known Pitfalls](#️-dual-credit-functions-indexhtml-vs-rendererjs).
 
 ---
 
@@ -612,9 +627,20 @@ This starts a local Vercel dev server at `http://localhost:3000` with full serve
 
 ## 11. Known Pitfalls & Gotchas
 
-### ⚠️ Monolithic Script Blocks
+### ⚠️ Dual Credit Functions (`index.html` vs `renderer.js`)
 
-Both `admin.html` and `index.html` contain large inline `<script>` blocks. A **single syntax error** anywhere in a block will cause the **entire block to fail silently**, breaking all functions defined within it.
+**THIS IS THE #1 PITFALL.** The credit matching function `refreshAllCardCredits()` exists in **two completely separate locations**:
+
+| File | Used By | Module Type |
+|------|---------|-------------|
+| `shared/js/renderer.js` | `admin.html` (via ES module import) | ES Module (`export`) |
+| `index.html` (inline) | Public page (`/`) | Global function |
+
+**Any change to credit matching logic MUST be applied to BOTH files.** Failure to do so will result in credits working correctly on `/admin` but being wrong on `/` (or vice versa). This was the root cause of a multi-day debugging session in April 2026.
+
+### ⚠️ Monolithic Script Blocks (index.html)
+
+`index.html` contains large inline `<script>` blocks. A **single syntax error** anywhere in a block will cause the **entire block to fail silently**, breaking all functions defined within it.
 
 **Mitigation:** Use the syntax checker:
 ```bash
@@ -649,6 +675,10 @@ The app stores rendered HTML in Firebase, not structured data. This means:
 - Large payload sizes
 - Difficult to query or filter content
 
+### ⚠️ Cache Busting for Admin Scripts
+
+`admin.html` loads `admin.js` with a version query string (e.g., `?v=1.0.6`). This **must be incremented** whenever `admin.js`, `renderer.js`, or any imported module is changed. Otherwise, browsers may serve stale cached versions of the script.
+
 ---
 
-> **For new developers / AI agents**: Start by reading `shared/js/state.js` for the data model, then `shared/js/renderer.js` for how data becomes UI. The inline scripts in `admin.html` are where most of the actual logic lives today.
+> **For new developers / AI agents**: Start by reading `shared/js/config.js` for constants and maps, then `shared/js/renderer.js` for how data becomes UI. **Always check BOTH `renderer.js` AND `index.html` when modifying credit matching logic.**

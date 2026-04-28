@@ -1,9 +1,9 @@
 # 🔴 Security Vulnerability Report — Team Composition Guide
 
 > **Scanned by**: vulnerability-scanner skill (OWASP 2025 methodology)  
-> **Date**: 2026-04-27  
+> **Date**: 2026-04-29 (Updated)  
 > **Scope**: Full codebase (`admin.html`, `index.html`, `api/`, `shared/js/`, `shared/styles/`, config)  
-> **Total Findings**: 14
+> **Total Findings**: 15
 
 ---
 
@@ -14,7 +14,7 @@
 | 🔴 **CRITICAL** | 2 | ✅ ~~Server-side sanitization bypassed, Admin innerHTML without sanitization~~ (DONE) |
 | 🟠 **HIGH** | 4 | ✅ ~~Debug info leak, Missing CORS (Added to vercel.json), JWT in localStorage (Removed)~~ | 🔄 Partially Fixed: No rate limiting (Auth delay added) |
 | 🟡 **MEDIUM** | 6 | ✅ ~~No input validation, No payload size limit, Missing SRI, Admin Obfuscation~~ (DONE) |
-| 🔵 **LOW** | 3 | No logging/alerting, no CSRF token, no session timeout UI |
+| 🔵 **LOW** | 4 | No logging/alerting, no CSRF token, no session timeout UI, dual-file code sync risk |
 
 ---
 
@@ -71,6 +71,23 @@ ENTRY POINTS:
 ├── /api/load      [GET]  → Public — returns all guide data (no auth)
 ├── /api/login     [POST] → Password (2s delay, validation added ✅)
 ├── /api/save      [POST] → Password-protected (sanitization added ✅, size limit added ✅, CORS restricted ✅)
-├── /index.html    [GET]  → Guest view (SRI added ✅)
+├── /index.html    [GET]  → Guest view (SRI added ✅, credit matching updated ✅)
 └── /admin.html    [GET]  → Admin view (Sanitization on load added ✅, SRI added ✅, Logic Obfuscated ✅)
 ```
+
+---
+
+## 🔵 LOW Findings (Open)
+
+### LOW-04: Dual-File Code Duplication Risk
+**Status**: DOCUMENTED — Maintenance Risk  
+**Description**: The critical `refreshAllCardCredits()` function exists in TWO separate locations:
+- `shared/js/renderer.js` (ES module, used by `admin.html`)
+- `index.html` (inline script, used by public page)
+
+**Risk**: If a developer updates credit matching logic in one file but forgets the other, the public page and admin page will behave inconsistently. This was the root cause of a multi-day credit attribution bug (April 2026) where all Story section cards incorrectly showed the wrong contributor.
+
+**Mitigation**: 
+1. Always update BOTH files when modifying credit logic.
+2. Consider refactoring to a shared non-module script that both pages can load via `<script src="...">` tag.
+3. Added prominent warnings in `DOCS.md` Section 3, 7, and 11.
