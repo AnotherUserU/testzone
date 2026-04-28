@@ -215,3 +215,50 @@ body.is-admin .sec-color-dot {
 body.is-admin .add-banner-bar {
   display: flex !important;
 }
+
+/* Credit Modal Rows */
+.cred-modal-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cred-input-lbl {
+  flex: 1.5;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+
+.cred-input-name {
+  flex: 2;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.cred-input-clr {
+  width: 40px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.cred-row-del {
+  cursor: pointer;
+  color: var(--red);
+  font-size: 1.2rem;
+  padding: 0 5px;
+}

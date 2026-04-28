@@ -148,6 +148,39 @@ window.addWarnBox = function(btn) {
   container.appendChild(div);
 };
 
+window.addBannerBlock = function(btn, type, sectionKey) {
+  const container = document.getElementById(sectionKey + 'Groups');
+  if (!container) return;
+  const block = document.createElement('div');
+  block.className = 'page-block';
+  block.dataset.block = 'banner';
+  block.innerHTML = `<span class="block-handle">⠿⠿</span>`;
+  
+  const banner = document.createElement('div');
+  banner.contentEditable = "true";
+  if (type === 'announce') {
+    banner.className = 'banner-announce';
+    banner.innerHTML = '📢 ANNOUNCEMENT: New units added!';
+  } else if (type === 'title') {
+    banner.className = 'banner-title';
+    banner.innerHTML = '🏷️ NEW UNITS RELEASED';
+  } else if (type === 'alert') {
+    banner.className = 'banner-alert';
+    banner.innerHTML = '🚨 URGENT: Meta shift detected!';
+  }
+  
+  const del = document.createElement('span');
+  del.className = 'delete-box';
+  del.innerHTML = '✕';
+  del.onclick = () => block.remove();
+  
+  block.appendChild(banner);
+  block.appendChild(del);
+  container.appendChild(block);
+  wireBlockDrag(block);
+};
+
+
 
 // --- Card Interactions ---
 window.makeColorPalette = function(card, initColor) {
@@ -313,6 +346,70 @@ window.applyPageVisibility = function(saveToCloud) {
   }
   if (AppState.currentRole === 'admin' && saveToCloud) { saveToFirebase(); }
 };
+
+// --- Credits Modal Logic ---
+window.openCredModal = function() {
+  const modal = document.getElementById('credModal');
+  const list = document.getElementById('cf-sections-list');
+  if (!modal || !list) return;
+  
+  list.innerHTML = '';
+  const section = document.querySelector('.mode-section.active');
+  const credDisplay = section?.querySelector('.cred-display');
+  
+  if (credDisplay) {
+    credDisplay.querySelectorAll('.cred-pill').forEach(pill => {
+      const lbl = pill.querySelector('.cred-lbl')?.textContent || '';
+      const nameEl = pill.querySelector('.cred-name');
+      const name = nameEl?.textContent || '';
+      const color = nameEl?.style.color || '#f5c842';
+      if (name.toLowerCase().includes('anotheruseru')) return; 
+      addCredRow(lbl, name, color);
+    });
+  }
+  modal.classList.add('open');
+};
+
+function addCredRow(lbl, name, color) {
+  const list = document.getElementById('cf-sections-list');
+  const div = document.createElement('div');
+  div.className = 'cred-modal-row';
+  div.innerHTML = `
+    <input type="text" class="cred-input-lbl" value="${lbl}" placeholder="Label (e.g. TEAM 1 CREATOR)">
+    <input type="text" class="cred-input-name" value="${name}" placeholder="Name">
+    <input type="color" class="cred-input-clr" value="${rgbToHex(color) || color}">
+    <span class="cred-row-del" onclick="this.parentElement.remove()">✕</span>
+  `;
+  list.appendChild(div);
+}
+
+window.credAddSection = () => addCredRow('', '', '#c36bff');
+
+window.applyCredits = function() {
+  const section = document.querySelector('.mode-section.active');
+  const credBox = section?.querySelector('.cred-content-row');
+  if (!credBox) return;
+  
+  let html = `<div class="cred-display"><div class="cred-pills-row">
+    <div class="cred-pill"><div><div class="cred-lbl">DESIGN BY</div><div class="cred-name" style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru</div></div></div>`;
+  
+  document.querySelectorAll('.cred-modal-row').forEach(row => {
+    const lbl = row.querySelector('.cred-input-lbl').value.toUpperCase();
+    const name = row.querySelector('.cred-input-name').value;
+    const color = row.querySelector('.cred-input-clr').value;
+    if (!name) return;
+    html += `<div class="cred-pill"><div><div class="cred-lbl">${lbl}</div><div class="cred-name" style="color:${color};text-shadow:0 0 12px ${color}55;margin-bottom:0">${name}</div></div></div>`;
+  });
+  
+  html += `</div></div>`;
+  credBox.innerHTML = html;
+  closeCredModal();
+  refreshAllCardCredits();
+  saveToFirebase();
+};
+
+window.closeCredModal = () => document.getElementById('credModal').classList.remove('open');
+
 
 // --- Screenshot Logic ---
 window.openDlModal = function(btn) {
