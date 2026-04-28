@@ -294,29 +294,66 @@ window.openLabelColorPicker = function(el, e) {
 };
 
 window.openModModal = function(btn) {
-  const chain = btn.closest('.mod-priority')?.querySelector('.mp-chain');
-  if (!chain) return;
+  let chain;
+  if (btn && btn.closest) {
+    chain = btn.closest('.mod-priority')?.querySelector('.mp-chain');
+  } 
+  
+  if (!chain) {
+    const activeSection = document.querySelector('.mode-section.active');
+    chain = activeSection?.querySelector('.mp-chain');
+  }
+  
+  if (!chain) {
+    console.error("Could not find mp-chain for modifiers");
+    showToast("❌ Could not find modifier chain", true);
+    return;
+  }
   AppState.activeModChain = chain;
   
   const list = document.getElementById('modList');
+  if (!list) return;
   list.innerHTML = '';
   
-  chain.querySelectorAll('.mp-pill').forEach(pill => {
+  // Find all pills (support both span and div, and different delete button classes)
+  const pills = chain.querySelectorAll('.mp-pill');
+  if (pills.length === 0) {
+    list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--dim); font-size:0.9rem">No modifiers yet.</div>';
+  }
+
+  pills.forEach(pill => {
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex; align-items:center; gap:10px; background:var(--bg3); padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.05)';
+    row.className = 'mod-modal-row';
+    row.style.cssText = 'display:flex; align-items:center; gap:10px; background:var(--bg3); padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.05); margin-bottom: 8px;';
     
     const txt = document.createElement('div');
     txt.style.flex = '1';
     txt.style.fontSize = '0.9rem';
-    txt.textContent = pill.textContent.replace('✕', '').trim();
+    // Clean text by removing any nested delete spans/buttons
+    let cleanText = pill.textContent.trim();
+    const delBtn = pill.querySelector('.delete-pill, .delete-box');
+    if (delBtn) {
+      cleanText = pill.innerText.replace(delBtn.innerText, '').trim();
+    }
+    txt.textContent = cleanText;
     
     const del = document.createElement('button');
     del.className = 'delete-box';
     del.style.position = 'static';
     del.innerHTML = '✕';
     del.onclick = () => {
+      // Logic to remove pill and surrounding arrows
+      const next = pill.nextElementSibling;
+      if (next && next.classList.contains('mp-arrow')) next.remove();
+      else {
+        const prev = pill.previousElementSibling;
+        if (prev && prev.classList.contains('mp-arrow')) prev.remove();
+      }
       pill.remove();
       row.remove();
+      if (list.children.length === 0) {
+        list.innerHTML = '<div style="text-align:center; padding:20px; color:var(--dim); font-size:0.9rem">No modifiers yet.</div>';
+      }
     };
     
     row.appendChild(txt);
@@ -337,6 +374,13 @@ window.addModFromModal = function() {
   const text = input.value.trim();
   if (!text || !AppState.activeModChain) return;
   
+  if (AppState.activeModChain.querySelectorAll('.mp-pill').length > 0) {
+    const arrow = document.createElement('span');
+    arrow.className = 'mp-arrow';
+    arrow.textContent = ' › ';
+    AppState.activeModChain.appendChild(arrow);
+  }
+
   const pill = document.createElement('div');
   pill.className = 'mp-pill';
   pill.contentEditable = "true";
@@ -345,15 +389,22 @@ window.addModFromModal = function() {
   const del = document.createElement('span');
   del.className = 'delete-box';
   del.innerHTML = '✕';
-  del.onclick = (e) => { e.stopPropagation(); pill.remove(); };
+  del.onclick = (e) => { 
+    e.stopPropagation(); 
+    const next = pill.nextElementSibling;
+    if (next && next.classList.contains('mp-arrow')) next.remove();
+    else {
+      const prev = pill.previousElementSibling;
+      if (prev && prev.classList.contains('mp-arrow')) prev.remove();
+    }
+    pill.remove(); 
+  };
   
   pill.appendChild(del);
   AppState.activeModChain.appendChild(pill);
   
   input.value = '';
-  // Refresh list in modal
-  const btn = { closest: () => AppState.activeModChain.closest('.mod-priority') };
-  openModModal(btn);
+  openModModal(); 
 };
 
 
