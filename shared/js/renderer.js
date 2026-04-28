@@ -104,19 +104,26 @@ export function refreshAllCardCredits() {
       const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
       const nums = [...tagNums, ...titleNums];
       
-      let contributor = null;
+      // 1. Priority-Based Match
+      // A. Exact Match (Case-Insensitive)
+      contributor = pills.find(p => p.lbl === tagText.toUpperCase()) || 
+                    pills.find(p => p.lbl === titleText.toUpperCase());
 
-      // 1. Try High-Precision Match: Check if the pill label contains the specific Tag or Title text
-      // We use word boundaries to avoid "TEAM 1" matching "TEAM 10".
-      const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      
-      if (tagText.length > 1) {
-        const reg = new RegExp('\\b' + escapeRegex(tagText) + '\\b', 'i');
-        contributor = pills.find(p => reg.test(p.lbl));
-      }
-      if (!contributor && titleText.length > 1) {
-        const reg = new RegExp('\\b' + escapeRegex(titleText) + '\\b', 'i');
-        contributor = pills.find(p => reg.test(p.lbl));
+      // B. High-Precision Regex Match (with word boundaries)
+      if (!contributor) {
+        const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        
+        // Sort pills by label length to check most specific (usually shortest/most exact) matches first
+        const sortedPills = [...pills].sort((a, b) => a.lbl.length - b.lbl.length);
+
+        if (tagText.length > 1) {
+          const reg = new RegExp('\\b' + escapeRegex(tagText) + '\\b', 'i');
+          contributor = sortedPills.find(p => reg.test(p.lbl));
+        }
+        if (!contributor && titleText.length > 1) {
+          const reg = new RegExp('\\b' + escapeRegex(titleText) + '\\b', 'i');
+          contributor = sortedPills.find(p => reg.test(p.lbl));
+        }
       }
 
       // 2. Fallback to Number Match (Context-Aware)
@@ -139,16 +146,16 @@ export function refreshAllCardCredits() {
             if (!hasNum) return false;
 
             // B. Context Check: The prefix (text before numbers) must match significantly.
-            // e.g., "HEROS PALACE" must match between card and credit label.
+            // e.g., "HEROS PALACE" must match exactly between card and credit label.
             const getPrefix = (s) => s.split(/\d/)[0].replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase();
             const pPrefix = getPrefix(p.lbl);
             const tagPrefix = getPrefix(tagText);
             const titlePrefix = getPrefix(titleText);
             
             if (pPrefix) {
-              const matchedTag = tagPrefix && (tagPrefix.includes(pPrefix) || pPrefix.includes(tagPrefix));
-              const matchedTitle = titlePrefix && (titlePrefix.includes(pPrefix) || pPrefix.includes(titlePrefix));
-              if (!matchedTag && !matchedTitle) return false;
+              // If credit has a location name (e.g. HEROS PALACE), it MUST match the card.
+              const isMatch = (tagPrefix === pPrefix) || (titlePrefix === pPrefix);
+              if (!isMatch) return false;
             }
             return true;
           });

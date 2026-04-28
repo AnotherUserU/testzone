@@ -646,6 +646,9 @@ window.closeCredModal = () => document.getElementById('credModal').classList.rem
 
 // --- Screenshot Logic ---
 window.openDlModal = function(btn) {
+  // Ensure credits are up to date before taking screenshot
+  if (typeof refreshAllCardCredits === 'function') refreshAllCardCredits();
+  
   const sel = document.getElementById('dlNodeSelect'); 
   if (sel) {
     sel.innerHTML = '<option value="">-- Select card --</option>';
