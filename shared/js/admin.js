@@ -52,6 +52,23 @@ window.closeModal = function() {
   AppState.activeImgId = null; 
 };
 
+window.openAdminShortcut = function() {
+  const overlay = document.getElementById('adminShortcutOverlay');
+  if (overlay) {
+    overlay.classList.add('open');
+    const input = document.getElementById('ascPwInput');
+    if (input) {
+      input.value = '';
+      setTimeout(() => input.focus(), 100);
+    }
+  }
+};
+
+window.closeAdminShortcut = function() {
+  const overlay = document.getElementById('adminShortcutOverlay');
+  if (overlay) overlay.classList.remove('open');
+};
+
 window.applyImg = function() {
   if (!AppState.activeImgId) return closeModal();
   const url = document.getElementById('modalInput').value.trim();
@@ -185,6 +202,13 @@ window.enterAsGuest = function() {
   });
   const floatXl = document.querySelector('.float-xl'); if (floatXl) floatXl.style.display = 'none';
   loadFromFirebase();
+};
+
+window.logoutToGuest = function() {
+  sessionStorage.removeItem('adminKey');
+  // Clear any legacy JWT tokens if they still exist in local storage
+  localStorage.removeItem('adminToken');
+  location.reload();
 };
 
 window.enterAsAdmin = function() {
