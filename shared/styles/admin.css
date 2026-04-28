@@ -1,0 +1,217 @@
+.float-xl {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 500;
+  padding: 11px 20px;
+  background: linear-gradient(135deg, #00e87a, #009944);
+  color: #000;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: .88rem;
+  font-family: 'Rajdhani', sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 232, 122, .35);
+  transition: transform .15s, box-shadow .15s;
+}
+
+.float-xl:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(0, 232, 122, .5);
+}
+
+#roleBadge {
+  display: none;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  background: rgba(0, 212, 255, .1);
+  border: 2px solid rgba(0, 212, 255, .5);
+  border-radius: 10px;
+  color: var(--cyan);
+  font-size: .85rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', sans-serif;
+  cursor: pointer;
+  z-index: 999;
+  transition: all .2s;
+  letter-spacing: .05em;
+}
+
+#roleBadge.admin-badge {
+  border-color: rgba(245, 200, 66, .5);
+  background: rgba(245, 200, 66, .1);
+  color: var(--gold);
+}
+
+#fbStatus {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: .85rem;
+  opacity: 0;
+  transition: opacity .3s;
+  z-index: 999;
+  pointer-events: none;
+}
+
+#fbStatus.show {
+  opacity: 1;
+}
+
+#fbStatus.ok {
+  background: rgba(0, 232, 122, .2);
+  color: var(--green);
+  border: 1px solid rgba(0, 232, 122, .5);
+}
+
+#fbStatus.err {
+  background: rgba(255, 51, 85, .2);
+  color: var(--red);
+  border: 1px solid rgba(255, 51, 85, .5);
+}
+
+#fbStatus.loading {
+  background: rgba(0, 212, 255, .2);
+  color: var(--cyan);
+  border: 1px solid rgba(0, 212, 255, .5);
+}
+
+body.readonly .edit-btn,
+body.readonly .add-banner-btn,
+body.readonly .add-point-btn,
+body.readonly .delete-box,
+body.readonly .delete-mem,
+body.readonly .delete-team-btn,
+body.readonly .del-section-btn,
+body.readonly .delete-node-btn,
+body.readonly .renum-members {
+  display: none !important;
+}
+
+body.readonly [contenteditable="true"] {
+  pointer-events: none !important;
+  cursor: default !important;
+  user-select: none !important;
+}
+
+body.readonly .cred-edit-btn,
+body.readonly .mod-add-row-btn,
+body.readonly .cred-add-name-btn,
+body.readonly .cred-add-section-btn,
+body.readonly .save-btn,
+body.readonly .card-drag-handle,
+body.readonly .block-handle,
+body.readonly .del-section-btn,
+body.readonly .team-section-actions,
+body.readonly .add-section-btn,
+body.readonly .add-banner-bar,
+body.readonly .download-node-btn {
+  display: none !important;
+}
+
+body.readonly [contenteditable="true"] {
+  pointer-events: none !important;
+  cursor: default !important;
+  user-select: none !important;
+}
+
+body.readonly .mod-priority {
+  pointer-events: none !important;
+}
+
+body.readonly .card-img-right {
+  pointer-events: none !important;
+}
+
+body.readonly .mem-row {
+  cursor: default !important;
+}
+
+body.readonly .section-label,
+body.readonly .team-section-label,
+body.readonly .main-title {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+body.readonly .banner-announce,
+body.readonly .banner-title,
+body.readonly .banner-alert {
+  pointer-events: none !important;
+}
+.admin-link {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  padding: 8px 16px;
+  background: rgba(245, 200, 66, .08);
+  color: var(--gold);
+  border: 1px solid rgba(245, 200, 66, .25);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: 'Orbitron', sans-serif;
+  text-decoration: none;
+  z-index: 500;
+  transition: all .2s;
+  opacity: 0;
+}
+
+.admin-link:hover {
+  opacity: 1;
+  background: rgba(245, 200, 66, .15);
+  box-shadow: 0 0 14px rgba(245, 200, 66, .2);
+}
+
+/* Admin UI Hiding */
+.block-handle,
+.add-banner-bar,
+.edit-btn,
+.cred-edit-btn,
+.add-point-btn,
+.add-tp-btn,
+.add-pt-btn,
+.delete-box,
+.delete-pill,
+.delete-mem,
+.renum-members,
+.delete-team-btn,
+.del-section-btn,
+.delete-node-btn,
+.color-dot,
+.sec-color-dot {
+  display: none !important;
+}
+
+/* Show Admin UI only when authenticated */
+body.is-admin .block-handle,
+body.is-admin .add-banner-bar,
+body.is-admin .edit-btn,
+body.is-admin .download-node-btn,
+body.is-admin .cred-edit-btn,
+body.is-admin .add-point-btn,
+body.is-admin .add-tp-btn,
+body.is-admin .add-pt-btn,
+body.is-admin .delete-box,
+body.is-admin .delete-pill,
+body.is-admin .delete-mem,
+body.is-admin .renum-members,
+body.is-admin .delete-team-btn,
+body.is-admin .del-section-btn,
+body.is-admin .delete-node-btn,
+body.is-admin .color-dot,
+body.is-admin .sec-color-dot {
+  display: inline-block !important;
+}
+
+body.is-admin .add-banner-bar {
+  display: flex !important;
+}

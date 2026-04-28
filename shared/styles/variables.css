@@ -1,0 +1,59 @@
+:root {
+  --bg: #0f0f17;
+  --bg2: #13131f;
+  --bg3: #1a1a2e;
+  --border: rgba(255, 255, 255, 0.07);
+  --text: #dde0f0;
+  --text-dim: #6b6f8f;
+  --gold: #f5c842;
+  --cyan: #00d4ff;
+  --green: #00e87a;
+  --red: #ff3355;
+  --orange: #ff8c42;
+  --purple: #c36bff;
+  --pink: #ff5fa0;
+  --blue: #4488ff;
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --trans: all 0.3s ease;
+  --trans-fast: all 0.15s ease;
+}
+
+:root.light-theme {
+  --bg: #ffffff;
+  --bg2: #f5f5f5;
+  --bg3: #eeeeee;
+  --border: rgba(0, 0, 0, 0.1);
+  --text: #1a1a1a;
+  --text-dim: #666666;
+  --gold: #d4a500;
+  --cyan: #0099cc;
+  --green: #009900;
+  --red: #cc0000;
+  --orange: #ff8000;
+  --purple: #9933cc;
+  --pink: #cc0066;
+  --blue: #0066cc;
+  --glass: rgba(0, 0, 0, 0.02);
+  --glass-border: rgba(0, 0, 0, 0.06);
+}
+
+/* Base Light Theme Adjustments */
+:root.light-theme .card-desc { color: var(--text-dim); }
+:root.light-theme .mem-bind { color: var(--text-dim); }
+:root.light-theme .img-right-overlay { color: #999; }
+:root.light-theme .mod-item { color: #2d7a3d; }
+:root.light-theme .tips-item { color: var(--blue); }
+:root.light-theme .mod-title { color: #cc6600; }
+:root.light-theme .tips-title { color: var(--cyan); }
+:root.light-theme .alert-box { color: var(--red); background: rgba(255, 0, 0, .05); border-color: rgba(255, 0, 0, .2); }
+:root.light-theme .warn-box { color: #990033; background: rgba(255, 0, 0, .08); }
+:root.light-theme .delete-pill:hover { color: var(--red); }
+:root.light-theme .section-label { color: var(--text-dim); }
+:root.light-theme .add-point-btn { color: #cc6600; }
+:root.light-theme .mod-box { background: rgba(255, 140, 66, .12); border-color: rgba(255, 140, 66, .3); }
+:root.light-theme .tips-box { background: rgba(0, 153, 204, .12); border-color: rgba(0, 153, 204, .3); }
+:root.light-theme .h1-block { background: rgba(0, 0, 0, .03); border-color: rgba(0, 0, 0, .1); }
+:root.light-theme .theme-toggle { background: rgba(0, 153, 204, .15); border-color: rgba(0, 153, 204, .4); }
+:root.light-theme .theme-toggle:hover { background: rgba(0, 153, 204, .25); }
+
