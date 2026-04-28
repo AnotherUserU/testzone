@@ -150,7 +150,8 @@ window.addWarnBox = function(btn) {
 
 window.addBannerBlock = function(btn, type, sectionKey) {
   const section = btn.closest('.mode-section');
-  const titleBlock = section?.querySelector('[data-block$="-title"]');
+  const titleBlock = section?.querySelector('[data-block="title"], [data-block$="-title"]');
+
   
   const block = document.createElement('div');
   block.className = 'page-block';
@@ -292,13 +293,49 @@ window.openLabelColorPicker = function(el, e) {
   input.click();
 };
 
-window.openModModal = function() {
-  const section = document.querySelector('.mode-section.active');
-  const chain = section?.querySelector('.mp-chain');
+window.openModModal = function(btn) {
+  const chain = btn.closest('.mod-priority')?.querySelector('.mp-chain');
   if (!chain) return;
+  AppState.activeModChain = chain;
   
-  const text = prompt('Enter modifier (e.g. HP +10%):');
-  if (!text) return;
+  const list = document.getElementById('modList');
+  list.innerHTML = '';
+  
+  chain.querySelectorAll('.mp-pill').forEach(pill => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex; align-items:center; gap:10px; background:var(--bg3); padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.05)';
+    
+    const txt = document.createElement('div');
+    txt.style.flex = '1';
+    txt.style.fontSize = '0.9rem';
+    txt.textContent = pill.textContent.replace('✕', '').trim();
+    
+    const del = document.createElement('button');
+    del.className = 'delete-box';
+    del.style.position = 'static';
+    del.innerHTML = '✕';
+    del.onclick = () => {
+      pill.remove();
+      row.remove();
+    };
+    
+    row.appendChild(txt);
+    row.appendChild(del);
+    list.appendChild(row);
+  });
+  
+  document.getElementById('modModal').classList.add('open');
+};
+
+window.closeModModal = function() {
+  document.getElementById('modModal').classList.remove('open');
+  AppState.activeModChain = null;
+};
+
+window.addModFromModal = function() {
+  const input = document.getElementById('modNewInput');
+  const text = input.value.trim();
+  if (!text || !AppState.activeModChain) return;
   
   const pill = document.createElement('div');
   pill.className = 'mp-pill';
@@ -308,12 +345,17 @@ window.openModModal = function() {
   const del = document.createElement('span');
   del.className = 'delete-box';
   del.innerHTML = '✕';
-  del.onclick = (e) => { e.stopPropagation(); pill.remove(); saveToFirebase(); };
+  del.onclick = (e) => { e.stopPropagation(); pill.remove(); };
   
   pill.appendChild(del);
-  chain.appendChild(pill);
-  saveToFirebase();
+  AppState.activeModChain.appendChild(pill);
+  
+  input.value = '';
+  // Refresh list in modal
+  const btn = { closest: () => AppState.activeModChain.closest('.mod-priority') };
+  openModModal(btn);
 };
+
 
 
 

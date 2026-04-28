@@ -141,7 +141,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="dungeonMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -261,7 +261,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="storyMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -339,7 +339,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="raidMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -420,7 +420,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="storyTowersMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -502,7 +502,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="battleTowersMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -585,7 +585,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="celestialTowerMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -666,7 +666,7 @@
           <div style="max-width:1280px;margin:0 auto;padding:0 20px 24px;display:flex;flex-direction:column;gap:18px;">
             <div class="mod-priority">
               <div class="mp-chain" id="worldBossMpChain"></div>
-              <button class="edit-btn" onclick="openModModal()" style="margin-top:4px;margin-bottom:4px;">➕ Add
+              <button class="edit-btn" onclick="openModModal(this)" style="margin-top:4px;margin-bottom:4px;">➕ Add
                 Modifier</button>
             </div>
             <div class="credits-box">
@@ -937,7 +937,21 @@
       </div>
     </div>
 
+    <div class="dl-ov" id="modModal">
+      <div class="asc-box" style="max-width:450px; border-color:var(--cyan); box-shadow:0 0 40px rgba(0,212,255,.15)">
+        <span class="dl-close" onclick="closeModModal()" style="top:15px; right:15px">✕</span>
+        <div class="asc-title" style="color:var(--cyan); margin-bottom:10px">⚙️ MANAGE MODIFIERS</div>
+        <div id="modList" style="width:100%; max-height:300px; overflow-y:auto; margin-bottom:20px; display:flex; flex-direction:column; gap:8px"></div>
+        <div class="asc-input-wrap">
+          <input class="asc-input" type="text" id="modNewInput" placeholder="New modifier (e.g. HP +10%)..." style="border-color:rgba(0,212,255,.3)">
+          <button class="asc-btn" onclick="addModFromModal()" style="background:var(--cyan)">ADD</button>
+        </div>
+        <button class="asc-cancel" onclick="closeModModal()" style="margin-top:10px">Close</button>
+      </div>
+    </div>
+
   </div>
+
 
   <!-- Core Admin Logic (Obfuscated) -->
   <script type="module" src="shared/js/admin.js?v=1.0.1"></script>

@@ -18,5 +18,6 @@ export const AppState = {
   xlData: null,
   xlTarget: 'core',
   credSectionsMap: {},
-  credSections: []
+  credSections: [],
+  activeModChain: null
 };
