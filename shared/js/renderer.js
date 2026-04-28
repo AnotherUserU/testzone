@@ -95,41 +95,48 @@ export function refreshAllCardCredits() {
         mainTarget.innerHTML = `${escapeAttr(mainDesigner.lbl)} <span class="foot-cred-name" style="color:${escapeAttr(mainDesigner.color)}">${escapeAttr(mainDesigner.name)}</span>`;
       }
 
-      const tagText = card.querySelector('.card-tag')?.textContent || '';
-      const titleText = card.querySelector('.card-title')?.textContent || '';
-      
+      // We use innerText to ignore hidden elements and get clean text
+      const tagText = (card.querySelector('.card-tag')?.innerText || '').trim();
+      const titleText = (card.querySelector('.card-title')?.innerText || '').trim();
+      if (!tagText && !titleText) return;
       // Prioritize numbers found in the tag over the title based on user request.
       // E.g., "Heros Palace 2" in the tag will dictate the credit even if title has "TEAM 1".
       const tagNums = tagText.toUpperCase().match(/\d+/g) || [];
       const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
       const nums = [...tagNums, ...titleNums];
       
-      // 1. Priority-Based Match (Tag First, then Title)
-      const findMatch = (text) => {
-        if (!text || text.length < 2) return null;
-        const uc = text.toUpperCase().trim();
-        // A. Exact
-        let m = pills.find(p => p.lbl === uc);
-        if (m) return m;
-        // B. Regex (Word Boundaries)
-        const sortedPills = [...pills].sort((a, b) => a.lbl.length - b.lbl.length);
-        const reg = new RegExp('\\b' + escapeRegex(uc) + '\\b', 'i');
-        return sortedPills.find(p => reg.test(p.lbl));
-      };
-
       const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      contributor = findMatch(tagText) || findMatch(titleText);
+      const tagUC = tagText.toUpperCase().trim().replace(/\s+/g, ' ');
+      const titleUC = titleText.toUpperCase().trim().replace(/\s+/g, ' ');
 
-      // 2. Fallback to Number Match (Context-Aware)
+      // 1. Tag Priority (Exact then Regex)
+      if (tagUC.length > 1) {
+        contributor = pills.find(p => p.lbl === tagUC);
+        if (!contributor) {
+          const reg = new RegExp('\\b' + escapeRegex(tagUC) + '\\b', 'i');
+          contributor = pills.find(p => reg.test(p.lbl));
+        }
+      }
+
+      // 2. Title Priority (Exact then Regex) - Only if Tag failed
+      if (!contributor && titleUC.length > 1) {
+        contributor = pills.find(p => p.lbl === titleUC);
+        if (!contributor) {
+          const reg = new RegExp('\\b' + escapeRegex(titleUC) + '\\b', 'i');
+          contributor = pills.find(p => reg.test(p.lbl));
+        }
+      }
+
+      // 3. Fallback to Number Match (Strict Context-Aware)
       if (!contributor) {
-        const tagUC = tagText.toUpperCase().trim();
-        const titleUC = titleText.toUpperCase().trim();
-        const combined = tagUC + ' ' + titleUC;
-        
+        const getPrefix = (s) => s.replace(/[\d-]/g, '').replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase();
+        const tagPrefix = getPrefix(tagUC);
+        const titlePrefix = getPrefix(titleUC);
+
         for (const n of nums) {
           const cardNum = parseInt(n);
           const match = pills.find(p => {
-            // A. Check if the label contains the number or is in range
+            // A. Number/Range Check
             let hasNum = p.lbl.match(new RegExp('\\b' + n + '\\b'));
             if (!hasNum) {
               const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
@@ -142,15 +149,21 @@ export function refreshAllCardCredits() {
             }
             if (!hasNum) return false;
 
-            // B. Context Check: Location name must match
-            const getPrefix = (s) => s.replace(/[\d-]/g, '').replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase();
+            // B. Strict Context Check
             const pPrefix = getPrefix(p.lbl);
             const tagPrefix = getPrefix(tagUC);
             const titlePrefix = getPrefix(titleUC);
-            
+
             if (pPrefix) {
-              const isMatch = (tagPrefix === pPrefix) || (titlePrefix === pPrefix);
+              // If pill has a location name, it MUST match the card's location name.
+              const isMatch = (tagPrefix && tagPrefix.includes(pPrefix)) || 
+                              (pPrefix.includes(tagPrefix) && tagPrefix.length > 2) ||
+                              (titlePrefix && titlePrefix.includes(pPrefix));
               if (!isMatch) return false;
+            } else if (tagPrefix || titlePrefix) {
+              // If pill is generic (just "1") but card is specific ("Slime City 1"),
+              // we only allow it if there's no better specific match available.
+              // (Step 1 & 2 already check for specific matches).
             }
             return true;
           });
