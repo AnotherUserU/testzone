@@ -127,6 +127,28 @@ window.applyH1 = function() {
   closeH1Modal();
 };
 
+window.addModBox = function(btn) {
+  const container = btn.closest('.card-foot').querySelector('.foot-content');
+  const div = document.createElement('div'); div.className = 'mod-box';
+  div.innerHTML = `<div class="mod-title" contenteditable="true">REQUIRED STATS</div><div class="mod-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
+  container.appendChild(div);
+};
+
+window.addTipsBox = function(btn) {
+  const container = btn.closest('.card-foot').querySelector('.foot-content');
+  const div = document.createElement('div'); div.className = 'tips-box';
+  div.innerHTML = `<div class="tips-title" contenteditable="true">TIPS & TRICKS</div><div class="tips-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
+  container.appendChild(div);
+};
+
+window.addWarnBox = function(btn) {
+  const container = btn.closest('.card-foot').querySelector('.foot-content');
+  const div = document.createElement('div'); div.className = 'warn-box';
+  div.innerHTML = `⚠️ <span contenteditable="true">DANGER: High level required.</span><span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`;
+  container.appendChild(div);
+};
+
+
 // --- Card Interactions ---
 window.makeColorPalette = function(card, initColor) {
   const pal = document.createElement('div'); pal.className = 'clr-palette';
@@ -201,7 +223,9 @@ window.enterAsGuest = function() {
     const el = document.getElementById(id); if (el) el.style.display = 'none';
   });
   const floatXl = document.querySelector('.float-xl'); if (floatXl) floatXl.style.display = 'none';
-  loadFromFirebase();
+  loadFromFirebase({
+    onSuccess: () => window.rewireAll()
+  });
 };
 
 window.logoutToGuest = function() {
@@ -226,7 +250,8 @@ window.enterAsAdmin = function() {
   }
   showToast('👑 Admin mode activated!');
   loadFromFirebase({
-    onVisibilityLoaded: () => window.applyPageVisibility()
+    onVisibilityLoaded: () => window.applyPageVisibility(),
+    onSuccess: () => window.rewireAll()
   });
 };
 
@@ -288,3 +313,128 @@ window.applyPageVisibility = function(saveToCloud) {
   }
   if (AppState.currentRole === 'admin' && saveToCloud) { saveToFirebase(); }
 };
+
+// --- Screenshot Logic ---
+window.openDlModal = function(btn) {
+  const sel = document.getElementById('dlNodeSelect'); 
+  if (sel) {
+    sel.innerHTML = '<option value="">-- Select card --</option>';
+    document.querySelectorAll('.team-card').forEach((card, i) => {
+      const title = card.querySelector('.card-title')?.textContent.trim() || ('Card ' + (i + 1));
+      const opt = document.createElement('option'); opt.value = i; opt.textContent = title; sel.appendChild(opt);
+    });
+  }
+  if (btn) {
+    setDlMode('node');
+    const cards = [...document.querySelectorAll('.team-card')];
+    const idx = cards.indexOf(btn.closest('.team-card')); 
+    if (idx >= 0 && sel) sel.value = idx;
+  } else { setDlMode('fullscreen'); }
+  setDlFmt('png'); 
+  const modal = document.getElementById('dlModal');
+  if (modal) modal.classList.add('open');
+};
+
+window.closeDlModal = function() { 
+  const modal = document.getElementById('dlModal');
+  if (modal) modal.classList.remove('open'); 
+};
+
+window.setDlMode = function(m) {
+  AppState.dlMode = m;
+  const fullBtn = document.getElementById('dlModeFullscreen');
+  const nodeBtn = document.getElementById('dlModeNode');
+  const picker = document.getElementById('dlNodePicker');
+  if (fullBtn) fullBtn.classList.toggle('active', m === 'fullscreen');
+  if (nodeBtn) nodeBtn.classList.toggle('active', m === 'node');
+  if (picker) picker.style.display = m === 'node' ? 'block' : 'none';
+};
+
+window.setDlFmt = function(f) {
+  AppState.dlFmt = f;
+  const pngBtn = document.getElementById('dlFmtPng');
+  const jpgBtn = document.getElementById('dlFmtJpg');
+  const quality = document.getElementById('dlQualityWrap');
+  if (pngBtn) pngBtn.classList.toggle('active', f === 'png');
+  if (jpgBtn) jpgBtn.classList.toggle('active', f === 'jpg');
+  if (quality) quality.style.display = f === 'jpg' ? 'block' : 'none';
+};
+
+window.doDlDownload = function() {
+  if (typeof html2canvas === 'undefined') {
+    showFbStatus('⏳ Loading capture tools...', 'loading');
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    script.onload = () => executeDownload();
+    document.head.appendChild(script);
+  } else {
+    executeDownload();
+  }
+};
+
+window.executeDownload = function() {
+  const dlBtn = document.getElementById('dlDownloadBtn');
+  if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
+  const quality = parseInt(document.getElementById('dlQualitySlider')?.value || '90') / 100;
+  const isLight = document.documentElement.classList.contains('light-theme');
+  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
+  
+  function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
+
+  if (AppState.dlMode === 'fullscreen') {
+    const hide = document.querySelectorAll(HIDE_SEL);
+    hide.forEach(el => el.style.display = 'none');
+    closeDlModal();
+    setTimeout(() => {
+      showFbStatus('Capturing...', 'loading');
+      html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
+        const a = document.createElement('a'); 
+        a.download = 'Team_Composition_Guide.' + (AppState.dlFmt === 'jpg' ? 'jpg' : 'png');
+        a.href = AppState.dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); 
+        a.click();
+        hide.forEach(el => el.style.display = '');
+        reEnableBtn();
+        showFbStatus('✅ Downloaded', 'ok');
+      }).catch(err => {
+        console.error(err);
+        alert('Failed to download.');
+        hide.forEach(el => el.style.display = '');
+        reEnableBtn();
+        showFbStatus('❌ Failed', 'err');
+      });
+    }, 400);
+  } else {
+    const cards = [...document.querySelectorAll('.team-card')];
+    const idx = parseInt(document.getElementById('dlNodeSelect')?.value || '-1');
+    if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); reEnableBtn(); return; }
+    const card = cards[idx];
+    const hide = card.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
+    const cardCredits = card.querySelectorAll('.card-footer-credits');
+    
+    cardCredits.forEach(el => el.style.display = 'flex');
+    hide.forEach(el => el.style.display = 'none'); 
+    closeDlModal();
+    
+    setTimeout(() => {
+      showFbStatus('Capturing...', 'loading');
+      html2canvas(card, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
+        const a = document.createElement('a');
+        const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
+        a.download = title + '.' + (AppState.dlFmt === 'jpg' ? 'jpg' : 'png');
+        a.href = AppState.dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); 
+        a.click();
+        hide.forEach(el => el.style.display = '');
+        cardCredits.forEach(el => el.style.display = '');
+        reEnableBtn();
+        showFbStatus('✅ Downloaded', 'ok');
+      }).catch(err => { 
+        console.error(err); alert('Failed.'); 
+        hide.forEach(el => el.style.display = ''); 
+        cardCredits.forEach(el => el.style.display = '');
+        reEnableBtn();
+        showFbStatus('❌ Failed', 'err');
+      });
+    }, 300);
+  }
+};
+
