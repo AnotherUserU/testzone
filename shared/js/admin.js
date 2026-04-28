@@ -275,7 +275,7 @@ window.addMember = function(btn) {
   membersBox.appendChild(row);
   enableMemDrag(row);
   const del = document.createElement('span'); del.className = 'delete-mem'; del.innerHTML = '✕';
-  del.onclick = () => { row.remove(); renumMembers(membersBox); saveToFirebase(); }; 
+  del.onclick = () => { row.remove(); renumMembers(membersBox); }; 
   row.appendChild(del);
   rewireAll();
 };
@@ -289,7 +289,7 @@ window.openLabelColorPicker = function(el, e) {
   input.style.opacity = '0';
   document.body.appendChild(input);
   input.oninput = () => el.style.color = input.value;
-  input.onchange = () => { input.remove(); saveToFirebase(); };
+  input.onchange = () => { input.remove(); };
   input.click();
 };
 
@@ -401,10 +401,6 @@ window.rewireAll = function() {
     el.contentEditable = isEditable;
     if (isEditable) { 
       if (el.tagName === 'DIV') el.style.cursor = 'text'; 
-      if (!el._saveWired) {
-        el._saveWired = true;
-        el.addEventListener('blur', () => saveToFirebase());
-      }
     } else { 
       if (el.tagName === 'DIV') el.style.cursor = ''; 
     }
@@ -531,7 +527,6 @@ window.applyPageVisibility = function(saveToCloud) {
     const firstVisible = ALL_MODES.find(m => vis[m]);
     if (firstVisible) switchMode(firstVisible);
   }
-  if (AppState.currentRole === 'admin' && saveToCloud) { saveToFirebase(); }
 };
 
 // --- Credits Modal Logic ---
@@ -593,7 +588,6 @@ window.applyCredits = function() {
   pillsRow.innerHTML = html;
   closeCredModal();
   refreshAllCardCredits();
-  saveToFirebase();
 };
 
 window.closeCredModal = () => document.getElementById('credModal').classList.remove('open');
