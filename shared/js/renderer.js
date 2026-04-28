@@ -104,31 +104,28 @@ export function refreshAllCardCredits() {
       const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
       const nums = [...tagNums, ...titleNums];
       
-      // 1. Priority-Based Match
-      // A. Exact Match (Case-Insensitive)
-      contributor = pills.find(p => p.lbl === tagText.toUpperCase()) || 
-                    pills.find(p => p.lbl === titleText.toUpperCase());
-
-      // B. High-Precision Regex Match (with word boundaries)
-      if (!contributor) {
-        const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        
-        // Sort pills by label length to check most specific (usually shortest/most exact) matches first
+      // 1. Priority-Based Match (Tag First, then Title)
+      const findMatch = (text) => {
+        if (!text || text.length < 2) return null;
+        const uc = text.toUpperCase().trim();
+        // A. Exact
+        let m = pills.find(p => p.lbl === uc);
+        if (m) return m;
+        // B. Regex (Word Boundaries)
         const sortedPills = [...pills].sort((a, b) => a.lbl.length - b.lbl.length);
+        const reg = new RegExp('\\b' + escapeRegex(uc) + '\\b', 'i');
+        return sortedPills.find(p => reg.test(p.lbl));
+      };
 
-        if (tagText.length > 1) {
-          const reg = new RegExp('\\b' + escapeRegex(tagText) + '\\b', 'i');
-          contributor = sortedPills.find(p => reg.test(p.lbl));
-        }
-        if (!contributor && titleText.length > 1) {
-          const reg = new RegExp('\\b' + escapeRegex(titleText) + '\\b', 'i');
-          contributor = sortedPills.find(p => reg.test(p.lbl));
-        }
-      }
+      const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      contributor = findMatch(tagText) || findMatch(titleText);
 
       // 2. Fallback to Number Match (Context-Aware)
       if (!contributor) {
-        const combined = (tagText + ' ' + titleText).toUpperCase();
+        const tagUC = tagText.toUpperCase().trim();
+        const titleUC = titleText.toUpperCase().trim();
+        const combined = tagUC + ' ' + titleUC;
+        
         for (const n of nums) {
           const cardNum = parseInt(n);
           const match = pills.find(p => {
@@ -145,15 +142,13 @@ export function refreshAllCardCredits() {
             }
             if (!hasNum) return false;
 
-            // B. Context Check: The prefix (text before numbers) must match significantly.
-            // e.g., "HEROS PALACE" must match exactly between card and credit label.
-            const getPrefix = (s) => s.split(/\d/)[0].replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase();
+            // B. Context Check: Location name must match
+            const getPrefix = (s) => s.replace(/[\d-]/g, '').replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase();
             const pPrefix = getPrefix(p.lbl);
-            const tagPrefix = getPrefix(tagText);
-            const titlePrefix = getPrefix(titleText);
+            const tagPrefix = getPrefix(tagUC);
+            const titlePrefix = getPrefix(titleUC);
             
             if (pPrefix) {
-              // If credit has a location name (e.g. HEROS PALACE), it MUST match the card.
               const isMatch = (tagPrefix === pPrefix) || (titlePrefix === pPrefix);
               if (!isMatch) return false;
             }
