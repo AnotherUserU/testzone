@@ -185,8 +185,8 @@ window.addBannerBlock = function(btn, type, sectionKey) {
     if (container) container.appendChild(block);
   }
   wireBlockDrag(block);
-  saveToFirebase();
 };
+
 
 
 window.addGenericCoreTeam = function(gridId, modeName) {
@@ -208,8 +208,8 @@ window.addGenericCoreTeam = function(gridId, modeName) {
   const card = buildCard(newTeam);
   grid.appendChild(card);
   rewireAll();
-  saveToFirebase();
 };
+
 
 window.addGenericNewTeam = function(gridId, modeName) {
   const grid = document.getElementById(gridId);
@@ -230,8 +230,8 @@ window.addGenericNewTeam = function(gridId, modeName) {
   const card = buildCard(newTeam);
   grid.appendChild(card);
   rewireAll();
-  saveToFirebase();
 };
+
 
 window.addNewCoreTeam = () => addGenericCoreTeam('coreGrid', AppState.currentMode);
 window.addNewTeam = () => addGenericNewTeam('newGrid', AppState.currentMode);
@@ -254,8 +254,67 @@ window.addTeamSection = function(containerId) {
   `;
   container.appendChild(div);
   wireBlockDrag(div);
+};
+
+window.addMember = function(btn) {
+  const card = btn.closest('.team-card');
+  const membersBox = card?.querySelector('.card-members');
+  if (!membersBox) return;
+  
+  const i = membersBox.querySelectorAll('.mem-row').length;
+  const row = document.createElement('div');
+  row.className = 'mem-row';
+  row.innerHTML = `
+    <div class="mem-num">${i + 1}</div>
+    <div style="flex:1">
+      <div class="mem-name" contenteditable="true">New Unit</div>
+      <div class="mem-bind" contenteditable="true">Binding Vow</div>
+    </div>
+  `;
+  membersBox.appendChild(row);
+  enableMemDrag(row);
+  const del = document.createElement('span'); del.className = 'delete-mem'; del.innerHTML = '✕';
+  del.onclick = () => { row.remove(); renumMembers(membersBox); saveToFirebase(); }; 
+  row.appendChild(del);
+  rewireAll();
+};
+
+window.openLabelColorPicker = function(el, e) {
+  e.preventDefault();
+  const input = document.createElement('input');
+  input.type = 'color';
+  input.value = rgbToHex(el.style.color);
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.oninput = () => el.style.color = input.value;
+  input.onchange = () => { input.remove(); saveToFirebase(); };
+  input.click();
+};
+
+window.openModModal = function() {
+  const section = document.querySelector('.mode-section.active');
+  const chain = section?.querySelector('.mp-chain');
+  if (!chain) return;
+  
+  const text = prompt('Enter modifier (e.g. HP +10%):');
+  if (!text) return;
+  
+  const pill = document.createElement('div');
+  pill.className = 'mp-pill';
+  pill.contentEditable = "true";
+  pill.textContent = text;
+  
+  const del = document.createElement('span');
+  del.className = 'delete-box';
+  del.innerHTML = '✕';
+  del.onclick = (e) => { e.stopPropagation(); pill.remove(); saveToFirebase(); };
+  
+  pill.appendChild(del);
+  chain.appendChild(pill);
   saveToFirebase();
 };
+
 
 
 
@@ -298,8 +357,16 @@ window.rewireAll = function() {
   
   document.querySelectorAll(editables.join(',')).forEach(el => {
     el.contentEditable = isEditable;
-    if (isEditable) { if (el.tagName === 'DIV') el.style.cursor = 'text'; }
-    else { if (el.tagName === 'DIV') el.style.cursor = ''; }
+    if (isEditable) { 
+      if (el.tagName === 'DIV') el.style.cursor = 'text'; 
+      if (!el._saveWired) {
+        el._saveWired = true;
+        el.addEventListener('blur', () => saveToFirebase());
+      }
+    } else { 
+      if (el.tagName === 'DIV') el.style.cursor = ''; 
+    }
+
   });
 
   document.querySelectorAll('.team-card').forEach(card => {
