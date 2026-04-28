@@ -180,6 +180,75 @@ window.addBannerBlock = function(btn, type, sectionKey) {
   wireBlockDrag(block);
 };
 
+window.addGenericCoreTeam = function(gridId, modeName) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const newTeam = {
+    id: 't' + Date.now(),
+    color: '#f5c842',
+    tag: (modeName || 'DUNGEON').toUpperCase() + ' · CORE',
+    title: 'New Core Team',
+    desc: 'Enter team description here...',
+    members: [
+      { name: 'Unit 1', bind: 'Binding Vow' },
+      { name: 'Unit 2', bind: 'Binding Vow' },
+      { name: 'Unit 3', bind: 'Binding Vow' },
+      { name: 'Unit 4', bind: 'Binding Vow' }
+    ]
+  };
+  const card = buildCard(newTeam);
+  grid.appendChild(card);
+  rewireAll();
+  saveToFirebase();
+};
+
+window.addGenericNewTeam = function(gridId, modeName) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  const newTeam = {
+    id: 't' + Date.now(),
+    color: '#ff8c42',
+    tag: (modeName || 'DUNGEON').toUpperCase() + ' · NEW',
+    title: 'New Variant Team',
+    desc: 'Enter team description here...',
+    members: [
+      { name: 'Unit 1', bind: 'Binding Vow' },
+      { name: 'Unit 2', bind: 'Binding Vow' },
+      { name: 'Unit 3', bind: 'Binding Vow' },
+      { name: 'Unit 4', bind: 'Binding Vow' }
+    ]
+  };
+  const card = buildCard(newTeam);
+  grid.appendChild(card);
+  rewireAll();
+  saveToFirebase();
+};
+
+window.addNewCoreTeam = () => addGenericCoreTeam('coreGrid', AppState.currentMode);
+window.addNewTeam = () => addGenericNewTeam('newGrid', AppState.currentMode);
+
+window.addTeamSection = function(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const sectionId = 'sec' + Date.now();
+  const div = document.createElement('div');
+  div.className = 'page-block team-section';
+  div.id = sectionId;
+  div.innerHTML = `
+    <span class="block-handle">⠿⠿</span>
+    <button class="del-section-btn" onclick="this.closest('.team-section').remove()">Delete Section</button>
+    <div class="team-section-label" contenteditable="true">NEW TEAM SECTION</div>
+    <div class="grid-wrap"><div class="core-grid" id="${sectionId}Grid"></div></div>
+    <div class="team-section-actions">
+      <button class="edit-btn" onclick="addGenericCoreTeam('${sectionId}Grid','CUSTOM')">➕ Add Unit</button>
+    </div>
+  `;
+  container.appendChild(div);
+  wireBlockDrag(div);
+  saveToFirebase();
+};
+
+
 
 
 // --- Card Interactions ---
