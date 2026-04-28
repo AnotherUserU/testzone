@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Team Composition Guide web application",
   "scripts": {
-    "dev": "vercel dev --listen 3000"
+    "dev": "vercel dev --listen 3000",
+    "test": "jest"
   },
   "dependencies": {
     "isomorphic-dompurify": "^3.10.0",
@@ -11,6 +12,12 @@
     "jsonwebtoken": "^9.0.3"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "babel-jest": "^30.3.0",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "node-mocks-http": "^1.17.2",
     "vercel": "latest"
   }
 }
