@@ -119,20 +119,34 @@ export function refreshAllCardCredits() {
         contributor = pills.find(p => reg.test(p.lbl));
       }
 
-      // 2. Fallback to Number Match (Existing Logic)
+      // 2. Fallback to Number Match (Context-Aware)
       if (!contributor) {
+        const combined = (tagText + ' ' + titleText).toUpperCase();
         for (const n of nums) {
           const cardNum = parseInt(n);
           const match = pills.find(p => {
-            if (p.lbl.match(new RegExp('\\b' + n + '\\b'))) return true;
-            const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
-            if (rangeMatches) {
-              for (const rangeStr of rangeMatches) {
-                const [start, end] = rangeStr.split('-').map(v => parseInt(v.trim()));
-                if (cardNum >= start && cardNum <= end) return true;
+            // A. Check if the label contains the number or is in range
+            let hasNum = p.lbl.match(new RegExp('\\b' + n + '\\b'));
+            if (!hasNum) {
+              const rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
+              if (rangeMatches) {
+                for (const rangeStr of rangeMatches) {
+                  const [start, end] = rangeStr.split('-').map(v => parseInt(v.trim()));
+                  if (cardNum >= start && cardNum <= end) { hasNum = true; break; }
+                }
               }
             }
-            return false;
+            if (!hasNum) return false;
+
+            // B. Context Check: Significant words in label must appear in card text
+            // e.g., If label is "HEROS PALACE 1", "HEROS" must be in card text.
+            const labelWords = p.lbl.replace(/[\d-]/g, '')
+                                   .replace(/CREATOR|BY|GUIDE|TEAM/g, '')
+                                   .trim().split(/\s+/);
+            for (const word of labelWords) {
+              if (word.length > 2 && !combined.includes(word)) return false;
+            }
+            return true;
           });
           if (match) { contributor = match; break; }
         }
