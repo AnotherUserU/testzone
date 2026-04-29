@@ -471,27 +471,34 @@
             backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
             logging: false,
             ignoreElements: (element) => {
-              // Ignore elements that are hidden or marked for exclusion
-              return window.getComputedStyle(element).display === 'none' || element.hasAttribute('data-html2canvas-ignore');
+              // Ignore elements marked for exclusion or specifically hidden for download
+              return element.hasAttribute('data-html2canvas-ignore') || element.classList.contains('nav-header') || element.id === 'scrollProgress';
             },
             onclone: (clonedDoc) => {
-              // Safety: Remove gradients from fixed or problematic elements that might collapse to 0px
+              // 1. Remove elements that should be ignored to be absolutely safe
+              clonedDoc.querySelectorAll('[data-html2canvas-ignore="true"], .nav-header, #scrollProgress, .admin-link').forEach(el => el.remove());
+              
+              // 2. Inject a global "No Gradients" safety rule
               const style = clonedDoc.createElement('style');
               style.innerHTML = `
-                /* Disable gradients on fixed/global elements that are known to cause 0-dimension crashes */
-                .scroll-progress, .nav-header, .section-label::before, .section-label::after { 
-                  background-image: none !important; 
-                  background-color: var(--gold) !important;
-                  min-width: 10px !important;
+                /* The Nuclear Option: Disable ALL background-images (gradients) in the clone */
+                * { background-image: none !important; }
+                /* Exception: Allow <img> tags to show their content (which isn't a background-image) */
+                img { background-image: initial !important; }
+                
+                /* Ensure specific elements still look okay without their gradients */
+                .card-accent-bar { 
+                  min-width: 15px !important; 
                   min-height: 2px !important;
+                  background-color: var(--tc, var(--gold, #f5c842)) !important;
+                  display: block !important;
+                }
+                .section-label::before, .section-label::after {
+                  min-width: 20px !important;
+                  background-color: var(--gold, #f5c842) !important;
                   opacity: 0.3 !important;
                 }
-                /* Ensure accent bars have a minimum width in the clone */
-                .card-accent-bar { 
-                  min-width: 10px !important; 
-                  background-image: none !important;
-                  background-color: var(--tc, var(--gold)) !important;
-                }
+                .scroll-progress { display: none !important; }
               `;
               (clonedDoc.head || clonedDoc.body).appendChild(style);
             }
@@ -537,10 +544,12 @@
             onclone: (clonedDoc) => {
               const style = clonedDoc.createElement('style');
               style.innerHTML = `
+                * { background-image: none !important; }
+                img { background-image: initial !important; }
                 .card-accent-bar { 
-                  min-width: 10px !important; 
-                  background-image: none !important;
-                  background-color: var(--tc, var(--gold)) !important; 
+                   min-width: 15px !important; 
+                   background-color: var(--tc, var(--gold, #f5c842)) !important;
+                   display: block !important;
                 }
               `;
               (clonedDoc.head || clonedDoc.body).appendChild(style);
