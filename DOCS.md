@@ -531,6 +531,12 @@ responsive.css   → Breakpoint overrides
 admin-only.css   → Admin UI elements (edit handles, drag indicators)
 ```
 
+### Dynamic Component Layouts
+
+Certain visual elements rely on dynamic CSS calculations to ensure layout stability across varying content lengths:
+- **Character Connector Lines (`cards.css`)**: The visual lines connecting characters in a team use `height: calc(100% - 24px + var(--mem-gap))`. This guarantees that the line perfectly bridges the gap between circular numbers, regardless of whether a character's name or binding spans multiple lines. The line originates exactly at the bottom of the circle (`top: 24px`) to prevent visual overlap with the semi-transparent circular backgrounds.
+- **Character Numbers (`cards.css`)**: Centered vertically and horizontally using modern `display: grid; place-items: center` logic, discarding brittle `padding-top` adjustments that previously caused misalignments depending on the font stack.
+
 ---
 
 ## 9. Key Functions Walkthrough
