@@ -130,21 +130,21 @@ window.applyH1 = function() {
 window.addModBox = function(btn) {
   const container = btn.closest('.card-foot').querySelector('.foot-content');
   const div = document.createElement('div'); div.className = 'mod-box';
-  div.innerHTML = `<div class="mod-title" contenteditable="true">REQUIRED STATS</div><div class="mod-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
+  div.innerHTML = `<div class="mod-title" contenteditable="true" style="cursor: text;">🔶 REQUIRED</div><div class="mod-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
   container.appendChild(div);
 };
 
 window.addTipsBox = function(btn) {
   const container = btn.closest('.card-foot').querySelector('.foot-content');
   const div = document.createElement('div'); div.className = 'tips-box';
-  div.innerHTML = `<div class="tips-title" contenteditable="true">TIPS & TRICKS</div><div class="tips-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
+  div.innerHTML = `<div class="tips-title" contenteditable="true" style="cursor: text;">💡 TIPS</div><div class="tips-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
   container.appendChild(div);
 };
 
 window.addWarnBox = function(btn) {
   const container = btn.closest('.card-foot').querySelector('.foot-content');
   const div = document.createElement('div'); div.className = 'warn-box';
-  div.innerHTML = `⚠️ <span contenteditable="true">DANGER: High level required.</span><span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`;
+  div.innerHTML = `<span contenteditable="true" style="cursor: text;">⚠️ DANGER: High level required.</span><span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`;
   container.appendChild(div);
 };
 
