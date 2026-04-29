@@ -97,7 +97,7 @@
   padding: 12px; /* Reverted to compact padding */
   display: flex;
   flex-direction: column;
-  gap: 12px; /* Increased gap user liked */
+  gap: 11px; /* Fine-tuned gap */
 }
 
 .mem-row {
