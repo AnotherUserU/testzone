@@ -485,7 +485,7 @@
                 }
                 .card-accent-bar { min-width: 5px !important; }
               `;
-              clonedDoc.head.appendChild(style);
+              (clonedDoc.head || clonedDoc.body).appendChild(style);
             }
           }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
@@ -531,7 +531,7 @@
               style.innerHTML = `
                 .card-accent-bar { min-width: 5px !important; background: var(--tc, var(--gold)) !important; }
               `;
-              clonedDoc.head.appendChild(style);
+              (clonedDoc.head || clonedDoc.body).appendChild(style);
             }
           }).then(canvas => {
             const a = document.createElement('a');
