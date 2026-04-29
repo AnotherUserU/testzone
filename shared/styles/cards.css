@@ -108,6 +108,8 @@
   gap: 10px;
   position: relative;
   align-items: flex-start;
+  margin-bottom: 8px;
+  /* Consistent baseline spacing */
 }
 
 .mem-row:not(:last-child)::after {
@@ -115,7 +117,7 @@
   position: absolute;
   left: 12px;
   top: 24px;
-  bottom: -12px; /* Adjusted to match gap: 12px */
+  bottom: -10px;
   width: 1px;
   background: var(--border);
   z-index: 1;
