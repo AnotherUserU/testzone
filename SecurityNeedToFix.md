@@ -13,7 +13,7 @@
 |----------|-------|--------|-------------|
 | 🔴 **CRITICAL** | 2 | ✅ FIXED | Server-side sanitization bypassed, Admin innerHTML XSS risk |
 | 🟠 **HIGH** | 4 | ✅ FIXED | Debug info leak, Missing CORS, JWT in localStorage, Rate Limiting |
-| 🟡 **MEDIUM** | 5 | ✅ FIXED | Input validation, Payload size limit, Missing SRI, Admin Obfuscation |
+| 🟡 **MEDIUM** | 6 | ✅ FIXED | Input validation, Payload size limit, UI Crash (DoS) risk |
 | 🔵 **LOW** | 2 | ⚠️ OPEN | No CSRF token, Dual-file code sync risk (Maintenance Tech Debt) |
 
 ---
@@ -62,6 +62,13 @@
 ### MED-03: Missing Subresource Integrity (SRI)
 * **Threat Model**: Supply Chain Attack. If CDNs hosting GSAP, DOMPurify, or XLSX are compromised, malicious code would run on the site.
 * **Remediation**: Added `integrity` and `crossorigin="anonymous"` attributes to all external `<script>` tags.
+
+### MED-04: Client-Side Denial of Service (UI Crash)
+* **Threat Model**: UI Robustness. Maliciously crafted card data (e.g., extremely long strings or specific CSS-triggering characters) could cause flex-containers to collapse to 0px. This triggers a bug in `html2canvas` that crashes the browser's rendering context (`InvalidStateError`), preventing all users from exporting data and potentially freezing the tab.
+* **Remediation**: 
+  * Implemented "Nuclear Option" in `html2canvas`'s `onclone` callback.
+  * Globally disabled background-gradients during capture to prevent the `createPattern` crash.
+  * Enforced minimum dimensions (`15px`) and `display: block` on all potential layout-culprits in the virtual DOM.
 
 ---
 

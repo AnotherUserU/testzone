@@ -675,11 +675,16 @@ This starts a local Vercel dev server at `http://localhost:3000` with full serve
 Currently, `shared/js/credits.js` contains a unified `refreshAllCardCreditsCore()` function which is injected into the global namespace.
 Both `admin.html` and `index.html` include this script to ensure zero code duplication while adhering to `index.html`'s non-ES-module requirements.
 
-### ✅ html2canvas InvalidStateError (0-Dimension Canvas)
+### ✅ html2canvas InvalidStateError (0-Dimension Canvas) - RESOLVED (Aggressive)
 
-**ISSUE:** Capturing screenshots using `html2canvas` occasionally threw: `Failed to execute 'createPattern' on 'CanvasRenderingContext2D': The image argument is a canvas element with a width or height of 0`.
-**CAUSE:** `html2canvas` fails when it attempts to render a `linear-gradient` background on an element that evaluates to `0` width or `height` (like `#scrollProgress` or pseudo-elements in a flex layout).
-**FIX:** Added `min-width: 1px` and `min-height: 1px` to all layout elements that use `linear-gradient` (e.g. `.scroll-progress`, `.card-accent-bar`, `.section-label::before`).
+**ISSUE:** Capturing screenshots (especially Fullscreen) occasionally threw: `InvalidStateError: Failed to execute 'createPattern' on 'CanvasRenderingContext2D': The image argument is a canvas element with a width or height of 0`.
+**CAUSE:** `html2canvas` fails when it attempts to render a `linear-gradient` background on an element that evaluates to `0` width or `height` (like `#scrollProgress` or pseudo-elements in a flex layout). Even `min-width: 1px` was sometimes insufficient due to sub-pixel rendering in the cloned DOM.
+**FIX (Nuclear Option):** 
+1.  Implemented a robust `onclone` callback that targets the virtual rendering document.
+2.  **Global Gradient Disable**: Enforced `* { background-image: none !important; }` inside the clone to prevent any `createPattern` attempts on gradients.
+3.  **Dimension Enforcement**: Enforced `min-width: 15px` and `display: block` for accent bars and labels in the clone.
+4.  **Solid Color Fallbacks**: Replaced gradients with solid `background-color` derived from CSS variables (`var(--tc)`) to maintain visual fidelity without rendering risks.
+5.  **Strict ignoreElements**: Updated to explicitly skip fixed-position elements (`.nav-header`, `#scrollProgress`) that are prone to collapsing.
 
 ### ⚠️ Monolithic Script Blocks (index.html)
 
