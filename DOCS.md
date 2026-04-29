@@ -276,13 +276,15 @@ Page loads → Guest Mode (read-only)
   ↓
 Navigate to /admin → Admin Shortcut Overlay opens
   ↓
-Enter password → Stored directly in sessionStorage (No JWT generated)
+Enter password → POST /api/login
   ↓
-Admin Mode activated → Full editing capabilities enabled
+Password correct → JWT stored in localStorage + sessionStorage
   ↓
-Save → POST /api/save with header `x-admin-password`
+Admin Mode activated → Full editing capabilities
   ↓
-Invalid password → Backend rejects save request
+Save → POST /api/save with Bearer JWT
+  ↓
+JWT expired → Must re-login
 ```
 
 ### Token Storage
