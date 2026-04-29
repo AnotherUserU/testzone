@@ -301,7 +301,9 @@
     height: 200px;
   }
   .team-card {
-    padding-bottom: 24px;
+    padding-bottom: 0; /* Let footer handle padding */
+    min-height: 0;    /* Reset desktop min-height */
+    height: auto;
   }
   .card-title {
     font-size: 1.1rem;
@@ -361,11 +363,11 @@
     padding: 10px 12px 8px;
   }
   .card-members {
-    padding: 10px;
-    gap: 8px;
+    padding: 16px; /* Keep consistent p-4 */
+    gap: 10px;
   }
   .card-foot {
-    padding: 10px;
+    padding: 16px; /* Keep consistent p-4 */
   }
 
   /* Connector line adjustment after num circle size change */
