@@ -4,7 +4,7 @@
 > **Repository**: [AnotherUserU/imlosttho](https://github.com/AnotherUserU/imlosttho)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-04-29 (Credit System Overhaul & Admin Modular Refactor)
+> **Last Updated**: 2026-04-30 (5-Skill Audit: wiki-architect + architect-review + security-auditor + differential-review + vibe-code-auditor)
 
 ---
 
@@ -43,8 +43,9 @@ The app supports **7 game modes** (Dungeon, Story, Raid, Story Towers, Battle To
 | Backend | Vercel Serverless Functions (Node.js) |
 | Database | Firebase Realtime Database (REST API) |
 | Auth | Password via `x-admin-password` header (sessionStorage) |
-| Sanitization | DOMPurify (client), isomorphic-dompurify (server) |
-| Screenshot | html2canvas |
+| Sanitization | DOMPurify 3.0.6 (client-side only — server bypass documented in Pitfalls §11) |
+| Screenshot | html2canvas 1.4.1 (lazy-loaded, Nuclear Option applied in `onclone`) |
+| Animations | GSAP 3.12.5 + ScrollTrigger (SRI-protected CDN) |
 
 ---
 
@@ -612,121 +613,218 @@ function enterAsGuest() {
 ### `rewireAll()` — Event & Editability Restoration
 
 This function is critical for restoring functionality to HTML loaded dynamically:
-1.  **Block Dragging**: Re-attaches `wireBlockDrag` to all `.page-block` elements.
-2.  **Grid Dropping**: Re-attaches `wireGridDrop` to all `.core-grid` and `.new-grid`.
-3.  **Editability**: Iterates through the `editables` array (titles, labels, descriptions) and sets `contentEditable = true` if in admin mode, `false` otherwise.
-4.  **Card Interactions**: Re-attaches card dragging, member dragging, and color palette listeners.
-```
+1.  **Block Draggin## 11. Known Pitfalls & Gotchas
+
+> 🔍 **Audit Date**: 2026-04-30 | Skills applied: `wiki-architect`, `architect-review`, `security-auditor`, `differential-review`, `vibe-code-auditor`
 
 ---
-
-## 10. Deployment & Configuration
-
-### Environment Variables (`.env.local`)
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `ADMIN_PASSWORD` | Admin login password | Yes |
-| `ADMIN_TOKEN` | JWT signing secret (falls back to ADMIN_PASSWORD) | No |
-| `FIREBASE_DB_URL` | Firebase Realtime Database URL | Yes |
-| `FIREBASE_AUTH` | Firebase database secret/auth token | Yes |
-
-### Vercel Configuration
-
-```json
-{
-  "cleanUrls": true,
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
-      ]
-    }
-  ]
-}
-```
-
-**URL Routing:**
-- `/` → `index.html` (Guest)
-- `/admin` → `admin.html` (Admin CMS)
-- `/api/*` → Serverless functions
-
-### Local Development
-
-```bash
-npm install
-npm run dev    # Runs: vercel dev --listen 3000
-```
-
-This starts a local Vercel dev server at `http://localhost:3000` with full serverless function support.
-
----
-
-## 11. Known Pitfalls & Gotchas
 
 ### ✅ Dual Credit Functions Resolved (`credits.js`)
 
-**PREVIOUSLY A PITFALL:** The credit matching function `refreshAllCardCredits()` used to exist in two separate locations. This was resolved in late April 2026.
-Currently, `shared/js/credits.js` contains a unified `refreshAllCardCreditsCore()` function which is injected into the global namespace.
-Both `admin.html` and `index.html` include this script to ensure zero code duplication while adhering to `index.html`'s non-ES-module requirements.
+**STATUS**: Fixed — April 2026.
 
-### ✅ html2canvas InvalidStateError (0-Dimension Canvas) - RESOLVED (Aggressive)
+The credit matching function `refreshAllCardCredits()` previously existed in two separate locations. Now resolved:
+- `shared/js/credits.js` contains `refreshAllCardCreditsCore()` exposed on `window`.
+- Both `admin.html` and `index.html` delegate to this single source of truth.
+- `renderer.js:67-71` wraps this call for admin use via ES module export.
+- `index.html:442-446` wraps it for guest use via inline script.
 
-**ISSUE:** Capturing screenshots (especially Fullscreen) occasionally threw: `InvalidStateError: Failed to execute 'createPattern' on 'CanvasRenderingContext2D': The image argument is a canvas element with a width or height of 0`.
-**CAUSE:** `html2canvas` fails when it attempts to render a `linear-gradient` background on an element that evaluates to `0` width or `height` (like `#scrollProgress` or pseudo-elements in a flex layout). Even `min-width: 1px` was sometimes insufficient due to sub-pixel rendering in the cloned DOM.
-**FIX (Nuclear Option):** 
-1.  Implemented a robust `onclone` callback that targets the virtual rendering document.
-2.  **Global Gradient Disable**: Enforced `* { background-image: none !important; }` inside the clone to prevent any `createPattern` attempts on gradients.
-3.  **Dimension Enforcement**: Enforced `min-width: 15px` and `display: block` for accent bars and labels in the clone.
-4.  **Solid Color Fallbacks**: Replaced gradients with solid `background-color` derived from CSS variables (`var(--tc)`) to maintain visual fidelity without rendering risks.
-5.  **Strict ignoreElements**: Updated to explicitly skip fixed-position elements (`.nav-header`, `#scrollProgress`) that are prone to collapsing.
+> ⚠️ **Note from Vibe-Code-Auditor**: Two separate `buildCard()` implementations still exist: one in `renderer.js` (admin, uses `contenteditable`) and one in `index.html:363` (guest, read-only). This is intentional (dual-mode isolation) but must be kept in sync manually.
 
-### ⚠️ Monolithic Script Blocks (index.html)
+---
 
-`index.html` contains large inline `<script>` blocks. A **single syntax error** anywhere in a block will cause the **entire block to fail silently**, breaking all functions defined within it.
+### ✅ html2canvas InvalidStateError (0-Dimension Canvas) — RESOLVED
+
+**ISSUE:** `InvalidStateError: Failed to execute 'createPattern' on 'CanvasRenderingContext2D': The image argument is a canvas element with a width or height of 0.`
+
+**ROOT CAUSE (Vibe Auditor):** `html2canvas` 1.4.1 internally calls `createPattern()` on a temp canvas generated from any CSS `linear-gradient`. If the element has collapsed to 0×0 (due to flex layout or `position:fixed` offset), the temp canvas is empty → crash.
+
+**Elements Identified as Culprits:**
+| Element | Location | Gradient |
+|---------|----------|----------|
+| `.scroll-progress` | `base.css:26` | `var(--gold)` → `var(--cyan)` |
+| `.card-accent-bar` | `cards.css:55` | `var(--tc)` → `transparent` |
+| `.section-label::before/after` | `base.css:70` | `transparent` → `var(--gold)` → `transparent` |
+| `.mem-row::after` | `cards.css:114` | `rgba(255,255,255,0.1)` |
+
+**FIX — Nuclear Option (in `onclone` callback, `index.html:477-504`):**
+1. `* { background-image: none !important; }` — disables ALL gradients in clone DOM.
+2. `.card-accent-bar` → solid `background-color: var(--tc)` fallback.
+3. `.scroll-progress { display: none !important; }` — hidden in clone.
+4. `ignoreElements` skips `.nav-header` and `#scrollProgress` at DOM level.
+5. `gsap.set("#scrollProgress", { width: "0%" })` prevents bar from starting at 100%.
+
+> ⚠️ If new elements using `linear-gradient` are added, add their selector to the `onclone` style block.
+
+---
+
+### ✅ Scroll Progress Bar Stuck / Starting at 100% — RESOLVED
+
+**ISSUE:** `#scrollProgress` showed 100% on page load without any user scroll.
+
+**ROOT CAUSE (Differential-Review):** `initScrollAnimations()` was being called multiple times:
+- On first load via `initScrollAnimations()` at document end (`index.html:766`)
+- On every `switchMode()` call (`index.html:315-318`)
+- On every `rewireAll()` call via the wrapper function (`index.html:763-767`)
+
+This created **stacked ScrollTrigger instances** that accumulated incorrect state, with the combined final value resolving to 100% immediately.
+
+**FIX (`index.html:692-715`):**
+- `ScrollTrigger.getAll().forEach(t => t.kill())` — kills all previous instances before re-init.
+- `gsap.set("#scrollProgress", { width: "0%" })` — hard reset on each call.
+- `trigger: "html"` + `invalidateOnRefresh: true` — accurate height calculation.
+- `ScrollTrigger.refresh()` — forces recalculation after DOM mutations.
+
+---
+
+### ⚠️ Server-Side Sanitization Bypassed (`api/save.js:27-38`)
+
+**ACTIVE RISK.** Code block at `save.js:28` reads:
+```javascript
+const sanitizedData = data; // bypassed — see comment
+```
+The DOMPurify block is commented out due to `isomorphic-dompurify` causing 500 errors on Vercel.
+
+**Current Mitigations (in priority order):**
+1. Client-side `DOMPurify.sanitize()` in `admin.html` before every POST.
+2. 2MB payload size limit at `save.js:17-20`.
+3. CORS restricted to `https://testzone-eight.vercel.app` only.
+4. Firebase Auth token required for write access.
+
+**Residual Risk**: A compromised admin session or direct API call bypasses all client-side protection.
+
+---
+
+### ⚠️ CORS Header Missing `x-admin-password` (`vercel.json:26`)
+
+**Differential-Review Finding.** The CORS preflight response for `/api/(save|login)` lists:
+```json
+"Access-Control-Allow-Headers": "Content-Type, Authorization"
+```
+But `x-admin-password` is sent as a **custom header** in requests. The browser preflight (`OPTIONS`) will **block** cross-origin requests if `x-admin-password` is not listed here.
+
+> This works only because the app is currently same-origin. If moved to a different domain or tested via third-party tools, this will fail.
+
+**Fix**: Add `x-admin-password` to `vercel.json`:
+```json
+"Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-password"
+```
+
+---
+
+### ⚠️ `SECURITY.CLOUD_CONFIG` Allows `onclick` in Sanitized HTML (`index.html:278`)
+
+**Security-Auditor Finding.** The DOMPurify config for Firebase-loaded data includes:
+```javascript
+ADD_ATTR: ['onclick', 'ondblclick', ...]
+```
+This means if a compromised Firebase record contains `onclick="maliciousCode()"`, DOMPurify will **allow** it through when using `CLOUD_CONFIG`. This is intentional for admin preview rendering but creates a stored XSS surface.
+
+**Mitigation**: Only use `CLOUD_CONFIG` in admin context — never apply it when rendering data in guest `index.html`.
+
+---
+
+### ⚠️ Monolithic Script Blocks (`index.html`)
+
+`index.html` contains large inline `<script>` blocks (~400 lines). A **single syntax error** anywhere causes the **entire block to fail silently**.
 
 **Mitigation:** Use the syntax checker:
 ```bash
 node scratch/check_syntax.js
 ```
 
-### ⚠️ Duplicate Constant Declarations
+---
 
-If a `const` is declared twice in the same script block (e.g., `const ALL_MODES`), the entire block crashes with `SyntaxError`. This has happened during refactoring.
+### ⚠️ Duplicate `buildCard()` Implementations
 
-### ⚠️ `window.onload` vs `DOMContentLoaded`
+| File | Purpose | Notable Difference |
+|------|---------|-------------------|
+| `renderer.js:12-65` | Admin use (ES module) | `contenteditable="true"`, drag handles, admin buttons |
+| `index.html:363-400` | Guest use (inline script) | Read-only, no admin controls, no drag |
 
-`window.onload` fires **after** `DOMContentLoaded`. If both are used, `window.onload` can overwrite state set by `DOMContentLoaded`. A problematic `window.onload = () => enterAsGuest()` in `admin.html` was removed for this reason — it was resetting admin mode back to guest.
-
-### ⚠️ Server-Side Sanitization Bypassed
-
-In `api/save.js`, sanitization is currently bypassed because the `isomorphic-dompurify` library caused `FUNCTION_INVOCATION_FAILED` (500) errors in Vercel. 
-**Mitigation**: 
-1.  **Client-Side Sanitization**: `admin.html` runs `DOMPurify.sanitize()` on all HTML data before sending the POST request.
-2.  **Payload Limit**: `api/save.js` enforces a 2MB limit.
-3.  **CORS**: Restricted to the production domain.
-
-### ⚠️ CSS Z-Index Collisions
-
-The `#adminShortcutOverlay` has `z-index: 99999`. If not properly hidden with `display: none`, it acts as an invisible wall blocking all clicks on the page beneath it.
-
-### ⚠️ HTML as Database
-
-The app stores rendered HTML in Firebase, not structured data. This means:
-- No easy data migration
-- XSS risk if sanitization fails
-- Large payload sizes
-- Difficult to query or filter content
-
-### ⚠️ Cache Busting for Admin Scripts
-
-`admin.html` loads `admin.js` with a version query string (e.g., `?v=1.0.6`). This **must be incremented** whenever `admin.js`, `renderer.js`, or any imported module is changed. Otherwise, browsers may serve stale cached versions of the script.
+Both must stay in sync when card **structure** (not behavior) changes. The DOM output structure must be identical for `credits.js` matching to work.
 
 ---
 
-> **For new developers / AI agents**: Start by reading `shared/js/config.js` for constants and maps, then `shared/js/renderer.js` for how data becomes UI. **Always check BOTH `renderer.js` AND `index.html` when modifying credit matching logic.**
+### ⚠️ `load.js` Fetch Has No Timeout
+
+**Vibe-Code-Auditor Finding.** `api/load.js:11`:
+```javascript
+const response = await fetch(finalUrl); // no timeout!
+```
+If Firebase is slow or unresponsive, this will hang the Vercel function indefinitely until the platform's default 10s limit kills it, resulting in a 504 Gateway Timeout for the user.
+
+**Fix**:
+```javascript
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 8000);
+const response = await fetch(finalUrl, { signal: controller.signal });
+clearTimeout(timeout);
+```
+
+---
+
+### ⚠️ `window.onload` vs `DOMContentLoaded`
+
+`window.onload` fires **after** `DOMContentLoaded`. If both are used, `window.onload` can overwrite state. A problematic `window.onload = () => enterAsGuest()` in `admin.html` was removed — it was resetting admin mode to guest.
+
+---
+
+### ⚠️ HTML as Database (Architectural Debt)
+
+**Architect-Review Finding.** The app stores fully rendered HTML in Firebase, not structured data. This creates:
+- No easy data migration path
+- XSS risk if server-side sanitization fails
+- Large payload sizes (full DOM trees stored per mode)
+- No queryability or filtering
+
+**Recommended Future Direction**: Migrate to a JSON data model (team name, members array, tag, color) and render in the browser — decoupling data from presentation.
+
+---
+
+### ⚠️ CSS Z-Index Collisions
+
+`#adminShortcutOverlay` has `z-index: 99999`. If not properly hidden with `display: none`, it blocks all click events beneath it silently.
+
+---
+
+### ⚠️ Cache Busting for Admin Scripts
+
+`admin.html` loads scripts with version query strings (e.g., `?v=1.1.2`). **Increment the version** when `admin.js`, `renderer.js`, or any imported module changes, otherwise browsers serve stale code.
+
+---
+
+## 12. Architecture Decision Records (ADR)
+
+> Added by `architect-review` skill — 2026-04-30
+
+### ADR-001: Dual-File Architecture (Guest + Admin)
+- **Decision**: Maintain two separate HTML entry points (`index.html` guest, `admin.html` CMS).
+- **Rationale**: Security isolation — admin controls are never sent to guest browsers, eliminating a class of client-side privilege escalation.
+- **Trade-off**: Code duplication in `buildCard()` and other shared functions.
+- **Status**: Accepted.
+
+### ADR-002: Classic Script for `credits.js` (No ES Module)
+- **Decision**: Load `credits.js` as a classic `<script>` tag, not as a module.
+- **Rationale**: `index.html` uses inline scripts that cannot import ES modules. Using IIFE pattern on `window` allows sharing without a bundler.
+- **Trade-off**: Less type safety; global namespace pollution (`window.refreshAllCardCreditsCore`).
+- **Status**: Accepted.
+
+### ADR-003: Client-Side-Only Sanitization (Temporary)
+- **Decision**: Bypass server-side DOMPurify due to Vercel/isomorphic-dompurify incompatibility.
+- **Rationale**: Prevents 500 errors in production; client-side sanitization provides partial mitigation.
+- **Trade-off**: Direct API callers bypass all sanitization.
+- **Status**: Open — requires future resolution (see `SecurityNeedToFix.md CRIT-01`).
+
+### ADR-004: html2canvas Nuclear Option in `onclone`
+- **Decision**: Globally disable `background-image` in the cloned DOM before rendering.
+- **Rationale**: Prevents `InvalidStateError` crash caused by gradients on zero-dimension elements.
+- **Trade-off**: Screenshots lose gradient aesthetics but remain stable and functional.
+- **Status**: Accepted.
+
+---
+
+> **For new developers / AI agents**: Start with `shared/js/config.js` for constants, then `shared/js/renderer.js` for how data becomes UI.
+> **Critical Rule**: When modifying credit matching, test ALL 7 modes and check BOTH `renderer.js` (admin path) and `index.html:442` (guest path).
+> **Security Rule**: Never add `onclick` to `SECURITY.ALLOWED_ATTR` — it opens stored XSS. Only `CLOUD_CONFIG` (admin-only) may include event handlers.
+
