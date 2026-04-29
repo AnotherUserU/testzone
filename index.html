@@ -478,12 +478,20 @@
               // Safety: Remove gradients from fixed or problematic elements that might collapse to 0px
               const style = clonedDoc.createElement('style');
               style.innerHTML = `
-                .scroll-progress, .section-label::before, .section-label::after { 
-                  background: var(--gold) !important; 
-                  min-width: 5px !important; 
-                  opacity: 0.2;
+                /* Disable gradients on fixed/global elements that are known to cause 0-dimension crashes */
+                .scroll-progress, .nav-header, .section-label::before, .section-label::after { 
+                  background-image: none !important; 
+                  background-color: var(--gold) !important;
+                  min-width: 10px !important;
+                  min-height: 2px !important;
+                  opacity: 0.3 !important;
                 }
-                .card-accent-bar { min-width: 5px !important; }
+                /* Ensure accent bars have a minimum width in the clone */
+                .card-accent-bar { 
+                  min-width: 10px !important; 
+                  background-image: none !important;
+                  background-color: var(--tc, var(--gold)) !important;
+                }
               `;
               (clonedDoc.head || clonedDoc.body).appendChild(style);
             }
@@ -529,7 +537,11 @@
             onclone: (clonedDoc) => {
               const style = clonedDoc.createElement('style');
               style.innerHTML = `
-                .card-accent-bar { min-width: 5px !important; background: var(--tc, var(--gold)) !important; }
+                .card-accent-bar { 
+                  min-width: 10px !important; 
+                  background-image: none !important;
+                  background-color: var(--tc, var(--gold)) !important; 
+                }
               `;
               (clonedDoc.head || clonedDoc.body).appendChild(style);
             }
