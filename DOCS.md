@@ -348,6 +348,20 @@ To prevent unauthorized users from reverse-engineering the admin dashboard, the 
 ```bash
 # After editing any file in shared/js/
 javascript-obfuscator shared/js --output shared/js-min [options]
+```
+
+### 6.3 Modifier Customization System
+
+The Team Composition Guide features a color-coded modifier system to highlight important team attributes (e.g., Elemental Weakness, Recommended Stats).
+
+- **Colors**: Supports 8 professional themes: Purple, Green, White, Blue (Cyan), Red, Yellow (Gold), Orange, and Gray.
+- **Implementation**: Uses standard CSS classes (`.mp-pill.red`, `.mp-pill.green`, etc.) applied via the admin `modModal`.
+- **Admin Workflow**:
+    1. Select a card and click **MANAGE MODIFIERS**.
+    2. Choose a color from the circular palette.
+    3. Type the modifier label and click **ADD**.
+    4. The tag will appear in the team card with the chosen theme.
+- **Persistence**: Color data is stored in the DOM structure (as class names) and persisted to Firebase within the `guide.json` blob.
 # Update the ?v= version query parameter in admin.html's script tags
 ```
 
