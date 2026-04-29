@@ -465,7 +465,16 @@
         closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
-          html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
+          html2canvas(document.body, { 
+            scale: 2, 
+            useCORS: true, 
+            backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
+            logging: false,
+            ignoreElements: (element) => {
+              // Ignore elements that are hidden or marked for exclusion
+              return window.getComputedStyle(element).display === 'none' || element.hasAttribute('data-html2canvas-ignore');
+            }
+          }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             hide.forEach(el => {
@@ -496,7 +505,15 @@
         hide.forEach(el => el.style.display = 'none'); closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
-          html2canvas(card, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
+          html2canvas(card, { 
+            scale: 2, 
+            useCORS: true, 
+            backgroundColor: isLight ? '#ffffff' : '#13131f', 
+            logging: false,
+            ignoreElements: (element) => {
+              return window.getComputedStyle(element).display === 'none' || element.hasAttribute('data-html2canvas-ignore');
+            }
+          }).then(canvas => {
             const a = document.createElement('a');
             const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
             a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
