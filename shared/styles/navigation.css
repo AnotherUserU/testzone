@@ -113,6 +113,20 @@
   line-height: 1.35;
   margin-top: 2px;
 }
+
+.nav-controls {
+  display: contents; /* Don't break desktop flex layout */
+}
+
+@media(min-width: 641px) {
+  .nav-controls > div:last-child {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+  }
+}
 @media(max-width:768px) {
   /* Navigation tweaks for mobile */
   .nav-header {

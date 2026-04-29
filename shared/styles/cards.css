@@ -175,13 +175,12 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .card-img-right.loaded img {
-  display: block;
-  line-height: 1.35;
-  margin-top: 2px;
+  opacity: 1;
 }
 
 .img-right-overlay {
