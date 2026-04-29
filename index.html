@@ -265,6 +265,7 @@
     </div>
   </div>
 
+  <script src="shared/js/credits.js?v=1.1.2"></script>
   <script>
     const APP_CONFIG = {
       PAGE_MAP: { dungeon: 'dungeonSection', story: 'storySection', raid: 'raidSection', storyTowers: 'storyTowersSection', battleTowers: 'battleTowersSection', celestialTower: 'celestialTowerSection', worldBoss: 'worldBossSection' },
@@ -439,120 +440,9 @@
     }
 
     function refreshAllCardCredits() {
-      ALL_MODES.forEach(mode => {
-        const section = document.getElementById(PAGE_MAP[mode]);
-        if (!section) return;
-        const credBox = section.querySelector('.cred-display');
-        if (!credBox) return;
-
-        const pills = [];
-        let mainDesigner = null;
-
-        credBox.querySelectorAll('.cred-pill').forEach(pill => {
-          const lbl = pill.querySelector('.cred-lbl')?.textContent.toUpperCase().trim() || '';
-          const nameEl = pill.querySelector('.cred-name');
-          const name = nameEl?.textContent || '';
-          const color = nameEl?.style.color || '#f5c842';
-          
-          if (lbl.includes('DESIGN') || lbl === 'AUTHOR' || lbl === 'CREATOR') {
-            mainDesigner = { lbl, name, color };
-          } else if (name && !name.toLowerCase().includes('anotheruseru')) {
-            pills.push({ lbl, name, color });
-          }
-        });
-
-        section.querySelectorAll('.team-card').forEach(card => {
-          const mainTarget = card.querySelector('.card-footer-credits > .foot-cred-item');
-          if (mainTarget && mainDesigner) {
-            mainTarget.innerHTML = escapeAttr(mainDesigner.lbl) + ' <span class="foot-cred-name" style="color:' + escapeAttr(mainDesigner.color) + '">' + escapeAttr(mainDesigner.name) + '</span>';
-          }
-
-          const tagText = (card.querySelector('.card-tag')?.innerText || '').trim();
-          const titleText = (card.querySelector('.card-title')?.innerText || '').trim();
-          if (!tagText && !titleText) return;
-          let contributor = null;
-
-          const tagNums = tagText.toUpperCase().match(/\d+/g) || [];
-          const titleNums = titleText.toUpperCase().match(/\d+/g) || [];
-          const nums = [...tagNums, ...titleNums];
-
-          const myEscapeRegex = function(str) { return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
-          const tagUC = tagText.toUpperCase().trim().replace(/\s+/g, ' ');
-          const titleUC = titleText.toUpperCase().trim().replace(/\s+/g, ' ');
-
-          // 1. Tag Priority (Exact then Regex)
-          if (tagUC.length > 1) {
-            contributor = pills.find(function(p) { return p.lbl === tagUC; });
-            if (!contributor) {
-              var reg = new RegExp('\\b' + myEscapeRegex(tagUC) + '\\b', 'i');
-              contributor = pills.find(function(p) { return reg.test(p.lbl); });
-            }
-          }
-
-          // 2. Title Priority (Exact then Regex) - Only if Tag failed
-          if (!contributor && titleUC.length > 1) {
-            contributor = pills.find(function(p) { return p.lbl === titleUC; });
-            if (!contributor) {
-              var reg2 = new RegExp('\\b' + myEscapeRegex(titleUC) + '\\b', 'i');
-              contributor = pills.find(function(p) { return reg2.test(p.lbl); });
-            }
-          }
-
-          // 3. Fallback to Number Match (Strict Context-Aware)
-          if (!contributor) {
-            var getPrefix = function(s) { return s.replace(/[\d-]/g, '').replace(/TEAM|CREATOR|BY|GUIDE/g, '').trim().toUpperCase(); };
-            var tagPrefix = getPrefix(tagUC);
-            var titlePrefix = getPrefix(titleUC);
-
-            for (var ni = 0; ni < nums.length; ni++) {
-              var n = nums[ni];
-              var cardNum = parseInt(n);
-              var match = pills.find(function(p) {
-                // A. Number/Range Check
-                var hasNum = p.lbl.match(new RegExp('\\b' + n + '\\b'));
-                if (!hasNum) {
-                  var rangeMatches = p.lbl.match(/(\d+)\s*-\s*(\d+)/g);
-                  if (rangeMatches) {
-                    for (var ri = 0; ri < rangeMatches.length; ri++) {
-                      var parts = rangeMatches[ri].split('-').map(function(v) { return parseInt(v.trim()); });
-                      if (cardNum >= parts[0] && cardNum <= parts[1]) { hasNum = true; break; }
-                    }
-                  }
-                }
-                if (!hasNum) return false;
-
-                // B. Strict Context Check: Location name MUST match
-                var pPrefix = getPrefix(p.lbl);
-                if (pPrefix) {
-                  var isMatch = (tagPrefix && tagPrefix.includes(pPrefix)) || 
-                                (pPrefix.includes(tagPrefix) && tagPrefix.length > 2) ||
-                                (titlePrefix && titlePrefix.includes(pPrefix));
-                  if (!isMatch) return false;
-                }
-                return true;
-              });
-              if (match) { contributor = match; break; }
-            }
-          }
-
-          var footer = card.querySelector('.card-foot');
-          if (!card.querySelector('.card-footer-credits') && footer) {
-            var credContainer = document.createElement('div');
-            credContainer.className = 'card-footer-credits';
-            credContainer.innerHTML = '<span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span><span class="foot-cred-contributor"></span>';
-            footer.appendChild(credContainer);
-          }
-
-          var contributorTarget = card.querySelector('.foot-cred-contributor');
-          if (contributorTarget) {
-            if (contributor) {
-              contributorTarget.innerHTML = '<span class="foot-cred-sep">|</span> <span class="foot-cred-item">UNIT BY <span class="foot-cred-name" style="color:' + escapeAttr(contributor.color) + '">' + escapeAttr(contributor.name) + '</span></span>';
-            } else {
-              contributorTarget.innerHTML = '';
-            }
-          }
-        });
-      });
+      if (typeof window.refreshAllCardCreditsCore === 'function') {
+        window.refreshAllCardCreditsCore(PAGE_MAP, escapeAttr);
+      }
     }
 
     function executeDownload() {

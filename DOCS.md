@@ -669,16 +669,11 @@ This starts a local Vercel dev server at `http://localhost:3000` with full serve
 
 ## 11. Known Pitfalls & Gotchas
 
-### ⚠️ Dual Credit Functions (`index.html` vs `renderer.js`)
+### ✅ Dual Credit Functions Resolved (`credits.js`)
 
-**THIS IS THE #1 PITFALL.** The credit matching function `refreshAllCardCredits()` exists in **two completely separate locations**:
-
-| File | Used By | Module Type |
-|------|---------|-------------|
-| `shared/js/renderer.js` | `admin.html` (via ES module import) | ES Module (`export`) |
-| `index.html` (inline) | Public page (`/`) | Global function |
-
-**Any change to credit matching logic MUST be applied to BOTH files.** Failure to do so will result in credits working correctly on `/admin` but being wrong on `/` (or vice versa). This was the root cause of a multi-day debugging session in April 2026.
+**PREVIOUSLY A PITFALL:** The credit matching function `refreshAllCardCredits()` used to exist in two separate locations. This was resolved in late April 2026.
+Currently, `shared/js/credits.js` contains a unified `refreshAllCardCreditsCore()` function which is injected into the global namespace.
+Both `admin.html` and `index.html` include this script to ensure zero code duplication while adhering to `index.html`'s non-ES-module requirements.
 
 ### ⚠️ Monolithic Script Blocks (index.html)
 
