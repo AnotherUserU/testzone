@@ -285,6 +285,12 @@
   background: rgba(107, 111, 143, .07);
 }
 
+.mp-pill.white {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, .4);
+  background: rgba(255, 255, 255, .05);
+}
+
 .mp-arrow {
   color: var(--text-dim);
 }

@@ -369,6 +369,38 @@ window.openModModal = function(btn) {
     list.appendChild(row);
   });
   
+  // Build color palette for modifiers
+  const palette = document.getElementById('modColorPalette');
+  if (palette) {
+    palette.innerHTML = '';
+    const colors = {
+      gray: '#6b6f8f',
+      white: '#ffffff',
+      gold: '#f5c842',
+      cyan: '#00d4ff',
+      green: '#00e87a',
+      red: '#ff3355',
+      purple: '#c36bff',
+      orange: '#ff8c42'
+    };
+    
+    Object.entries(colors).forEach(([name, hex]) => {
+      const dot = document.createElement('div');
+      dot.style.cssText = `width:24px; height:24px; border-radius:50%; background:${hex}; cursor:pointer; border:2px solid transparent; transition:0.2s`;
+      dot.title = name;
+      
+      const current = document.getElementById('modSelectedColor').value;
+      if (current === name) dot.style.borderColor = '#fff';
+      
+      dot.onclick = () => {
+        document.getElementById('modSelectedColor').value = name;
+        palette.querySelectorAll('div').forEach(d => d.style.borderColor = 'transparent');
+        dot.style.borderColor = '#fff';
+      };
+      palette.appendChild(dot);
+    });
+  }
+  
   document.getElementById('modModal').classList.add('open');
 };
 
@@ -389,8 +421,9 @@ window.addModFromModal = function() {
     AppState.activeModChain.appendChild(arrow);
   }
 
+  const colorClass = document.getElementById('modSelectedColor').value || 'gray';
   const pill = document.createElement('div');
-  pill.className = 'mp-pill';
+  pill.className = `mp-pill ${colorClass}`;
   pill.contentEditable = "true";
   pill.textContent = text;
   
