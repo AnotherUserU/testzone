@@ -108,8 +108,6 @@
   gap: 10px;
   position: relative;
   align-items: flex-start;
-  margin-bottom: 8px;
-  /* Consistent baseline spacing */
 }
 
 .mem-row:not(:last-child)::after {
@@ -117,7 +115,7 @@
   position: absolute;
   left: 12px;
   top: 24px;
-  bottom: -10px;
+  bottom: -14px; /* Sync with 12px gap + slight overlap */
   width: 1px;
   background: var(--border);
   z-index: 1;
@@ -394,5 +392,6 @@
   .mem-row:not(:last-child)::after {
     left: 14px;
     top: 28px;
+    bottom: -10px; /* Adjusted for 8px gap */
   }
 }

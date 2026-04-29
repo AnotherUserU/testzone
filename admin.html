@@ -9,7 +9,9 @@
       outline: 1px dashed var(--cyan);
       background: rgba(0, 212, 255, 0.05);
     }
-    body.is-admin .section-label, body.is-admin .main-title {
+
+    body.is-admin .section-label,
+    body.is-admin .main-title {
       min-width: 50px;
       min-height: 1.2em;
       cursor: text;
@@ -64,7 +66,8 @@
           TOWER</button>
         <button class="nav-btn" data-mode="worldBoss" onclick="switchMode('worldBoss')">WORLD BOSS</button>
       </div>
-      <div class="nav-controls" style="flex:1;display:flex;justify-content:flex-end;gap:10px;align-items:center;flex-wrap:wrap;">
+      <div class="nav-controls"
+        style="flex:1;display:flex;justify-content:flex-end;gap:10px;align-items:center;flex-wrap:wrap;">
         <button class="theme-toggle" id="pvSettingsBtn" onclick="openPvModal()"
           style="background:rgba(245,200,66,.1);color:var(--gold);border-color:rgba(245,200,66,.4);">⚙️ Pages</button>
         <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙 Dark</button>
@@ -929,16 +932,21 @@
       <div class="asc-box" style="max-width:450px; border-color:var(--cyan); box-shadow:0 0 40px rgba(0,212,255,.15)">
         <span class="dl-close" onclick="closeModModal()" style="top:15px; right:15px">✕</span>
         <div class="asc-title" style="color:var(--cyan); margin-bottom:10px">⚙️ MANAGE MODIFIERS</div>
-        <div id="modList" style="width:100%; max-height:300px; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:8px"></div>
-        
+        <div id="modList"
+          style="width:100%; max-height:300px; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:8px">
+        </div>
+
         <div style="margin-bottom:15px">
-          <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px">Select Tag Color:</div>
+          <div
+            style="font-size:0.7rem; color:var(--text-dim); margin-bottom:8px; text-transform:uppercase; letter-spacing:1px">
+            Select Tag Color:</div>
           <div id="modColorPalette" style="display:flex; gap:8px; flex-wrap:wrap"></div>
           <input type="hidden" id="modSelectedColor" value="gray">
         </div>
 
         <div class="asc-input-wrap">
-          <input class="asc-input" type="text" id="modNewInput" placeholder="New modifier (e.g. HP +10%)..." style="border-color:rgba(0,212,255,.3)">
+          <input class="asc-input" type="text" id="modNewInput" placeholder="New modifier (e.g. HP +10%)..."
+            style="border-color:rgba(0,212,255,.3)">
           <button class="asc-btn" onclick="addModFromModal()" style="background:var(--cyan)">ADD</button>
         </div>
         <button class="asc-cancel" onclick="closeModModal()" style="margin-top:10px">Close</button>
@@ -950,11 +958,11 @@
 
   <!-- Core Admin Logic -->
   <script type="module" src="shared/js/admin.js?v=1.1.2"></script>
-  
+
   <script>
     // These functions need to be global for inline event handlers in the static HTML
     // even before the module finishes loading.
-    window.submitAdminShortcut = function() {
+    window.submitAdminShortcut = function () {
       const pw = document.getElementById('ascPwInput').value;
       const err = document.getElementById('ascErr');
       err.style.display = 'none';
@@ -964,20 +972,20 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pw })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          sessionStorage.setItem('adminKey', pw);
-          document.getElementById('adminShortcutOverlay').classList.remove('open');
-          if (window.enterAsAdmin) window.enterAsAdmin();
-          else location.reload(); 
-        } else {
-          err.style.display = 'block';
-          document.getElementById('ascPwInput').value = '';
-          document.getElementById('ascPwInput').focus();
-        }
-      })
-      .catch(err => { console.error('Login error:', err); });
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            sessionStorage.setItem('adminKey', pw);
+            document.getElementById('adminShortcutOverlay').classList.remove('open');
+            if (window.enterAsAdmin) window.enterAsAdmin();
+            else location.reload();
+          } else {
+            err.style.display = 'block';
+            document.getElementById('ascPwInput').value = '';
+            document.getElementById('ascPwInput').focus();
+          }
+        })
+        .catch(err => { console.error('Login error:', err); });
     }
   </script>
 
