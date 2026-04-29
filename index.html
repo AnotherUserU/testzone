@@ -691,16 +691,19 @@
 
     // Scroll Experience Animations
     function initScrollAnimations() {
+      if (typeof ScrollTrigger === 'undefined') return;
       gsap.registerPlugin(ScrollTrigger);
 
-      // Scroll Progress Bar
+      // Kill ALL existing ScrollTriggers to prevent duplicates on rewireAll()
+      ScrollTrigger.getAll().forEach(t => t.kill());
+
+      // Scroll Progress Bar - Use 'max' for perfect end-of-page alignment
       gsap.to("#scrollProgress", {
         width: "100%",
         ease: "none",
         scrollTrigger: {
-          trigger: "body",
-          start: "top top",
-          end: "bottom bottom",
+          start: 0,
+          end: "max",
           scrub: 0.3
         }
       });
@@ -757,6 +760,9 @@
           }
         );
       });
+      
+      // Force refresh to calculate new dimensions
+      ScrollTrigger.refresh();
     }
 
     // Wrap rewireAll to include scroll animations
