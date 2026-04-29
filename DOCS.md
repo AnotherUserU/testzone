@@ -315,14 +315,24 @@ function rewireAll() {
     el.contentEditable = 'false';
   });
   // REMOVE admin-only elements entirely (not just hide)
-  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,...';
+  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,.del-section-btn,.team-section-actions,.add-section-btn';
   document.querySelectorAll(HIDE_SEL).forEach(el => el.remove());
 }
 ```
 
 > **TIP**: Elements are **removed from the DOM**, not hidden with CSS. This means even if a user inspects the page, admin controls don't exist in the DOM tree.
 
-### 6.1 Code Obfuscation (Admin Logic)
+### 6.1 Responsive Design (Mobile-First)
+
+The UI is optimized for screens down to **360px** width:
+
+- **Breakpoints**: 1000px (tablet), 768px (small tablet), 640px (phone).
+- **Layout**: Grid collapses from 4 columns to 2 columns (768px) and finally 1 column (640px).
+- **Navigation**: Search bar and theme toggle group into a compact row on mobile using `display: flex` while maintaining original desktop layout via `display: contents`.
+- **Touch Optimization**: Interactive elements have a minimum hit area of **44px** on mobile.
+- **Card Layout**: Character images remain side-by-side but shrink to `130px` on mobile to preserve visual hierarchy.
+
+### 6.2 Code Obfuscation (Admin Logic)
 
 To prevent unauthorized users from reverse-engineering the admin dashboard, the core logic is obfuscated using `javascript-obfuscator`.
 
