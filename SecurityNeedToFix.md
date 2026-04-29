@@ -3,7 +3,7 @@
 > **Scanned by**: security-auditor & wiki-architect skills (DevSecOps Methodology)  
 > **Date**: 2026-04-29 (Updated)  
 > **Scope**: Full codebase (`admin.html`, `index.html`, `api/`, `shared/js/`, `shared/js-min/`)  
-> **Current Status**: 🟢 SECURE (All Critical/High/Medium vulnerabilities resolved)
+> **Current Status**: 🟢 SECURE (All vulnerabilities resolved or mitigated)
 
 ---
 
@@ -14,7 +14,7 @@
 | 🔴 **CRITICAL** | 2 | ✅ FIXED | Server-side sanitization bypassed, Admin innerHTML XSS risk |
 | 🟠 **HIGH** | 4 | ✅ FIXED | Debug info leak, Missing CORS, JWT in localStorage, Rate Limiting |
 | 🟡 **MEDIUM** | 6 | ✅ FIXED | Input validation, Payload size limit, UI Crash (DoS) risk |
-| 🔵 **LOW** | 2 | ⚠️ OPEN | No CSRF token, Dual-file code sync risk (Maintenance Tech Debt) |
+| 🔵 **LOW** | 2 | ✅ MITIGATED | Custom Header CSRF protection, Logic duplication resolved |
 
 ---
 
@@ -72,12 +72,15 @@
 
 ---
 
-## 🔵 LOW & Tech Debt (Open)
-
-### LOW-01: Dual-File Code Duplication Risk
-* **Threat Model**: Maintenance & Consistency Risk.
-* **Description**: The critical `refreshAllCardCredits()` function exists in TWO separate locations (`shared/js/renderer.js` and `index.html` inline script).
-* **Remediation Plan**: Any updates to credit logic MUST be synchronized manually across both files. Long-term fix requires refactoring public logic into a shared vanilla JS file that doesn't use ES modules.
+## 🔵 LOW (Resolved & Mitigated)
+ 
+ ### LOW-01: Dual-File Code Duplication Risk (RESOLVED)
+ * **Status**: ✅ FIXED
+ * **Description**: Logic duplication of `refreshAllCardCredits()` has been eliminated. The core logic now resides in `shared/js/credits.js` and is shared by both `admin.html` and `index.html`.
+ 
+ ### LOW-02: Lack of CSRF Tokens (MITIGATED)
+ * **Status**: ✅ MITIGATED
+ * **Description**: While the API does not use traditional Anti-CSRF tokens, it requires a custom `x-admin-password` header for all state-changing requests. This forces a CORS preflight (`OPTIONS`) check, which is strictly restricted to the production domain in `vercel.json`, effectively preventing cross-site request forgery attacks.
 
 ---
 
