@@ -145,6 +145,32 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+@media(max-width:640px) {
+  .core-grid,
+  .new-grid,
+  .team-section .core-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .grid-wrap {
+    padding: 0 10px 20px;
+  }
+  .alert-wrap {
+    padding: 0 10px 12px;
+  }
+  .main-title {
+    font-size: clamp(1.4rem, 7vw, 2rem);
+    padding: 18px 0;
+    letter-spacing: .08em;
+  }
+  .section-label {
+    font-size: .75rem;
+    letter-spacing: 2px;
+    margin-top: 28px;
+    margin-bottom: 16px;
+  }
+}
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
 

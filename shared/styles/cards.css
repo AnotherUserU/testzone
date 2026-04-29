@@ -304,3 +304,67 @@
     font-size: 1.1rem;
   }
 }
+
+@media (max-width: 640px) {
+  /* Remove hover lift — touch has no hover */
+  .team-card:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Hide side image to free full width for member list */
+  .card-img-right {
+    display: none;
+  }
+
+  /* Stack body so member list uses full card width */
+  .card-body {
+    flex-direction: column;
+  }
+
+  /* Slightly bigger text for readability on small screens */
+  .mem-name {
+    font-size: 1rem;
+  }
+  .mem-bind {
+    font-size: .84rem;
+  }
+  .card-title {
+    font-size: .95rem;
+  }
+  .card-tag {
+    font-size: .7rem;
+  }
+
+  /* Ensure each member row is a comfortable tap target */
+  .mem-row {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  /* Slightly larger member number circle */
+  .mem-num {
+    width: 28px;
+    height: 28px;
+    font-size: .75rem;
+    flex-shrink: 0;
+  }
+
+  /* Card header: reduce padding */
+  .card-head {
+    padding: 10px 12px 8px;
+  }
+  .card-members {
+    padding: 10px;
+    gap: 8px;
+  }
+  .card-foot {
+    padding: 10px;
+  }
+
+  /* Connector line adjustment after num circle size change */
+  .mem-row:not(:last-child)::after {
+    left: 14px;
+    top: 28px;
+  }
+}
