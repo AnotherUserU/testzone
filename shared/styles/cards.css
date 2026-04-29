@@ -109,14 +109,13 @@
   align-items: flex-start;
 }
 
-/* Line logic moved to .mem-num::after for edge-to-edge precision */
-.mem-row:not(:last-child) .mem-num::after {
+/* Line logic: Starts from bottom of circle, spans row height + gap to reach next circle top */
+.mem-row:not(:last-child)::after {
   content: "";
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 100%; /* Start exactly at bottom of circle */
-  height: var(--mem-gap, 16px); /* Fill the gap exactly */
+  left: 11.5px;
+  top: 24px; /* Start below the 24px circle */
+  height: calc(100% - 24px + var(--mem-gap, 16px));
   width: 1px;
   background: rgba(255, 255, 255, 0.1);
   z-index: 1;
@@ -391,8 +390,9 @@
   }
 
   /* Connector line adjustment after num circle size change */
-  .mem-row:not(:last-child) .mem-num::after {
-    /* Inherits center positioning and edge-to-edge height */
-    height: var(--mem-gap, 12px);
+  .mem-row:not(:last-child)::after {
+    left: 13.5px;
+    top: 28px; /* Start below the 28px circle */
+    height: calc(100% - 28px + var(--mem-gap, 12px));
   }
 }
