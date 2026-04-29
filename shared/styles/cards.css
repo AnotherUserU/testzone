@@ -98,8 +98,8 @@
   padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: var(--mem-gap, 12px);
-  --mem-gap: 12px;
+  gap: var(--mem-gap, 16px);
+  --mem-gap: 16px;
 }
 
 .mem-row {
@@ -107,16 +107,16 @@
   gap: 10px;
   position: relative;
   align-items: flex-start;
-  margin-bottom: 8px;
-  /* Consistent baseline spacing */
 }
 
-.mem-row:not(:last-child)::after {
+/* Line logic moved to .mem-num::after for edge-to-edge precision */
+.mem-row:not(:last-child) .mem-num::after {
   content: "";
   position: absolute;
-  left: 11.5px;
-  top: 12px; /* Start from center of circle */
-  height: calc(100% + var(--mem-gap, 12px)); /* Dynamic: Row height + gap */
+  left: 50%;
+  transform: translateX(-50%);
+  top: 100%; /* Start exactly at bottom of circle */
+  height: var(--mem-gap, 16px); /* Fill the gap exactly */
   width: 1px;
   background: rgba(255, 255, 255, 0.1);
   z-index: 1;
@@ -382,8 +382,8 @@
 
   .card-members {
     padding: 12px;
-    gap: var(--mem-gap, 8px);
-    --mem-gap: 8px;
+    gap: var(--mem-gap, 12px);
+    --mem-gap: 12px;
   }
 
   .card-foot {
@@ -391,8 +391,8 @@
   }
 
   /* Connector line adjustment after num circle size change */
-  .mem-row:not(:last-child)::after {
-    left: 13.5px;
-    top: 14px; /* Center of 28px circle */
+  .mem-row:not(:last-child) .mem-num::after {
+    /* Inherits center positioning and edge-to-edge height */
+    height: var(--mem-gap, 12px);
   }
 }
