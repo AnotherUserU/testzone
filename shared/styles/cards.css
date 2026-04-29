@@ -54,6 +54,7 @@
 
 .card-accent-bar {
   height: 3px;
+  min-width: 1px; /* Prevents html2canvas InvalidStateError */
   background: linear-gradient(90deg, var(--tc, #f5c842), transparent);
   flex-shrink: 0;
 }
@@ -116,6 +117,7 @@
   left: 11.5px;
   top: 24px; /* Start below the 24px circle */
   height: calc(100% - 24px + var(--mem-gap, 16px));
+  min-height: 1px; /* Prevents html2canvas InvalidStateError */
   width: 1px;
   background: rgba(255, 255, 255, 0.1);
   z-index: 1;

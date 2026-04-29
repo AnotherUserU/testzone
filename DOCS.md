@@ -675,6 +675,12 @@ This starts a local Vercel dev server at `http://localhost:3000` with full serve
 Currently, `shared/js/credits.js` contains a unified `refreshAllCardCreditsCore()` function which is injected into the global namespace.
 Both `admin.html` and `index.html` include this script to ensure zero code duplication while adhering to `index.html`'s non-ES-module requirements.
 
+### ✅ html2canvas InvalidStateError (0-Dimension Canvas)
+
+**ISSUE:** Capturing screenshots using `html2canvas` occasionally threw: `Failed to execute 'createPattern' on 'CanvasRenderingContext2D': The image argument is a canvas element with a width or height of 0`.
+**CAUSE:** `html2canvas` fails when it attempts to render a `linear-gradient` background on an element that evaluates to `0` width or `height` (like `#scrollProgress` or pseudo-elements in a flex layout).
+**FIX:** Added `min-width: 1px` and `min-height: 1px` to all layout elements that use `linear-gradient` (e.g. `.scroll-progress`, `.card-accent-bar`, `.section-label::before`).
+
 ### ⚠️ Monolithic Script Blocks (index.html)
 
 `index.html` contains large inline `<script>` blocks. A **single syntax error** anywhere in a block will cause the **entire block to fail silently**, breaking all functions defined within it.
