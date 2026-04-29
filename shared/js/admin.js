@@ -130,15 +130,23 @@ window.applyH1 = function() {
 window.addModBox = function(btn) {
   const container = btn.closest('.card-foot').querySelector('.foot-content');
   const div = document.createElement('div'); div.className = 'mod-box';
-  div.innerHTML = `<div class="mod-title" contenteditable="true" style="cursor: text;">🔶 REQUIRED</div><div class="mod-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
+  div.innerHTML = `<div class="mod-title" contenteditable="true" style="cursor: text;">🔶 REQUIRED</div><div class="mod-item" contenteditable="true">Click to edit...</div><button class="add-point-btn" onclick="addBoxItem(this, 'mod-item')">+ Add Point</button><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
   container.appendChild(div);
 };
 
 window.addTipsBox = function(btn) {
   const container = btn.closest('.card-foot').querySelector('.foot-content');
   const div = document.createElement('div'); div.className = 'tips-box';
-  div.innerHTML = `<div class="tips-title" contenteditable="true" style="cursor: text;">💡 TIPS</div><div class="tips-item" contenteditable="true">Click to edit...</div><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
+  div.innerHTML = `<div class="tips-title" contenteditable="true" style="cursor: text;">💡 TIPS</div><div class="tips-item" contenteditable="true">Click to edit...</div><button class="add-point-btn" onclick="addBoxItem(this, 'tips-item')">+ Add Point</button><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
   container.appendChild(div);
+};
+
+window.addBoxItem = function(btn, className) {
+  const div = document.createElement('div');
+  div.className = className;
+  div.contentEditable = "true";
+  div.innerText = "Click to edit...";
+  btn.before(div);
 };
 
 window.addWarnBox = function(btn) {
