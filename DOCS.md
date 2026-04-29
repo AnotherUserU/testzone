@@ -328,8 +328,8 @@ function rewireAll() {
 
 To prevent unauthorized users from reverse-engineering the admin dashboard, the core logic is obfuscated using `javascript-obfuscator`.
 
-- **Master File**: `shared/js/admin.js` (Readable source code).
-- **Production File**: `shared/js/admin.min.js` (Encrypted/Acak).
+- **Master Files**: `shared/js/` (Readable source code, used for development).
+- **Production Files**: `shared/js-min/` (Encrypted/Acak versions, loaded by `admin.html`).
 - **Features Enabled**:
     - **Self-Defending**: Code breaks if tampered with or prettified.
     - **Dead Code Injection**: Adds decoy logic to confuse analyzers.
@@ -338,8 +338,9 @@ To prevent unauthorized users from reverse-engineering the admin dashboard, the 
 
 **How to update obfuscated code:**
 ```bash
-# After editing shared/js/admin.js
-javascript-obfuscator shared/js/admin.js --output shared/js/admin.min.js [options]
+# After editing any file in shared/js/
+javascript-obfuscator shared/js --output shared/js-min [options]
+# Update the ?v= version query parameter in admin.html's script tags
 ```
 
 ---
@@ -399,8 +400,8 @@ CSS: `.mode-section { display: none; }` / `.mode-section.active { display: block
 │   └── .card-img-right     ← Unit screenshot images
 ├── .card-foot
 │   ├── .foot-content
-│   │   ├── .mod-box        ← 🔶 Modifier boxes
-│   │   ├── .tips-box       ← 💡 Tips boxes
+│   │   ├── .mod-box        ← 🔶 Modifier boxes (Contains .add-point-btn for Admin)
+│   │   ├── .tips-box       ← 💡 Tips boxes (Contains .add-point-btn for Admin)
 │   │   └── .warn-box       ← ⚠️ Warning boxes
 │   ├── .card-footer-credits ← Per-card credit line (hidden by default)
 │   └── admin buttons       ← Admin only: Add mod/tips/warn
