@@ -29,13 +29,13 @@
 
 <body>
 
-  <div id="fbStatus"></div>
+  <div id="fbStatus" data-html2canvas-ignore="true"></div>
 
-  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="scroll-progress" id="scrollProgress" data-html2canvas-ignore="true"></div>
 
   <div id="appContent" style="display:none;">
 
-    <nav class="nav-header" aria-label="Mode navigation">
+    <nav class="nav-header" aria-label="Mode navigation" data-html2canvas-ignore="true">
       <div style="flex:1;"></div>
       <div class="nav-menu" role="tablist" aria-label="Game modes">
         <button class="nav-btn active" data-mode="dungeon" onclick="switchMode('dungeon')" role="tab"
@@ -473,6 +473,19 @@
             ignoreElements: (element) => {
               // Ignore elements that are hidden or marked for exclusion
               return window.getComputedStyle(element).display === 'none' || element.hasAttribute('data-html2canvas-ignore');
+            },
+            onclone: (clonedDoc) => {
+              // Safety: Remove gradients from fixed or problematic elements that might collapse to 0px
+              const style = clonedDoc.createElement('style');
+              style.innerHTML = `
+                .scroll-progress, .section-label::before, .section-label::after { 
+                  background: var(--gold) !important; 
+                  min-width: 5px !important; 
+                  opacity: 0.2;
+                }
+                .card-accent-bar { min-width: 5px !important; }
+              `;
+              clonedDoc.head.appendChild(style);
             }
           }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
@@ -512,6 +525,13 @@
             logging: false,
             ignoreElements: (element) => {
               return window.getComputedStyle(element).display === 'none' || element.hasAttribute('data-html2canvas-ignore');
+            },
+            onclone: (clonedDoc) => {
+              const style = clonedDoc.createElement('style');
+              style.innerHTML = `
+                .card-accent-bar { min-width: 5px !important; background: var(--tc, var(--gold)) !important; }
+              `;
+              clonedDoc.head.appendChild(style);
             }
           }).then(canvas => {
             const a = document.createElement('a');
