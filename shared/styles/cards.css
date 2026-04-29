@@ -7,7 +7,8 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 320px; /* Reduced to match original compact feel */
+  min-height: 320px;
+  /* Reduced to match original compact feel */
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -94,10 +95,12 @@
 
 .card-members {
   flex: 1;
-  padding: 12px; /* Reverted to compact padding */
+  padding: 12px;
+  /* Reverted to compact padding */
   display: flex;
   flex-direction: column;
-  gap: 11px; /* Fine-tuned gap */
+  gap: 12px;
+  /* Increased gap user liked */
 }
 
 .mem-row {
@@ -105,7 +108,8 @@
   gap: 10px;
   position: relative;
   align-items: flex-start;
-  margin-bottom: 8px; /* Consistent baseline spacing */
+  margin-bottom: 8px;
+  /* Consistent baseline spacing */
 }
 
 .mem-row:not(:last-child)::after {
@@ -211,10 +215,12 @@
 }
 
 .card-foot {
-  padding: 12px; /* Reverted to compact padding */
+  padding: 12px;
+  /* Reverted to compact padding */
   border-top: 1px solid var(--border);
   background: rgba(0, 0, 0, .25);
-  margin-top: auto; /* Push to bottom */
+  margin-top: auto;
+  /* Push to bottom */
 }
 
 .card-footer-credits {
@@ -245,6 +251,7 @@
 .foot-cred-sep {
   color: rgba(255, 255, 255, 0.1);
 }
+
 .color-dot {
   position: absolute;
   top: 16px;
@@ -295,22 +302,28 @@
   transform: scale(1.3);
   border-color: white;
 }
+
 @media (max-width: 768px) {
   .card-img-right {
     width: 110px;
     height: 200px;
   }
+
   .team-card {
-    padding-bottom: 0; /* Let footer handle padding */
-    min-height: 0;    /* Reset desktop min-height */
+    padding-bottom: 0;
+    /* Let footer handle padding */
+    min-height: 0;
+    /* Reset desktop min-height */
     height: auto;
   }
+
   .card-title {
     font-size: 1.1rem;
   }
 }
 
 @media (max-width: 640px) {
+
   /* Remove hover lift — touch has no hover */
   .team-card:hover {
     transform: none;
@@ -319,7 +332,8 @@
 
   /* Image stays on the right as per user screenshot */
   .card-img-right {
-    width: 130px; /* Narrower for mobile */
+    width: 130px;
+    /* Narrower for mobile */
     height: auto;
     min-height: 200px;
     border-left: 1px solid var(--border);
@@ -327,19 +341,23 @@
   }
 
   .card-body {
-    flex-direction: row; /* Ensure side-by-side */
+    flex-direction: row;
+    /* Ensure side-by-side */
   }
 
   /* Slightly bigger text for readability on small screens */
   .mem-name {
     font-size: 1rem;
   }
+
   .mem-bind {
     font-size: .84rem;
   }
+
   .card-title {
     font-size: .95rem;
   }
+
   .card-tag {
     font-size: .7rem;
   }
@@ -362,10 +380,12 @@
   .card-head {
     padding: 10px 12px 8px;
   }
+
   .card-members {
     padding: 12px;
     gap: 8px;
   }
+
   .card-foot {
     padding: 12px;
   }
