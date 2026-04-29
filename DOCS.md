@@ -362,6 +362,19 @@ The Team Composition Guide features a color-coded modifier system to highlight i
     3. Type the modifier label and click **ADD**.
     4. The tag will appear in the team card with the chosen theme.
 - **Persistence**: Color data is stored in the DOM structure (as class names) and persisted to Firebase within the `guide.json` blob.
+
+### 6.4 Deployment Rules
+
+To maintain security while allowing rapid development, follow these rules:
+
+1. **Production (`imlosttho`)**:
+   - **MUST** use obfuscated scripts from `shared/js-min/`.
+   - Ensure `admin.html` points to `shared/js-min/admin.js?v=...`.
+   - Push only after explicit verification and approval.
+2. **Development/Testing (`testzone`)**:
+   - Can use readable scripts from `shared/js/` for easier debugging.
+   - `admin.html` can point to `shared/js/admin.js` for development.
+   - Used for staging features before production.
 # Update the ?v= version query parameter in admin.html's script tags
 ```
 
