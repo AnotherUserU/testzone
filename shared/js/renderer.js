@@ -45,7 +45,7 @@ export function buildCard(t) {
       <div class="card-foot">
         <div class="foot-content"></div>
         <div class="card-footer-credits">
-          <span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span>
+          <span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">another729</span></span>
           <span class="foot-cred-contributor"></span>
         </div>
         <div style="text-align:center;margin-top:10px;border-top:1px solid rgba(255,255,255,.05);padding-top:10px">
@@ -91,7 +91,7 @@ export function refreshAllCardCredits() {
     section.querySelectorAll('.team-card').forEach(card => {
       const mainTarget = card.querySelector('.card-footer-credits > .foot-cred-item');
       if (mainTarget && mainDesigner) {
-        // Update the hardcoded "AnotherUseru" main credit to match the section's actual main designer
+        // Update the hardcoded "another729" main credit to match the section's actual main designer
         mainTarget.innerHTML = `${escapeAttr(mainDesigner.lbl)} <span class="foot-cred-name" style="color:${escapeAttr(mainDesigner.color)}">${escapeAttr(mainDesigner.name)}</span>`;
       }
 

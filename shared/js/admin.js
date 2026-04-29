@@ -639,7 +639,7 @@ window.openCredModal = function(btn) {
       const nameEl = pill.querySelector('.cred-name');
       const name = nameEl?.textContent || '';
       const color = nameEl?.style.color || '#f5c842';
-      if (name.toLowerCase().includes('anotheruseru')) return; 
+      if (name.toLowerCase().includes('anotheruseru') || name.toLowerCase().includes('another729')) return; 
       addCredRow(lbl, name, color);
     });
   }
@@ -667,7 +667,7 @@ window.applyCredits = function() {
   
   const pillsRow = credDisplay.querySelector('.cred-pills-row') || credDisplay;
   
-  let html = `<div class="cred-pill"><div><div class="cred-lbl">DESIGN BY</div><div class="cred-name" style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">AnotherUseru</div></div></div>`;
+  let html = `<div class="cred-pill"><div><div class="cred-lbl">DESIGN BY</div><div class="cred-name" style="color:var(--gold);text-shadow:0 0 12px rgba(245,200,66,.35);margin-bottom:0">another729</div></div></div>`;
   
   document.querySelectorAll('.cred-modal-row').forEach(row => {
     const lbl = row.querySelector('.cred-input-lbl').value.toUpperCase();
