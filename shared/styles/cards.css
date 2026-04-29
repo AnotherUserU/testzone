@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  min-height: 380px; /* Enforced baseline height */
+  min-height: 320px; /* Reduced to match original compact feel */
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -94,10 +94,10 @@
 
 .card-members {
   flex: 1;
-  padding: 16px;
+  padding: 12px; /* Reverted to compact padding */
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .mem-row {
@@ -211,7 +211,7 @@
 }
 
 .card-foot {
-  padding: 16px;
+  padding: 12px; /* Reverted to compact padding */
   border-top: 1px solid var(--border);
   background: rgba(0, 0, 0, .25);
   margin-top: auto; /* Push to bottom */
@@ -363,11 +363,11 @@
     padding: 10px 12px 8px;
   }
   .card-members {
-    padding: 16px; /* Keep consistent p-4 */
-    gap: 10px;
+    padding: 12px;
+    gap: 8px;
   }
   .card-foot {
-    padding: 16px; /* Keep consistent p-4 */
+    padding: 12px;
   }
 
   /* Connector line adjustment after num circle size change */
