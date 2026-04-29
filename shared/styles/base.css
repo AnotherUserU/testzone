@@ -110,6 +110,7 @@ body {
 .new-grid {
   display: grid;
   gap: 18px;
+  align-items: stretch;
 }
 
 .core-grid {
