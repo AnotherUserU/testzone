@@ -770,11 +770,6 @@ window.executeDownload = function() {
           // Hide unwanted elements in the clone
           const hide = clonedDoc.querySelectorAll(HIDE_SEL);
           hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
-          
-          // Ensure all cards show their credits in the screenshot
-          clonedDoc.querySelectorAll('.card-footer-credits').forEach(el => {
-            el.style.setProperty('display', 'flex', 'important');
-          });
         }
       }).then(canvas => {
         const a = document.createElement('a'); 

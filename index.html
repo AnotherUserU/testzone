@@ -468,11 +468,6 @@
               // Hide UI elements in clone
               const hide = clonedDoc.querySelectorAll(HIDE_SEL);
               hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
-              
-              // Ensure card credits are visible in screenshot
-              clonedDoc.querySelectorAll('.card-footer-credits').forEach(el => {
-                el.style.setProperty('display', 'flex', 'important');
-              });
 
               // Guard against InvalidStateError (gradients on 0-dim elements)
               // Instead of removing all background-images, we just ensure accent bars have dimensions
