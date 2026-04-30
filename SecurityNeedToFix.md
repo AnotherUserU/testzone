@@ -1,9 +1,9 @@
 # 🛡️ Security Audit Log & Remediation Plan — Team Composition Guide
 
 > **Scanned by**: `wiki-architect` + `architect-review` + `security-auditor` + `differential-review` + `vibe-code-auditor` (5-Skill Audit)
-> **Date**: 2026-04-30 (Full Re-Audit)
+> **Date**: 2026-04-30 (Full Re-Audit) | **Last Updated**: 2026-05-01
 > **Scope**: Full codebase (`admin.html`, `index.html`, `api/`, `shared/js/`, `shared/js-min/`, `vercel.json`)
-> **Current Status**: 🟡 PARTIALLY SECURE — 3 new findings from differential/vibe audit (2 MEDIUM open, 1 LOW open)
+> **Current Status**: 🟡 PARTIALLY SECURE — 2 open items (1 MEDIUM, 1 residual CRITICAL) + 1 QoL pending
 
 ---
 
@@ -13,8 +13,9 @@
 |----------|-------|--------|-------------|
 | 🔴 **CRITICAL** | 2 | ✅ FIXED | Server-side sanitization bypass (client-mitigated), Admin innerHTML XSS |
 | 🟠 **HIGH** | 4 | ✅ FIXED | Debug info leak, Missing CORS, JWT in localStorage, Rate Limiting |
-| 🟡 **MEDIUM** | 8 | ⚠️ 6 FIXED / 2 OPEN | Input validation, Payload size, SRI, UI Crash DoS, CLOUD_CONFIG XSS surface, CORS header gap |
+| 🟡 **MEDIUM** | 8 | ⚠️ 7 FIXED / 1 OPEN | Input validation, Payload size, SRI, UI Crash DoS, CLOUD_CONFIG XSS surface, CORS header gap |
 | 🔵 **LOW** | 3 | ⚠️ 2 MITIGATED / 1 OPEN | CSRF, Logic duplication resolved, `load.js` no timeout |
+| 🔨 **QoL** | 1 | 🕐 PENDING | Screenshot top gap (nav-header sticky residual) |
 
 ---
 
@@ -107,19 +108,15 @@
   if (document.body.dataset.role !== 'admin') throw new Error('CLOUD_CONFIG not allowed in guest context');
   ```
 
-### MED-06: CORS Header Missing `x-admin-password` ⚠️ OPEN
-* **File**: `vercel.json:26`
+### MED-06: CORS Header Missing `x-admin-password` ✅ FIXED
+* **File**: `vercel.json`
 * **Discovered by**: `differential-review` (2026-04-30 audit)
-* **Status**: ⚠️ OPEN
-* **Code Evidence**:
-  ```json
-  "Access-Control-Allow-Headers": "Content-Type, Authorization"
-  ```
-* **Threat Model**: If the app is tested from a different origin, or if the domain changes, the browser's CORS preflight (`OPTIONS`) will reject requests because `x-admin-password` is not in the allowed headers list. This would silently break admin save/login without a clear error.
-* **Recommended Fix**:
+* **Status**: ✅ FIXED — 2026-05-01
+* **Remediation**: Added `x-admin-password` to `Access-Control-Allow-Headers` in `vercel.json`:
   ```json
   "Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-password"
   ```
+  Without this, browsers performing CORS preflight (`OPTIONS`) from any non-same-origin would block admin save/login requests.
 
 ---
 
@@ -159,6 +156,25 @@
 
 ---
 
+## 🔨 Quality of Life (QoL)
+
+### QoL-01: Screenshot Top Gap — `.nav-header` Sticky Residual 🕐 PENDING
+* **File**: `shared/js/admin.js` + `index.html` (`executeDownload` fullscreen path)
+* **Discovered**: 2026-05-01 session
+* **Status**: 🕐 PENDING — deferred to next session
+* **Symptom**: Full-screen "Download as Image" produces a blank white/dark gap at the top of the image, roughly the height of the navigation bar, above the guide title (e.g., "STORY MODE GUIDE").
+* **Root Cause**: `html2canvas` captures `document.body`. `.nav-header` has `position: sticky; top: 0`. Even when removed via `.remove()` in `onclone`, the captured canvas area is computed from the **live document body bounding box** before the clone operation, so the sticky nav's vertical offset is baked into the capture coordinates.
+* **Attempts Made**:
+  1. `display: none` on `.nav-header` → ❌ Sticky space preserved in capture
+  2. `padding-top: 0` / `margin-top: 0` on `body`, `#pageBody` → ❌ No effect on canvas extent
+  3. `.nav-header.remove()` in `onclone` → ❌ Collapses DOM but capture area unchanged
+* **Recommended Solutions (Next Session)**:
+  - **Option A (Preferred)**: Change capture target from `document.body` to `document.getElementById('pageBody')` and set explicit `backgroundColor`. This avoids body-level nav offset entirely.
+  - **Option B**: Use `html2canvas` `y` + `height` options to clip the top of the capture.
+  - **Option C**: `window.scrollTo(0, 0)` before capture, then restore scroll position afterward.
+
+---
+
 ## 🗺️ Attack Surface Map
 
 ```text
@@ -166,7 +182,7 @@ ENTRY POINTS:
 ├── /api/config    [GET]  → Public — Exposes non-sensitive Firebase config IDs.
 ├── /api/load      [GET]  → Public — Returns full guide HTML from Firebase. (⚠️ No timeout)
 ├── /api/login     [POST] → Protected (2s delay on fail, payload validation, no rate limit).
-├── /api/save      [POST] → Protected (x-admin-password header, 2MB size limit, CORS restricted).
+├── /api/save      [POST] → Protected (x-admin-password header ✅ now in CORS, 2MB limit, CORS restricted).
 │                            ⚠️ Server-side sanitization BYPASSED (client-side only).
 ├── /index.html    [GET]  → Public guest view (SRI active, DOMPurify guest config, read-only).
 └── /admin.html    [GET]  → Admin CMS (DOMPurify CLOUD_CONFIG, Obfuscated JS, sessionStorage auth).
@@ -180,6 +196,15 @@ ENTRY POINTS:
 | ID | Severity | File | Description | Action Required |
 |----|----------|------|-------------|-----------------|
 | MED-05 | 🟡 MEDIUM | `index.html:278` | `CLOUD_CONFIG` allows event handlers | Add runtime guard to block use outside admin |
-| MED-06 | 🟡 MEDIUM | `vercel.json:26` | CORS missing `x-admin-password` header | Add to `Access-Control-Allow-Headers` |
 | LOW-03 | 🔵 LOW | `api/load.js:11` | No fetch timeout → 504 risk | Add `AbortController` with 8s timeout |
 | CRIT-01 | 🔴 RESIDUAL | `api/save.js:28` | Server-side DOMPurify bypassed | Resolve `isomorphic-dompurify` Vercel compat |
+| QoL-01 | 🔨 QoL | `admin.js` + `index.html` | Screenshot top gap (nav sticky) | Change capture target to `#pageBody` element |
+
+### ✅ Resolved This Session (2026-05-01)
+
+| ID | Description | Fix Applied |
+|----|-------------|-------------|
+| MED-06 | CORS missing `x-admin-password` | Added to `vercel.json` `Access-Control-Allow-Headers` |
+| — | `addNewStoryCoreTeam` ReferenceError | Exposed Story grid aliases on `window` in `admin.js` |
+| MED-04 | html2canvas Nuclear Option | Replaced with targeted `onclone` DOM removal strategy |
+| — | Per-card credits showing in fullscreen | Credits hidden in fullscreen, shown in node-mode only |

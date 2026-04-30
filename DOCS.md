@@ -4,7 +4,7 @@
 > **Repository**: [AnotherUserU/imlosttho](https://github.com/AnotherUserU/imlosttho)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-04-30 (5-Skill Audit: wiki-architect + architect-review + security-auditor + differential-review + vibe-code-auditor)
+> **Last Updated**: 2026-05-01 (Session: Story ReferenceError fix, screenshot onclone refactor, CORS header fix, nav-header gap QoL pending)
 
 ---
 
@@ -44,7 +44,7 @@ The app supports **7 game modes** (Dungeon, Story, Raid, Story Towers, Battle To
 | Database | Firebase Realtime Database (REST API) |
 | Auth | Password via `x-admin-password` header (sessionStorage) |
 | Sanitization | DOMPurify 3.0.6 (client-side only — server bypass documented in Pitfalls §11) |
-| Screenshot | html2canvas 1.4.1 (lazy-loaded, Nuclear Option applied in `onclone`) |
+| Screenshot | html2canvas 1.4.1 (lazy-loaded, targeted `onclone` DOM removal strategy) |
 | Animations | GSAP 3.12.5 + ScrollTrigger (SRI-protected CDN) |
 
 ---
@@ -580,16 +580,21 @@ Two modes:
 | **Fullscreen** | `document.body` | Section-level only (per-card hidden) |
 | **Node** | Individual `.team-card` | Per-card credits visible |
 
-**Process:**
+**Current `onclone` Strategy (Targeted DOM Removal):**
 ```
-1. Hide admin UI elements (buttons, handles, etc.)
-2. Set contenteditable to false
-3. Wait 300-400ms for DOM to settle
-4. html2canvas captures the target at 2x scale
-5. Generate PNG or JPG based on format selection
-6. Trigger download via <a> element
-7. Restore hidden elements
+1. .nav-header → physically .remove()'d from clone (NOT display:none)
+   Reason: position:sticky leaves phantom space if only hidden
+2. All HIDE_SEL elements → .remove()'d from clone
+3. body, #appContent, #pageBody → padding/margin reset to 0
+4. .mode-section.active .main-title → padding-top reduced to 12px
+5. .card-accent-bar → min-width/height enforced (gradient crash guard)
+6. Fullscreen: .card-footer-credits stays hidden (section-level credits only)
+7. Node mode: .card-footer-credits explicitly shown (display:flex)
 ```
+
+> ⚠️ **QoL Pending**: Despite `.nav-header` removal, a top gap may still appear
+> in screenshots depending on browser scroll state. Full resolution tracked in
+> [Known Pitfalls §11](#️-screenshot-top-gap-nav-header-sticky-residual-qol-pending).
 
 ### `enterAsAdmin()` / `enterAsGuest()`
 
@@ -792,6 +797,56 @@ clearTimeout(timeout);
 
 `admin.html` loads scripts with version query strings (e.g., `?v=1.1.2`). **Increment the version** when `admin.js`, `renderer.js`, or any imported module changes, otherwise browsers serve stale code.
 
+### ⚠️ Screenshot Top Gap — `.nav-header` Sticky Residual *(QoL Pending)*
+
+**ISSUE:** Full-screen screenshots show an empty gap above the guide title (e.g., "STORY MODE GUIDE") roughly the height of the navigation bar.
+
+**ROOT CAUSE:** `.nav-header` uses `position: sticky; top: 0`. When hidden via `display: none`, `html2canvas` still accounts for the layout space it occupied before hiding. Physically removing it with `.remove()` in `onclone` collapses the space in the cloned DOM, but the **actual captured area is based on `document.body`'s bounding box at capture time**, which still reflects the pre-removal scroll position.
+
+**Attempted Fixes:**
+1. `display: none` on `.nav-header` → ❌ Sticky space preserved
+2. `padding-top: 0` on `body` / `#pageBody` → ❌ Nav space still included
+3. `.nav-header.remove()` in `onclone` → ❌ Partially works but gap persists in some browsers
+
+**Recommended Next Steps:**
+- Option A: Capture `#pageBody` or `#appContent` element directly instead of `document.body`, providing `backgroundColor` explicitly.
+- Option B: Use `html2canvas` `y` / `windowTop` scroll offset to clip the top.
+- Option C: Temporarily scroll to top (`window.scrollTo(0,0)`) before capture and restore afterward.
+
+> **Status**: 🕐 QoL Pending — deferred to next development session.
+
+---
+
+### ✅ `addNewStoryCoreTeam` / `addNewStoryTeam` ReferenceError — RESOLVED
+
+**ISSUE:** Admin Story section buttons threw `Uncaught ReferenceError: addNewStoryCoreTeam is not defined`.
+
+**ROOT CAUSE:** The `onclick` handlers in `admin.html` Story section referenced global functions that were not exposed on `window`. The functions `addGenericCoreTeam()` and `addGenericNewTeam()` existed internally but their Story-specific aliases were missing.
+
+**FIX (`shared/js/admin.js`):**
+```javascript
+window.addNewCoreTeam  = () => addGenericCoreTeam('coreGrid', AppState.currentMode);
+window.addNewTeam      = () => addGenericNewTeam('newGrid',  AppState.currentMode);
+// Story aliases
+window.addNewStoryCoreTeam = () => addGenericCoreTeam('storyCoreGrid', 'story');
+window.addNewStoryTeam     = () => addGenericNewTeam('storyNewGrid',  'story');
+```
+
+> **Note**: All mode-specific grid functions now follow the same `addGenericCoreTeam(gridId, mode)` pattern.
+
+---
+
+### ✅ CORS `x-admin-password` Header Gap — RESOLVED
+
+**ISSUE:** `vercel.json` CORS `Access-Control-Allow-Headers` was missing `x-admin-password`, which would block cross-origin admin saves via browser preflight.
+
+**FIX (`vercel.json`):**
+```json
+"Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-password"
+```
+
+> **Status**: Fixed in this session (2026-05-01). See also `SecurityNeedToFix.md MED-06`.
+
 ---
 
 ## 12. Architecture Decision Records (ADR)
@@ -816,11 +871,12 @@ clearTimeout(timeout);
 - **Trade-off**: Direct API callers bypass all sanitization.
 - **Status**: Open — requires future resolution (see `SecurityNeedToFix.md CRIT-01`).
 
-### ADR-004: html2canvas Nuclear Option in `onclone`
-- **Decision**: Globally disable `background-image` in the cloned DOM before rendering.
-- **Rationale**: Prevents `InvalidStateError` crash caused by gradients on zero-dimension elements.
-- **Trade-off**: Screenshots lose gradient aesthetics but remain stable and functional.
-- **Status**: Accepted.
+### ADR-004: html2canvas Targeted DOM Removal in `onclone`
+- **Decision**: Physically `.remove()` layout-affecting elements (`.nav-header`) instead of `display:none`, and enforce minimum dimensions on gradient elements.
+- **Rationale**: `position:sticky` elements leave phantom height even when `display:none`. Removal is the only reliable way to collapse that space. Targeted approach also avoids the "Nuclear Option" of stripping all `background-image` values, preserving gradient aesthetics.
+- **Trade-off**: Screenshots are still slightly affected by browser scroll state — a pending QoL item.
+- **Previous Decision**: Global `* { background-image: none !important }` (Nuclear Option) — abandoned because it stripped visual identity without fully resolving the layout gap.
+- **Status**: Accepted (with QoL pending).
 
 ---
 
