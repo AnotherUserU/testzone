@@ -767,30 +767,41 @@ window.executeDownload = function() {
         backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
         logging: false,
         onclone: (clonedDoc) => {
-          // Hide unwanted elements in the clone
-          const hide = clonedDoc.querySelectorAll(HIDE_SEL);
-          hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
+          // Physically REMOVE .nav-header from DOM so its sticky height doesn't create a gap
+          clonedDoc.querySelectorAll('.nav-header').forEach(el => el.remove());
 
-          // Shift content up to remove top gap
-          const body = clonedDoc.body;
-          body.style.setProperty('padding-top', '0px', 'important');
-          body.style.setProperty('margin-top', '0px', 'important');
+          // Also remove other UI chrome elements that may leave gaps
+          clonedDoc.querySelectorAll(HIDE_SEL).forEach(el => el.remove());
+
+          // Reset body and container margins/padding
+          const clonedBody = clonedDoc.body;
+          clonedBody.style.setProperty('padding-top', '0', 'important');
+          clonedBody.style.setProperty('margin-top', '0', 'important');
+
+          const appContent = clonedDoc.getElementById('appContent');
+          if (appContent) {
+            appContent.style.setProperty('padding-top', '0', 'important');
+            appContent.style.setProperty('margin-top', '0', 'important');
+          }
 
           const pageBody = clonedDoc.getElementById('pageBody');
           if (pageBody) {
-            pageBody.style.setProperty('padding-top', '0px', 'important');
-            pageBody.style.setProperty('margin-top', '0px', 'important');
+            pageBody.style.setProperty('padding-top', '0', 'important');
+            pageBody.style.setProperty('margin-top', '0', 'important');
           }
 
-          const activeSection = clonedDoc.querySelector('.mode-section.active');
-          if (activeSection) {
-            activeSection.style.setProperty('margin-top', '0px', 'important');
-            const mainTitle = activeSection.querySelector('.main-title');
-            if (mainTitle) {
-              mainTitle.style.setProperty('padding-top', '10px', 'important');
-              mainTitle.style.setProperty('margin-top', '0px', 'important');
-            }
+          // Tighten the main title padding so content sits near the top
+          const mainTitle = clonedDoc.querySelector('.mode-section.active .main-title');
+          if (mainTitle) {
+            mainTitle.style.setProperty('padding-top', '12px', 'important');
+            mainTitle.style.setProperty('margin-top', '0', 'important');
           }
+
+          // Guard against html2canvas InvalidStateError on gradient elements
+          clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
+            el.style.setProperty('min-width', '15px', 'important');
+            el.style.setProperty('min-height', '2px', 'important');
+          });
         }
       }).then(canvas => {
         const a = document.createElement('a'); 
