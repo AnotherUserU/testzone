@@ -758,23 +758,34 @@ window.executeDownload = function() {
   function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
 
   if (AppState.dlMode === 'fullscreen') {
-    const hide = document.querySelectorAll(HIDE_SEL);
-    hide.forEach(el => el.style.display = 'none');
     closeDlModal();
     setTimeout(() => {
       showFbStatus('Capturing...', 'loading');
-      html2canvas(document.body, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#0f0f17', logging: false }).then(canvas => {
+      html2canvas(document.body, { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Hide unwanted elements in the clone
+          const hide = clonedDoc.querySelectorAll(HIDE_SEL);
+          hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
+          
+          // Ensure all cards show their credits in the screenshot
+          clonedDoc.querySelectorAll('.card-footer-credits').forEach(el => {
+            el.style.setProperty('display', 'flex', 'important');
+          });
+        }
+      }).then(canvas => {
         const a = document.createElement('a'); 
         a.download = 'Team_Composition_Guide.' + (AppState.dlFmt === 'jpg' ? 'jpg' : 'png');
         a.href = AppState.dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); 
         a.click();
-        hide.forEach(el => el.style.display = '');
         reEnableBtn();
         showFbStatus('✅ Downloaded', 'ok');
       }).catch(err => {
         console.error(err);
         alert('Failed to download.');
-        hide.forEach(el => el.style.display = '');
         reEnableBtn();
         showFbStatus('❌ Failed', 'err');
       });
@@ -783,34 +794,51 @@ window.executeDownload = function() {
     const cards = [...document.querySelectorAll('.team-card')];
     const idx = parseInt(document.getElementById('dlNodeSelect')?.value || '-1');
     if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); reEnableBtn(); return; }
-    const card = cards[idx];
-    const hide = card.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
-    const cardCredits = card.querySelectorAll('.card-footer-credits');
     
-    cardCredits.forEach(el => el.style.display = 'flex');
-    hide.forEach(el => el.style.display = 'none'); 
     closeDlModal();
     
     setTimeout(() => {
       showFbStatus('Capturing...', 'loading');
-      html2canvas(card, { scale: 2, useCORS: true, backgroundColor: isLight ? '#ffffff' : '#13131f', logging: false }).then(canvas => {
+      // Pass the actual card element. html2canvas will clone it within the document context.
+      html2canvas(cards[idx], { 
+        scale: 2, 
+        useCORS: true, 
+        backgroundColor: isLight ? '#ffffff' : '#13131f', 
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Find the card inside the clone (html2canvas clones the whole doc but only renders the target)
+          // We need to find the card in the clone that corresponds to our target card
+          const clonedCards = clonedDoc.querySelectorAll('.team-card');
+          const clonedCard = clonedCards[idx];
+          
+          if (clonedCard) {
+            // Hide unwanted elements inside THIS card
+            const innerHide = clonedCard.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
+            innerHide.forEach(el => el.style.setProperty('display', 'none', 'important'));
+            
+            // Show credits
+            const credits = clonedCard.querySelectorAll('.card-footer-credits');
+            credits.forEach(el => el.style.setProperty('display', 'flex', 'important'));
+            
+            // Critical fix for flex layout: ensure container has its styles
+            clonedCard.style.setProperty('display', 'flex', 'important');
+            clonedCard.style.setProperty('flex-direction', 'column', 'important');
+          }
+        }
+      }).then(canvas => {
         const a = document.createElement('a');
-        const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
+        const title = cards[idx].querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
         a.download = title + '.' + (AppState.dlFmt === 'jpg' ? 'jpg' : 'png');
         a.href = AppState.dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); 
         a.click();
-        hide.forEach(el => el.style.display = '');
-        cardCredits.forEach(el => el.style.display = '');
         reEnableBtn();
         showFbStatus('✅ Downloaded', 'ok');
       }).catch(err => { 
         console.error(err); alert('Failed.'); 
-        hide.forEach(el => el.style.display = ''); 
-        cardCredits.forEach(el => el.style.display = '');
         reEnableBtn();
         showFbStatus('❌ Failed', 'err');
       });
-    }, 300);
+    }, 400);
   }
 };
 

@@ -444,7 +444,6 @@
         window.refreshAllCardCreditsCore(PAGE_MAP, escapeAttr);
       }
     }
-
     function executeDownload() {
       const dlBtn = document.getElementById('dlDownloadBtn');
       if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
@@ -454,14 +453,6 @@
       function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
 
       if (dlMode === 'fullscreen') {
-        const hide = document.querySelectorAll(HIDE_SEL);
-        const credits = document.querySelectorAll('.card-footer-credits');
-        // In fullscreen mode, we DO NOT show individual card credits (they remain display:none)
-
-        hide.forEach(el => {
-          el.style.display = 'none';
-          if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = 'none';
-        });
         closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
@@ -471,53 +462,33 @@
             backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
             logging: false,
             ignoreElements: (element) => {
-              // Ignore elements marked for exclusion or specifically hidden for download
-              return element.hasAttribute('data-html2canvas-ignore') || element.classList.contains('nav-header') || element.id === 'scrollProgress';
+              return element.hasAttribute('data-html2canvas-ignore') || element.id === 'scrollProgress';
             },
             onclone: (clonedDoc) => {
-              // 1. Remove elements that should be ignored to be absolutely safe
-              clonedDoc.querySelectorAll('[data-html2canvas-ignore="true"], .nav-header, #scrollProgress, .admin-link').forEach(el => el.remove());
+              // Hide UI elements in clone
+              const hide = clonedDoc.querySelectorAll(HIDE_SEL);
+              hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
               
-              // 2. Inject a global "No Gradients" safety rule
-              const style = clonedDoc.createElement('style');
-              style.innerHTML = `
-                /* The Nuclear Option: Disable ALL background-images (gradients) in the clone */
-                * { background-image: none !important; }
-                /* Exception: Allow <img> tags to show their content (which isn't a background-image) */
-                img { background-image: initial !important; }
-                
-                /* Ensure specific elements still look okay without their gradients */
-                .card-accent-bar { 
-                  min-width: 15px !important; 
-                  min-height: 2px !important;
-                  background-color: var(--tc, var(--gold, #f5c842)) !important;
-                  display: block !important;
-                }
-                .section-label::before, .section-label::after {
-                  min-width: 20px !important;
-                  background-color: var(--gold, #f5c842) !important;
-                  opacity: 0.3 !important;
-                }
-                .scroll-progress { display: none !important; }
-              `;
-              (clonedDoc.head || clonedDoc.body).appendChild(style);
+              // Ensure card credits are visible in screenshot
+              clonedDoc.querySelectorAll('.card-footer-credits').forEach(el => {
+                el.style.setProperty('display', 'flex', 'important');
+              });
+
+              // Guard against InvalidStateError (gradients on 0-dim elements)
+              // Instead of removing all background-images, we just ensure accent bars have dimensions
+              clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
+                el.style.setProperty('min-width', '15px', 'important');
+                el.style.setProperty('min-height', '2px', 'important');
+              });
             }
           }).then(canvas => {
             const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
-            hide.forEach(el => {
-              el.style.display = '';
-              if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
-            });
             reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => {
             console.error(err);
             alert('Failed to download.');
-            hide.forEach(el => {
-              el.style.display = '';
-              if (el.id === 'downloadBtn' && el.parentElement) el.parentElement.style.display = '';
-            });
             reEnableBtn();
             showFbStatus('❌ Failed', 'err');
           });
@@ -526,51 +497,45 @@
         const cards = [...document.querySelectorAll('.team-card')];
         const idx = parseInt(document.getElementById('dlNodeSelect').value);
         if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); reEnableBtn(); return; }
-        const card = cards[idx];
-        const hide = card.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
-        const cardCredits = card.querySelectorAll('.card-footer-credits');
-        cardCredits.forEach(el => el.style.display = 'flex');
-        hide.forEach(el => el.style.display = 'none'); closeDlModal();
+        
+        closeDlModal();
         setTimeout(() => {
           showFbStatus('Capturing...', 'loading');
-          html2canvas(card, { 
+          html2canvas(cards[idx], { 
             scale: 2, 
             useCORS: true, 
             backgroundColor: isLight ? '#ffffff' : '#13131f', 
             logging: false,
-            ignoreElements: (element) => {
-              return window.getComputedStyle(element).display === 'none' || element.hasAttribute('data-html2canvas-ignore');
-            },
             onclone: (clonedDoc) => {
-              const style = clonedDoc.createElement('style');
-              style.innerHTML = `
-                * { background-image: none !important; }
-                img { background-image: initial !important; }
-                .card-accent-bar { 
-                   min-width: 15px !important; 
-                   background-color: var(--tc, var(--gold, #f5c842)) !important;
-                   display: block !important;
-                }
-              `;
-              (clonedDoc.head || clonedDoc.body).appendChild(style);
+              const clonedCards = clonedDoc.querySelectorAll('.team-card');
+              const clonedCard = clonedCards[idx];
+              if (clonedCard) {
+                // Hide unwanted elements inside THIS card
+                const innerHide = clonedCard.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
+                innerHide.forEach(el => el.style.setProperty('display', 'none', 'important'));
+                
+                // Show credits
+                const credits = clonedCard.querySelectorAll('.card-footer-credits');
+                credits.forEach(el => el.style.setProperty('display', 'flex', 'important'));
+                
+                // Ensure layout stability
+                clonedCard.style.setProperty('display', 'flex', 'important');
+                clonedCard.style.setProperty('flex-direction', 'column', 'important');
+              }
             }
           }).then(canvas => {
             const a = document.createElement('a');
-            const title = card.querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
+            const title = cards[idx].querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Card';
             a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
-            hide.forEach(el => el.style.display = '');
-            cardCredits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
           }).catch(err => { 
             console.error(err); alert('Failed.'); 
-            hide.forEach(el => el.style.display = ''); 
-            cardCredits.forEach(el => el.style.display = '');
             reEnableBtn();
             showFbStatus('❌ Failed', 'err');
           });
-        }, 300);
+        }, 400);
       }
     }
 
