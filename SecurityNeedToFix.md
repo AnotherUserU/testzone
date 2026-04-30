@@ -73,7 +73,7 @@
 * **File**: `api/save.js:17`
 * **Status**: ✅ FIXED
 * **Remediation**: 2MB payload size limit enforced.
-  > Note: `DOCS.md §11` also references "512KB" — actual implementation is 2MB. Documentation should be reconciled.
+  > Note: Payload limit reconciled to 2MB across documentation and implementation.
 
 ### MED-03: Missing Subresource Integrity (SRI)
 * **Status**: ✅ FIXED

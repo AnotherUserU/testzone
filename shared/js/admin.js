@@ -242,8 +242,10 @@ window.addGenericNewTeam = function(gridId, modeName) {
 };
 
 
-window.addNewCoreTeam = () => addGenericCoreTeam('coreGrid', AppState.currentMode);
-window.addNewTeam = () => addGenericNewTeam('newGrid', AppState.currentMode);
+window.addNewCoreTeam = () => addGenericCoreTeam('coreGrid', 'DUNGEON');
+window.addNewTeam = () => addGenericNewTeam('newGrid', 'DUNGEON');
+window.addNewStoryCoreTeam = () => addGenericCoreTeam('storyCoreGrid', 'STORY');
+window.addNewStoryTeam = () => addGenericNewTeam('storyNewGrid', 'STORY');
 
 window.addTeamSection = function(containerId) {
   const container = document.getElementById(containerId);
