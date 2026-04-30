@@ -469,8 +469,28 @@
               const hide = clonedDoc.querySelectorAll(HIDE_SEL);
               hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
 
+              // Shift content up to remove top gap
+              const body = clonedDoc.body;
+              body.style.setProperty('padding-top', '0px', 'important');
+              body.style.setProperty('margin-top', '0px', 'important');
+
+              const pageBody = clonedDoc.getElementById('pageBody');
+              if (pageBody) {
+                pageBody.style.setProperty('padding-top', '0px', 'important');
+                pageBody.style.setProperty('margin-top', '0px', 'important');
+              }
+
+              const activeSection = clonedDoc.querySelector('.mode-section.active');
+              if (activeSection) {
+                activeSection.style.setProperty('margin-top', '0px', 'important');
+                const mainTitle = activeSection.querySelector('.main-title');
+                if (mainTitle) {
+                  mainTitle.style.setProperty('padding-top', '10px', 'important');
+                  mainTitle.style.setProperty('margin-top', '0px', 'important');
+                }
+              }
+
               // Guard against InvalidStateError (gradients on 0-dim elements)
-              // Instead of removing all background-images, we just ensure accent bars have dimensions
               clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
                 el.style.setProperty('min-width', '15px', 'important');
                 el.style.setProperty('min-height', '2px', 'important');

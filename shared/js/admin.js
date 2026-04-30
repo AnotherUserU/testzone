@@ -770,6 +770,27 @@ window.executeDownload = function() {
           // Hide unwanted elements in the clone
           const hide = clonedDoc.querySelectorAll(HIDE_SEL);
           hide.forEach(el => el.style.setProperty('display', 'none', 'important'));
+
+          // Shift content up to remove top gap
+          const body = clonedDoc.body;
+          body.style.setProperty('padding-top', '0px', 'important');
+          body.style.setProperty('margin-top', '0px', 'important');
+
+          const pageBody = clonedDoc.getElementById('pageBody');
+          if (pageBody) {
+            pageBody.style.setProperty('padding-top', '0px', 'important');
+            pageBody.style.setProperty('margin-top', '0px', 'important');
+          }
+
+          const activeSection = clonedDoc.querySelector('.mode-section.active');
+          if (activeSection) {
+            activeSection.style.setProperty('margin-top', '0px', 'important');
+            const mainTitle = activeSection.querySelector('.main-title');
+            if (mainTitle) {
+              mainTitle.style.setProperty('padding-top', '10px', 'important');
+              mainTitle.style.setProperty('margin-top', '0px', 'important');
+            }
+          }
         }
       }).then(canvas => {
         const a = document.createElement('a'); 
