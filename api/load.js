@@ -8,12 +8,7 @@ export default async function handler(req, res) {
     const cleanUrl = dbUrl.replace(/\/$/, '');
     const finalUrl = fbAuth ? `${cleanUrl}/guide.json?auth=${fbAuth}` : `${cleanUrl}/guide.json`;
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
-    const response = await fetch(finalUrl, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    
+    const response = await fetch(finalUrl);
     if (!response.ok) throw new Error('Firebase REST error: ' + response.status);
     
     const data = await response.json();
