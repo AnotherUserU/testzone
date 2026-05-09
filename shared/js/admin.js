@@ -753,7 +753,7 @@ window.executeDownload = function() {
   if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
   const quality = parseInt(document.getElementById('dlQualitySlider')?.value || '90') / 100;
   const isLight = document.documentElement.classList.contains('light-theme');
-  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
+  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,[data-block="save-local"],[data-block="download"],#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
   
   function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
 
@@ -761,7 +761,15 @@ window.executeDownload = function() {
     closeDlModal();
     setTimeout(() => {
       showFbStatus('Capturing...', 'loading');
-      html2canvas(document.getElementById('pageBody'), { 
+      const pageBodyElement = document.getElementById('pageBody');
+      const origMaxWidth = pageBodyElement.style.maxWidth;
+      const origMargin = pageBodyElement.style.margin;
+
+      // Force layout constraint so html2canvas captures exact content width, eliminating horizontal gaps
+      pageBodyElement.style.maxWidth = '1280px';
+      pageBodyElement.style.margin = '0 auto';
+
+      html2canvas(pageBodyElement, { 
         scale: 2, 
         useCORS: true, 
         backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
@@ -774,8 +782,7 @@ window.executeDownload = function() {
 
           const pageBody = clonedDoc.getElementById('pageBody');
           if (pageBody) {
-            pageBody.style.setProperty('padding', '0', 'important');
-            pageBody.style.setProperty('margin', '0', 'important');
+            // Keep the natural 20px horizontal padding from base.css, just reset background
             pageBody.style.setProperty('background-color', isLight ? '#ffffff' : '#0f0f17', 'important');
           }
 
@@ -799,6 +806,8 @@ window.executeDownload = function() {
           });
         }
       }).then(canvas => {
+        pageBodyElement.style.maxWidth = origMaxWidth;
+        pageBodyElement.style.margin = origMargin;
         const a = document.createElement('a'); 
         a.download = 'Team_Composition_Guide.' + (AppState.dlFmt === 'jpg' ? 'jpg' : 'png');
         a.href = AppState.dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); 
@@ -806,6 +815,8 @@ window.executeDownload = function() {
         reEnableBtn();
         showFbStatus('✅ Downloaded', 'ok');
       }).catch(err => {
+        pageBodyElement.style.maxWidth = origMaxWidth;
+        pageBodyElement.style.margin = origMargin;
         console.error(err);
         alert('Failed to download.');
         reEnableBtn();

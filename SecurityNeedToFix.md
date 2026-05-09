@@ -15,7 +15,7 @@
 | 🟠 **HIGH** | 4 | ✅ FIXED | Debug info leak, Missing CORS, JWT in localStorage, Rate Limiting |
 | 🟡 **MEDIUM** | 8 | ✅ 8 FIXED | Input validation, Payload size, SRI, UI Crash DoS, CLOUD_CONFIG XSS surface, CORS header gap |
 | 🔵 **LOW** | 3 | ✅ 3 FIXED | CSRF, Logic duplication resolved, `load.js` no timeout |
-| 🔨 **QoL** | 1 | ✅ 1 FIXED | Screenshot top gap (nav-header sticky residual) |
+| 🔨 **QoL** | 2 | ✅ 2 FIXED | Screenshot top gap, Horizontal/Vertical gaps in capture engine |
 
 ---
 
@@ -143,6 +143,12 @@
 * **Status**: ✅ FIXED — 2026-05-09
 * **Remediation**: Changed capture target from `document.body` to `document.getElementById('pageBody')`. This completely bypasses the sticky `nav-header` layout offset.
 
+### QoL-02: Screenshot Horizontal & Vertical Gaps ✅ FIXED
+* **File**: `shared/js/admin.js` + `index.html` (`executeDownload` fullscreen path)
+* **Discovered**: 2026-05-09 session
+* **Status**: ✅ FIXED — 2026-05-09
+* **Remediation**: `html2canvas` captures target width relative to viewport. Fixed horizontal gaps by temporarily forcing `max-width: 1280px` on `#pageBody` right before capture initialization. Fixed vertical gaps by stripping `#dlBtnWrapper` and `[data-block="save-local"]` via `HIDE_SEL` in `onclone`.
+
 ---
 
 ## 🗺️ Attack Surface Map
@@ -169,6 +175,7 @@ ENTRY POINTS:
 | LOW-03 | 🔵 LOW | `api/load.js:11` | No fetch timeout → 504 risk | FIXED — AbortController added |
 | CRIT-01 | 🔴 RESIDUAL | `api/save.js:28` | Server-side DOMPurify bypassed | Resolve `isomorphic-dompurify` Vercel compat |
 | QoL-01 | 🔨 QoL | `admin.js` + `index.html` | Screenshot top gap (nav sticky) | FIXED — Target changed to #pageBody |
+| QoL-02 | 🔨 QoL | `admin.js` + `index.html` | Screenshot horiz/vert gaps | FIXED — Constrained width before capture |
 
 ### ✅ Resolved This Session (2026-05-01)
 

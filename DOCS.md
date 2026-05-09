@@ -1,10 +1,10 @@
 # 📘 Team Composition Guide — Technical Documentation
 
 > **Project**: `team-composition-guide` v1.0.0  
-> **Repository**: [AnotherUserU/imlosttho](https://github.com/AnotherUserU/imlosttho)  
+> **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-05-09 (Session: QoL-01 screenshot gap fix, LOW-03 fetch timeout, MED-05 security guard)
+> **Last Updated**: 2026-05-01 (Session: Story ReferenceError fix, screenshot onclone refactor, CORS header fix, nav-header gap QoL pending)
 
 ---
 
@@ -592,7 +592,9 @@ Two modes:
 7. Node mode: .card-footer-credits explicitly shown (display:flex)
 ```
 
-> ✅ **QoL Resolved**: The capture target has been changed from `document.body` to `document.getElementById('pageBody')`. This effectively excludes the `.nav-header` from the capture area entirely, preventing the sticky top gap.
+> ⚠️ **QoL Pending**: Despite `.nav-header` removal, a top gap may still appear
+> in screenshots depending on browser scroll state. Full resolution tracked in
+> [Known Pitfalls §11](#️-screenshot-top-gap-nav-header-sticky-residual-qol-pending).
 
 ### `enterAsAdmin()` / `enterAsGuest()`
 
@@ -715,7 +717,7 @@ But `x-admin-password` is sent as a **custom header** in requests. The browser p
 
 ---
 
-### ✅ `SECURITY.CLOUD_CONFIG` Allows `onclick` in Sanitized HTML — RESOLVED
+### ⚠️ `SECURITY.CLOUD_CONFIG` Allows `onclick` in Sanitized HTML (`index.html:278`)
 
 **Security-Auditor Finding.** The DOMPurify config for Firebase-loaded data includes:
 ```javascript
@@ -723,7 +725,7 @@ ADD_ATTR: ['onclick', 'ondblclick', ...]
 ```
 This means if a compromised Firebase record contains `onclick="maliciousCode()"`, DOMPurify will **allow** it through when using `CLOUD_CONFIG`. This is intentional for admin preview rendering but creates a stored XSS surface.
 
-**FIX (`index.html` & `shared/js/config.js`):** `CLOUD_CONFIG` was converted into a getter function with a runtime security guard. It now inspects the DOM context (`document.body.classList.contains('is-admin')`) and dynamically strips event handlers if the requesting environment is guest-mode, while preserving non-harmful attributes like `style` and SVG elements.
+**Mitigation**: Only use `CLOUD_CONFIG` in admin context — never apply it when rendering data in guest `index.html`.
 
 ---
 
@@ -749,7 +751,7 @@ Both must stay in sync when card **structure** (not behavior) changes. The DOM o
 
 ---
 
-### ✅ `load.js` Fetch Has No Timeout — RESOLVED
+### ⚠️ `load.js` Fetch Has No Timeout
 
 **Vibe-Code-Auditor Finding.** `api/load.js:11`:
 ```javascript
@@ -757,7 +759,7 @@ const response = await fetch(finalUrl); // no timeout!
 ```
 If Firebase is slow or unresponsive, this will hang the Vercel function indefinitely until the platform's default 10s limit kills it, resulting in a 504 Gateway Timeout for the user.
 
-**FIX (`api/load.js`):** An `AbortController` was implemented with a strict 8-second timeout to gracefully reject with a `504` JSON response rather than hanging the platform instance.
+**Fix**:
 ```javascript
 const controller = new AbortController();
 const timeout = setTimeout(() => controller.abort(), 8000);
@@ -795,15 +797,23 @@ clearTimeout(timeout);
 
 `admin.html` loads scripts with version query strings (e.g., `?v=1.1.2`). **Increment the version** when `admin.js`, `renderer.js`, or any imported module changes, otherwise browsers serve stale code.
 
-### ✅ Screenshot Top Gap — `.nav-header` Sticky Residual — RESOLVED
+### ⚠️ Screenshot Top Gap — `.nav-header` Sticky Residual *(QoL Pending)*
 
 **ISSUE:** Full-screen screenshots show an empty gap above the guide title (e.g., "STORY MODE GUIDE") roughly the height of the navigation bar.
 
 **ROOT CAUSE:** `.nav-header` uses `position: sticky; top: 0`. When hidden via `display: none`, `html2canvas` still accounts for the layout space it occupied before hiding. Physically removing it with `.remove()` in `onclone` collapses the space in the cloned DOM, but the **actual captured area is based on `document.body`'s bounding box at capture time**, which still reflects the pre-removal scroll position.
 
-**FIX:** The capture target for full-screen downloads was changed from `document.body` to `document.getElementById('pageBody')`. Since the `.nav-header` is a sibling of `#pageBody`, it is completely excluded from the initial bounding box calculation, cleanly eliminating the gap.
+**Attempted Fixes:**
+1. `display: none` on `.nav-header` → ❌ Sticky space preserved
+2. `padding-top: 0` on `body` / `#pageBody` → ❌ Nav space still included
+3. `.nav-header.remove()` in `onclone` → ❌ Partially works but gap persists in some browsers
 
-> **Status**: Resolved — 2026-05-09.
+**Recommended Next Steps:**
+- Option A: Capture `#pageBody` or `#appContent` element directly instead of `document.body`, providing `backgroundColor` explicitly.
+- Option B: Use `html2canvas` `y` / `windowTop` scroll offset to clip the top.
+- Option C: Temporarily scroll to top (`window.scrollTo(0,0)`) before capture and restore afterward.
+
+> **Status**: 🕐 QoL Pending — deferred to next development session.
 
 ---
 
