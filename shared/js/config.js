@@ -12,13 +12,14 @@ export const APP_CONFIG = {
   H1_COLORS: ['#f5c842', '#c36bff', '#00d4ff', '#00e87a', '#ff8c42', '#ff5fa0', '#4488ff', '#ff3355', '#ffffff', '#aaccff', '#ff9999', '#99ffcc'],
   SECURITY: {
     get CLOUD_CONFIG() {
-      // MED-05 Runtime Guard: Only allow CLOUD_CONFIG (with event handlers) in admin context
-      if (typeof document !== 'undefined' && !document.body.classList.contains('is-admin')) {
-        console.warn('SECURITY: CLOUD_CONFIG requested in non-admin context. This is blocked to prevent XSS.');
-        return { ALLOWED_TAGS: ['div', 'span', 'b', 'i', 'br'] }; // Return very strict fallback
-      }
+      // MED-05 Runtime Guard: Only allow event handlers in admin context
+      const isAdmin = typeof document !== 'undefined' && document.body.classList.contains('is-admin');
+      
+      const baseAttr = ['style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'];
+      const adminAttr = ['onclick', 'ondblclick', 'contenteditable', 'spellcheck'];
+      
       return {
-        ADD_ATTR: ['onclick', 'ondblclick', 'contenteditable', 'spellcheck', 'style', 'id', 'class', 'data-mode', 'data-block', 'aria-label', 'target', 'href', 'src', 'alt', 'width', 'height', 'viewBox', 'd', 'fill', 'stroke', 'cx', 'cy', 'r', 'x', 'y'],
+        ADD_ATTR: isAdmin ? [...baseAttr, ...adminAttr] : baseAttr,
         ADD_TAGS: ['svg', 'path', 'circle', 'rect', 'use', 'symbol'],
         ALLOW_DATA_ATTR: true
       };
