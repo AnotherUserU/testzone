@@ -147,7 +147,7 @@
 * **File**: `shared/js/admin.js` + `index.html` (`executeDownload` fullscreen path)
 * **Discovered**: 2026-05-09 session
 * **Status**: ✅ FIXED — 2026-05-09
-* **Remediation**: `html2canvas` captures target width relative to viewport. Fixed horizontal gaps by temporarily forcing `max-width: 1280px` on `#pageBody` right before capture initialization. Fixed vertical gaps by stripping `#dlBtnWrapper` and `[data-block="save-local"]` via `HIDE_SEL` in `onclone`.
+* **Remediation**: `html2canvas` captures target width relative to viewport. Fixed horizontal gaps and right-side card cutoff by permanently widening `.grid-wrap` to `1440px` and temporarily forcing `max-width: 1440px` on `#pageBody` right before capture initialization. Fixed vertical gaps by stripping `#dlBtnWrapper` and `[data-block="save-local"]` via `HIDE_SEL` in `onclone`.
 
 ---
 
