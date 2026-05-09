@@ -761,33 +761,22 @@ window.executeDownload = function() {
     closeDlModal();
     setTimeout(() => {
       showFbStatus('Capturing...', 'loading');
-      html2canvas(document.body, { 
+      html2canvas(document.getElementById('pageBody'), { 
         scale: 2, 
         useCORS: true, 
         backgroundColor: isLight ? '#ffffff' : '#0f0f17', 
         logging: false,
         onclone: (clonedDoc) => {
-          // Physically REMOVE .nav-header from DOM so its sticky height doesn't create a gap
-          clonedDoc.querySelectorAll('.nav-header').forEach(el => el.remove());
-
+          // Note: Since we target #pageBody, .nav-header is already excluded as it's a sibling
+          
           // Also remove other UI chrome elements that may leave gaps
           clonedDoc.querySelectorAll(HIDE_SEL).forEach(el => el.remove());
-
-          // Reset body and container margins/padding
-          const clonedBody = clonedDoc.body;
-          clonedBody.style.setProperty('padding-top', '0', 'important');
-          clonedBody.style.setProperty('margin-top', '0', 'important');
-
-          const appContent = clonedDoc.getElementById('appContent');
-          if (appContent) {
-            appContent.style.setProperty('padding-top', '0', 'important');
-            appContent.style.setProperty('margin-top', '0', 'important');
-          }
 
           const pageBody = clonedDoc.getElementById('pageBody');
           if (pageBody) {
             pageBody.style.setProperty('padding-top', '0', 'important');
             pageBody.style.setProperty('margin-top', '0', 'important');
+            pageBody.style.setProperty('background-color', isLight ? '#ffffff' : '#0f0f17', 'important');
           }
 
           // Tighten the main title padding so content sits near the top
