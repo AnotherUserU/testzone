@@ -766,7 +766,7 @@ window.executeDownload = function() {
       const origMargin = pageBodyElement.style.margin;
 
       // Force layout constraint so html2canvas captures exact content width, eliminating horizontal gaps
-      pageBodyElement.style.maxWidth = '1280px';
+      pageBodyElement.style.maxWidth = '1440px';
       pageBodyElement.style.margin = '0 auto';
 
       html2canvas(pageBodyElement, { 
