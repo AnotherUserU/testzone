@@ -475,10 +475,16 @@
 
               const pageBody = clonedDoc.getElementById('pageBody');
               if (pageBody) {
-                pageBody.style.setProperty('padding-top', '0', 'important');
-                pageBody.style.setProperty('margin-top', '0', 'important');
+                pageBody.style.setProperty('padding', '0', 'important');
+                pageBody.style.setProperty('margin', '0', 'important');
                 pageBody.style.setProperty('background-color', isLight ? '#ffffff' : '#0f0f17', 'important');
               }
+
+              // Remove left/right padding from wrappers to prevent horizontal gaps in screenshot
+              clonedDoc.querySelectorAll('.grid-wrap, .alert-wrap').forEach(el => {
+                el.style.setProperty('padding-left', '0', 'important');
+                el.style.setProperty('padding-right', '0', 'important');
+              });
 
               // Tighten the main title padding so content sits near the top
               const mainTitle = clonedDoc.querySelector('.mode-section.active .main-title');
