@@ -7,7 +7,7 @@
 > **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-05-10 (Session: Robust ScreenshotEngine refactor, dynamic vertical expansion for wrapped credits, per-card color inheritance, and real-DOM curve injection for screenshot stability)
+> **Last Updated**: 2026-05-10 (Session: Universal ScreenshotEngine refactor, centralized curve injection in prepareClone, height-auto layout for wrapped credits, and per-card color inheritance)
 
 
 ---
@@ -477,8 +477,9 @@ The `onclone` callback is used to modify the document clone before rendering:
 1.  **UI Removal**: `clonedDoc.querySelectorAll(HIDE_SEL).forEach(el => el.remove())`. Using `.remove()` is more reliable than `display: none`.
 2.  **Gradient Guard**: `html2canvas` 1.4.1 throws an `InvalidStateError` if it attempts to render a `linear-gradient` on an element with 0px dimensions. We force `min-width: 20px` and `min-height: 3px` on `.card-accent-bar` in the clone to prevent this.
 3.  **Per-Card Stabilization**: For individual card captures, we force `width: 320px`, `height: auto`, and `min-height: unset` to ensure the card shrinks or grows perfectly to fit its content.
-4.  **Color Inheritance**: Iterates through each card and reads its local `--tc` (Team Color) variable to apply it directly to the accent bar and decorative elements in the clone.
-5.  **Robust Curve Injection**: Replaces unreliable pseudo-element (`::after`) rendering with a dynamically injected DIV pinned to `bottom: 0`, ensuring the corner accent always follows the card's expansion.
+4.  **Universal Color & Curve Stabilization (`prepareClone`)**: 
+    - Iterates through **all** cards in the clone to read their local `--tc` (Team Color) and apply it to accent bars.
+    - Centralized Curve Injection: Globally hides all `::after` pseudo-curves via a styles injection and replaces them with real DIV elements pinned to `bottom: 0`. This ensures 100% stability across all sections (Dungeon, World Boss, etc.).
 
 ## 9. Credit System
 
