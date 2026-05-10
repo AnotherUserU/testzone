@@ -799,8 +799,12 @@ window.executeDownload = function() {
             mainTitle.style.setProperty('margin-top', '0', 'important');
           }
 
-          // Guard against html2canvas InvalidStateError on gradient elements
+          // CRIT-02: Guard against html2canvas CanvasGradient crash. 
+          // Gradient rendering fails if addColorStop is called with non-finite values (often due to 0px dimensions).
+          // We replace the gradient with a solid color in the clone to guarantee stability.
           clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
+            const tc = el.style.getPropertyValue('--tc') || '#f5c842';
+            el.style.setProperty('background', tc, 'important');
             el.style.setProperty('min-width', '20px', 'important');
             el.style.setProperty('min-height', '3px', 'important');
           });
@@ -845,11 +849,16 @@ window.executeDownload = function() {
         backgroundColor: isLight ? '#ffffff' : '#13131f', 
         logging: false,
         onclone: (clonedDoc) => {
-          // Guard against html2canvas InvalidStateError on gradient elements
+          // CRIT-02: Guard against html2canvas CanvasGradient crash. 
+          // Gradient rendering fails if addColorStop is called with non-finite values (often due to 0px dimensions).
+          // We replace the gradient with a solid color in the clone to guarantee stability.
           clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
+            const tc = el.style.getPropertyValue('--tc') || '#f5c842';
+            el.style.setProperty('background', tc, 'important');
             el.style.setProperty('min-width', '20px', 'important');
             el.style.setProperty('min-height', '3px', 'important');
           });
+
 
           // Find the tagged card inside the clone
           const clonedCard = clonedDoc.querySelector('[data-capture-target="true"]');

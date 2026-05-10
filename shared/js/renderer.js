@@ -58,7 +58,8 @@ export function buildCard(t) {
       </div>
     </div>
     <button class="delete-team-btn" onclick="this.closest('.team-card').remove()">🗑 Delete</button>
-    <button class="download-node-btn" onclick="openDlModal(this)">Screenshot</button>`;
+    <button class="download-node-btn" onclick="openDlModal(this)" aria-label="Screenshot this card"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:3px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> Screenshot</button>
+`;
 
   // Card logic like dot listener and drag enablement will be wired in rewireAll
   return card;
