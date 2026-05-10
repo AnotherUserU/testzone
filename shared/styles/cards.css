@@ -28,10 +28,6 @@
   opacity: 0.6;
 }
 
-.team-card.is-capturing::after {
-  display: none !important;
-}
-
 .team-card:hover {
   transform: translateY(-5px) scale(1.01);
   background: rgba(40, 40, 60, 0.85);

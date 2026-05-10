@@ -160,17 +160,11 @@
         el.style.setProperty('padding-right', '0', 'important');
       });
 
-      // 3. Robust Curve & Color inheritance per-card
-      // html2canvas fails with pseudo-elements on dynamic heights, so we inject real ones
-      const style = clonedDoc.createElement('style');
-      style.textContent = `.team-card::after, .team-card::before { content: none !important; display: none !important; opacity: 0 !important; }`;
-      (clonedDoc.head || clonedDoc.body).appendChild(style);
-
+      // 3. Color inheritance per-card (accent bar gradient fix)
       clonedDoc.querySelectorAll('.team-card').forEach(card => {
-        card.classList.add('is-capturing');
         const tc = card.style.getPropertyValue('--tc') || '#f5c842';
         
-        // Fix Accent Bar
+        // Fix Accent Bar gradient crash
         const accent = card.querySelector('.card-accent-bar');
         if (accent) {
           accent.style.setProperty('background', tc, 'important');
@@ -178,24 +172,9 @@
           accent.style.setProperty('min-height', '3px', 'important');
         }
 
-        // Inject Real Curve at absolute bottom
-        const curve = clonedDoc.createElement('div');
-        curve.style.cssText = `
-          position: absolute !important;
-          bottom: 0 !important;
-          left: 0 !important;
-          width: 15px !important;
-          height: 15px !important;
-          border-left: 2px solid ${tc} !important;
-          border-bottom: 2px solid ${tc} !important;
-          border-bottom-left-radius: 12px !important;
-          z-index: 100 !important;
-          background: transparent !important;
-          pointer-events: none !important;
-        `;
-        card.appendChild(curve);
-        card.style.setProperty('position', 'relative', 'important');
-        card.style.setProperty('overflow', 'visible', 'important');
+        // The CSS ::after with bottom:0 naturally follows height:auto cards.
+        // Do NOT inject replacement curves — html2canvas renders ::after regardless
+        // of CSS overrides, which causes the double-curve bug.
       });
 
       if (isFullscreen) {
