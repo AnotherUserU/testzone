@@ -109,27 +109,6 @@
             clonedCard.style.setProperty('flex', 'none', 'important');
             clonedCard.style.setProperty('overflow', 'visible', 'important');
 
-            // ROBUST CURVE: html2canvas often fails to move ::after pseudo-elements down.
-            // We inject a real element at the absolute bottom of the cloned card.
-            const curve = clonedDoc.createElement('div');
-            const tc = clonedCard.style.getPropertyValue('--tc') || '#f5c842';
-            curve.style.cssText = `
-              position: absolute !important;
-              bottom: 0 !important;
-              left: 0 !important;
-              width: 15px !important;
-              height: 15px !important;
-              border-left: 2px solid ${tc} !important;
-              border-bottom: 2px solid ${tc} !important;
-              border-bottom-left-radius: 12px !important;
-              z-index: 100 !important;
-              background: transparent !important;
-              pointer-events: none !important;
-            `;
-            clonedCard.appendChild(curve);
-            // Hide the original pseudo-element using a class to avoid overlapping
-            clonedCard.classList.add('is-capturing');
-            
             // CRITICAL: Must use overflow:hidden to keep rounded corners at the top!
             const inner = clonedCard.querySelector('.team-card-inner');
             if (inner) {
@@ -181,16 +160,41 @@
         el.style.setProperty('padding-right', '0', 'important');
       });
 
-      // 3. Fix Gradient Crash (html2canvas bug with 0px dimensions)
-      // Iterates through every card to ensure colors are inherited correctly per-card
+      // 3. Robust Curve & Color inheritance per-card
+      // html2canvas fails with pseudo-elements on dynamic heights, so we inject real ones
+      const style = clonedDoc.createElement('style');
+      style.textContent = '.team-card::after { display: none !important; }';
+      clonedDoc.head.appendChild(style);
+
       clonedDoc.querySelectorAll('.team-card').forEach(card => {
         const tc = card.style.getPropertyValue('--tc') || '#f5c842';
+        
+        // Fix Accent Bar
         const accent = card.querySelector('.card-accent-bar');
         if (accent) {
           accent.style.setProperty('background', tc, 'important');
           accent.style.setProperty('min-width', '20px', 'important');
           accent.style.setProperty('min-height', '3px', 'important');
         }
+
+        // Inject Real Curve at absolute bottom
+        const curve = clonedDoc.createElement('div');
+        curve.style.cssText = `
+          position: absolute !important;
+          bottom: 0 !important;
+          left: 0 !important;
+          width: 15px !important;
+          height: 15px !important;
+          border-left: 2px solid ${tc} !important;
+          border-bottom: 2px solid ${tc} !important;
+          border-bottom-left-radius: 12px !important;
+          z-index: 100 !important;
+          background: transparent !important;
+          pointer-events: none !important;
+        `;
+        card.appendChild(curve);
+        card.style.setProperty('position', 'relative', 'important');
+        card.style.setProperty('overflow', 'visible', 'important');
       });
 
       if (isFullscreen) {
