@@ -236,6 +236,8 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1.2;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .foot-cred-item {

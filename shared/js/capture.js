@@ -98,15 +98,27 @@
           this.prepareClone(clonedDoc, isLight, false);
           const clonedCard = clonedDoc.querySelector('[data-capture-target="true"]');
           if (clonedCard) {
-            // Force card width and flex for consistent capture
+            // ROBUST LAYOUT: Allow card to expand for long usernames but keep a safe floor/ceiling
             clonedCard.style.setProperty('display', 'flex', 'important');
             clonedCard.style.setProperty('flex-direction', 'column', 'important');
-            clonedCard.style.setProperty('width', '320px', 'important');
+            clonedCard.style.setProperty('width', 'fit-content', 'important');
+            clonedCard.style.setProperty('min-width', '320px', 'important');
+            clonedCard.style.setProperty('max-width', '500px', 'important');
             clonedCard.style.setProperty('margin', '0', 'important');
             
-            // Show credits explicitly in card mode
+            // Ensure inner container allows for expansion and doesn't clip long credits
+            const inner = clonedCard.querySelector('.team-card-inner');
+            if (inner) {
+              inner.style.setProperty('width', '100%', 'important');
+              inner.style.setProperty('overflow', 'visible', 'important');
+            }
+            
+            // Show and stabilize credits explicitly in card mode
             clonedCard.querySelectorAll('.card-footer-credits').forEach(el => {
               el.style.setProperty('display', 'flex', 'important');
+              el.style.setProperty('width', '100%', 'important');
+              el.style.setProperty('word-break', 'break-word', 'important');
+              el.style.setProperty('overflow-wrap', 'break-word', 'important');
             });
           }
         }
