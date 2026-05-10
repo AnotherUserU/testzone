@@ -829,7 +829,12 @@ window.executeDownload = function() {
     const idx = parseInt(document.getElementById('dlNodeSelect')?.value || '-1');
     if (isNaN(idx) || !cards[idx]) { alert('Please select a card first!'); reEnableBtn(); return; }
     
+    // Tag target element for reliable finding in onclone
+    cards.forEach(c => c.removeAttribute('data-capture-target'));
+    cards[idx].setAttribute('data-capture-target', 'true');
+
     closeDlModal();
+
     
     setTimeout(() => {
       showFbStatus('Capturing...', 'loading');
@@ -846,11 +851,11 @@ window.executeDownload = function() {
             el.style.setProperty('min-height', '3px', 'important');
           });
 
-          // Find the card inside the clone
-          const clonedCards = clonedDoc.querySelectorAll('.team-card');
-          const clonedCard = clonedCards[idx];
+          // Find the tagged card inside the clone
+          const clonedCard = clonedDoc.querySelector('[data-capture-target="true"]');
           
           if (clonedCard) {
+
             // Remove unwanted elements inside THIS card for cleaner capture
             const innerHide = clonedCard.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn');
             innerHide.forEach(el => el.remove());
@@ -875,7 +880,8 @@ window.executeDownload = function() {
         reEnableBtn();
         showFbStatus('✅ Downloaded', 'ok');
       }).catch(err => { 
-        console.error(err); alert('Failed.'); 
+        console.error('Screenshot error:', err); 
+        alert('Failed to capture screenshot: ' + (err.message || 'Unknown error')); 
         reEnableBtn();
         showFbStatus('❌ Failed', 'err');
       });
