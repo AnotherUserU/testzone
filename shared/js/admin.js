@@ -898,3 +898,11 @@ window.executeDownload = function() {
   }
 };
 
+// Event Delegation for card screenshot buttons (Fix for MED-05 sanitization stripping onclick)
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.download-node-btn');
+  if (btn && typeof window.openDlModal === 'function') {
+    e.preventDefault();
+    window.openDlModal(btn);
+  }
+});

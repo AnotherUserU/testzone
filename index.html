@@ -354,6 +354,15 @@
     }
     window.addEventListener('DOMContentLoaded', () => {
       if (localStorage.getItem('theme') === 'light') { isDarkTheme = false; toggleTheme(); }
+      
+      // Event Delegation for card screenshot buttons (Fix for MED-05 sanitization stripping onclick)
+      document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.download-node-btn');
+        if (btn && typeof openDlModal === 'function') {
+          e.preventDefault();
+          openDlModal(btn);
+        }
+      });
     });
 
     function escapeAttr(str) { return str.replace(/"/g, '&quot;'); }
@@ -516,7 +525,9 @@
           }).then(canvas => {
             pageBodyElement.style.maxWidth = origMaxWidth;
             pageBodyElement.style.margin = origMargin;
-            const a = document.createElement('a'); a.download = 'Team_Composition_Guide.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
+            const a = document.createElement('a');
+            const title = cards[idx].querySelector('.card-title')?.textContent.trim().replace(/\s+/g, '_') || 'Team_Composition_Guide';
+            a.download = title + '.' + (dlFmt === 'jpg' ? 'jpg' : 'png');
             a.href = dlFmt === 'jpg' ? canvas.toDataURL('image/jpeg', quality) : canvas.toDataURL('image/png'); a.click();
             reEnableBtn();
             showFbStatus('✅ Downloaded', 'ok');
