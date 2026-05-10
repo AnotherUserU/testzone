@@ -115,6 +115,7 @@
               inner.style.setProperty('overflow', 'hidden', 'important');
               inner.style.setProperty('display', 'flex', 'important');
               inner.style.setProperty('flex-direction', 'column', 'important');
+              inner.style.setProperty('padding-bottom', '4px', 'important'); // Safety space for bottom curve
             }
             
             // Show and stabilize credits explicitly in card mode
@@ -149,7 +150,9 @@
 
       // 3. Fix Gradient Crash (html2canvas bug with 0px dimensions)
       clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
-        const tc = el.style.getPropertyValue('--tc') || '#f5c842';
+        const card = el.closest('.team-card');
+        // Correctly inherit --tc from parent card instead of defaulting to yellow
+        const tc = card ? (card.style.getPropertyValue('--tc') || getComputedStyle(card).getPropertyValue('--tc')) : '#f5c842';
         el.style.setProperty('background', tc, 'important');
         el.style.setProperty('min-width', '20px', 'important');
         el.style.setProperty('min-height', '3px', 'important');
