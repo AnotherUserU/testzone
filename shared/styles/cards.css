@@ -26,7 +26,10 @@
   border-bottom-left-radius: 12px;
   pointer-events: none;
   opacity: 0.6;
-  display: var(--hide-after, block);
+}
+
+.team-card.is-capturing::after {
+  display: none !important;
 }
 
 .team-card:hover {

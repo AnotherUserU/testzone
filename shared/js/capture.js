@@ -127,8 +127,8 @@
               pointer-events: none !important;
             `;
             clonedCard.appendChild(curve);
-            // Hide the original pseudo-element to avoid overlapping
-            clonedCard.style.setProperty('--hide-after', 'none', 'important');
+            // Hide the original pseudo-element using a class to avoid overlapping
+            clonedCard.classList.add('is-capturing');
             
             // CRITICAL: Must use overflow:hidden to keep rounded corners at the top!
             const inner = clonedCard.querySelector('.team-card-inner');
