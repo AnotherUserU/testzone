@@ -9,6 +9,7 @@ import { ALL_MODES, PAGE_MAP, PV_MAP, TEAM_COLORS, H1_COLORS, SECURITY } from '.
 import { AppState } from './state.js';
 import { showToast, showFbStatus, sanitizeHTML, escapeAttr, rgbToHex, selectAll } from './utils.js';
 import { buildCard, refreshAllCardCredits, nextColor } from './renderer.js';
+import { Components } from './components.js';
 import { wireBlockDrag, enableCardDrag, wireGridDrop, enableMemDrag, renumMembers } from './drag.js';
 import { saveToFirebase, loadFromFirebase } from './firebase.js';
 
@@ -117,29 +118,26 @@ window.closeH1Modal = function () {
 window.applyH1 = function () {
   const text = sanitizeHTML(document.getElementById('h1Text').value.trim() || 'Heading');
   const c = AppState.h1Color;
-  const block = document.createElement('div');
-  block.className = 'h1-block';
-  block.innerHTML = `<h1 contenteditable="true" style="color:${c};text-shadow:0 0 14px ${c}66">${text}</h1><span class="delete-box" onclick="this.closest('.h1-block').remove()">✕</span>`;
   if (AppState.activeH1Btn) {
     const foot = AppState.activeH1Btn.closest('.card-foot');
-    if (foot) foot.querySelector('.foot-content').appendChild(block);
+    if (foot) {
+      const container = foot.querySelector('.foot-content');
+      const html = Components.FooterBlock({ type: 'h1', content: text, color: c }, true);
+      container.insertAdjacentHTML('beforeend', html);
+    }
   }
   closeH1Modal();
 };
 
-window.addModBox = function (btn) {
+window.addFooterBlock = function (btn, type) {
   const container = btn.closest('.card-foot').querySelector('.foot-content');
-  const div = document.createElement('div'); div.className = 'mod-box';
-  div.innerHTML = `<div class="mod-title" contenteditable="true" style="cursor: text;">🔶 REQUIRED</div><div class="mod-item" contenteditable="true">Click to edit...</div><button class="add-point-btn" onclick="addBoxItem(this, 'mod-item')">+ Add Point</button><span class="delete-box" onclick="this.closest('.mod-box').remove()">✕</span>`;
-  container.appendChild(div);
+  const html = Components.FooterBlock({ type }, true);
+  container.insertAdjacentHTML('beforeend', html);
 };
 
-window.addTipsBox = function (btn) {
-  const container = btn.closest('.card-foot').querySelector('.foot-content');
-  const div = document.createElement('div'); div.className = 'tips-box';
-  div.innerHTML = `<div class="tips-title" contenteditable="true" style="cursor: text;">💡 TIPS</div><div class="tips-item" contenteditable="true">Click to edit...</div><button class="add-point-btn" onclick="addBoxItem(this, 'tips-item')">+ Add Point</button><span class="delete-box" onclick="this.closest('.tips-box').remove()">✕</span>`;
-  container.appendChild(div);
-};
+window.addModBox = (btn) => addFooterBlock(btn, 'mod');
+window.addTipsBox = (btn) => addFooterBlock(btn, 'tips');
+window.addWarnBox = (btn) => addFooterBlock(btn, 'warn');
 
 window.addBoxItem = function (btn, className) {
   const div = document.createElement('div');
@@ -147,13 +145,6 @@ window.addBoxItem = function (btn, className) {
   div.contentEditable = "true";
   div.innerText = "Click to edit...";
   btn.before(div);
-};
-
-window.addWarnBox = function (btn) {
-  const container = btn.closest('.card-foot').querySelector('.foot-content');
-  const div = document.createElement('div'); div.className = 'warn-box';
-  div.innerHTML = `<span contenteditable="true" style="cursor: text;">⚠️ DANGER: High level required.</span><span class="delete-box" onclick="this.closest('.warn-box').remove()">✕</span>`;
-  container.appendChild(div);
 };
 
 window.addBannerBlock = function (btn, type, sectionKey) {
@@ -272,21 +263,13 @@ window.addMember = function (btn) {
   const membersBox = card?.querySelector('.card-members');
   if (!membersBox) return;
 
+  const color = getComputedStyle(card).getPropertyValue('--tc').trim() || '#f5c842';
   const i = membersBox.querySelectorAll('.mem-row').length;
-  const row = document.createElement('div');
-  row.className = 'mem-row';
-  row.innerHTML = `
-    <div class="mem-num">${i + 1}</div>
-    <div style="flex:1">
-      <div class="mem-name" contenteditable="true">New Unit</div>
-      <div class="mem-bind" contenteditable="true">Binding Vow</div>
-    </div>
-  `;
-  membersBox.appendChild(row);
-  enableMemDrag(row);
-  const del = document.createElement('span'); del.className = 'delete-mem'; del.innerHTML = '✕';
-  del.onclick = () => { row.remove(); renumMembers(membersBox); };
-  row.appendChild(del);
+  const html = Components.MemberRow({ name: 'New Unit', bind: 'Binding Vow' }, i, color, true);
+  
+  membersBox.insertAdjacentHTML('beforeend', html);
+  const newRow = membersBox.lastElementChild;
+  enableMemDrag(newRow);
   rewireAll();
 };
 

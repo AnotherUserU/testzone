@@ -1,12 +1,13 @@
 # 📘 Team Composition Guide — Technical Documentation
 
 > **Project Directive**: "Tambahkan semua kode kalau bisa di refactor (tanpa merusak fitur kedua me robust semua kode)"
+> **Architectural Goal**: Centralize logic, eliminate redundancy, and enforce data-driven rendering across Guest and Admin modes.
 
-> **Project**: `team-composition-guide` v1.0.0  
+> **Project**: `team-composition-guide` v1.2.0  
 > **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-05-10 (Session: Resolved CanvasGradient crash via solid fallback, implemented Event Delegation for screenshot triggers, fixed card-level screenshot button inactivity)
+> **Last Updated**: 2026-05-10 (Session: Centralized UI Components library, unified ScreenshotEngine, refactored Admin logic for robustness, improved Credit matching helper structure)
 
 
 ---
