@@ -99,10 +99,11 @@
           const clonedCard = clonedDoc.querySelector('[data-capture-target="true"]');
           if (clonedCard) {
             // RESTORE STYLES: Keep card width consistent (320px) to maintain premium look.
-            // Text wrapping (added in CSS/JS) handles long usernames vertically.
             clonedCard.style.setProperty('display', 'flex', 'important');
             clonedCard.style.setProperty('flex-direction', 'column', 'important');
             clonedCard.style.setProperty('width', '320px', 'important');
+            clonedCard.style.setProperty('height', 'auto', 'important');
+            clonedCard.style.setProperty('min-height', 'min-content', 'important');
             clonedCard.style.setProperty('margin', '0', 'important');
             
             // CRITICAL: Must use overflow:hidden to keep rounded corners at the top!
@@ -110,6 +111,7 @@
             if (inner) {
               inner.style.setProperty('width', '100%', 'important');
               inner.style.setProperty('height', 'auto', 'important');
+              inner.style.setProperty('min-height', 'min-content', 'important');
               inner.style.setProperty('overflow', 'hidden', 'important');
               inner.style.setProperty('display', 'flex', 'important');
               inner.style.setProperty('flex-direction', 'column', 'important');
