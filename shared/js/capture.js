@@ -111,10 +111,18 @@
             if (inner) {
               inner.style.setProperty('width', '100%', 'important');
               inner.style.setProperty('height', 'auto', 'important');
-              inner.style.setProperty('min-height', 'min-content', 'important');
+              inner.style.setProperty('min-height', 'unset', 'important');
               inner.style.setProperty('overflow', 'hidden', 'important');
               inner.style.setProperty('display', 'flex', 'important');
               inner.style.setProperty('flex-direction', 'column', 'important');
+            }
+
+            // Ensure footer expands to contain wrapped credits
+            const foot = clonedCard.querySelector('.card-foot');
+            if (foot) {
+              foot.style.setProperty('height', 'auto', 'important');
+              foot.style.setProperty('display', 'flex', 'important');
+              foot.style.setProperty('flex-direction', 'column', 'important');
             }
             
             // Show and stabilize credits explicitly in card mode
@@ -148,14 +156,15 @@
       });
 
       // 3. Fix Gradient Crash (html2canvas bug with 0px dimensions)
-      clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
-        // Read color from original target to avoid inheritance issues in clone
-        const target = document.querySelector('[data-capture-target="true"]');
-        const tc = target ? (target.style.getPropertyValue('--tc') || '#f5c842') : '#f5c842';
-        
-        el.style.setProperty('background', tc, 'important');
-        el.style.setProperty('min-width', '20px', 'important');
-        el.style.setProperty('min-height', '3px', 'important');
+      // Iterates through every card to ensure colors are inherited correctly per-card
+      clonedDoc.querySelectorAll('.team-card').forEach(card => {
+        const tc = card.style.getPropertyValue('--tc') || '#f5c842';
+        const accent = card.querySelector('.card-accent-bar');
+        if (accent) {
+          accent.style.setProperty('background', tc, 'important');
+          accent.style.setProperty('min-width', '20px', 'important');
+          accent.style.setProperty('min-height', '3px', 'important');
+        }
       });
 
       if (isFullscreen) {
