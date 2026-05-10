@@ -98,19 +98,21 @@
           this.prepareClone(clonedDoc, isLight, false);
           const clonedCard = clonedDoc.querySelector('[data-capture-target="true"]');
           if (clonedCard) {
-            // ROBUST LAYOUT: Allow card to expand for long usernames but keep a safe floor/ceiling
+            // RESTORE STYLES: Keep card width consistent (320px) to maintain premium look.
+            // Text wrapping (added in CSS/JS) handles long usernames vertically.
             clonedCard.style.setProperty('display', 'flex', 'important');
             clonedCard.style.setProperty('flex-direction', 'column', 'important');
-            clonedCard.style.setProperty('width', 'fit-content', 'important');
-            clonedCard.style.setProperty('min-width', '320px', 'important');
-            clonedCard.style.setProperty('max-width', '500px', 'important');
+            clonedCard.style.setProperty('width', '320px', 'important');
             clonedCard.style.setProperty('margin', '0', 'important');
             
-            // Ensure inner container allows for expansion and doesn't clip long credits
+            // CRITICAL: Must use overflow:hidden to keep rounded corners at the top!
             const inner = clonedCard.querySelector('.team-card-inner');
             if (inner) {
               inner.style.setProperty('width', '100%', 'important');
-              inner.style.setProperty('overflow', 'visible', 'important');
+              inner.style.setProperty('height', 'auto', 'important');
+              inner.style.setProperty('overflow', 'hidden', 'important');
+              inner.style.setProperty('display', 'flex', 'important');
+              inner.style.setProperty('flex-direction', 'column', 'important');
             }
             
             // Show and stabilize credits explicitly in card mode
