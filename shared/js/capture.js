@@ -162,6 +162,9 @@
 
       // 3. Robust Curve & Color inheritance per-card
       // html2canvas fails with pseudo-elements on dynamic heights, so we inject real ones
+      const style = clonedDoc.createElement('style');
+      style.textContent = `.team-card::after, .team-card::before { content: none !important; display: none !important; opacity: 0 !important; }`;
+      (clonedDoc.head || clonedDoc.body).appendChild(style);
 
       clonedDoc.querySelectorAll('.team-card').forEach(card => {
         card.classList.add('is-capturing');
