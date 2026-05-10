@@ -4,7 +4,7 @@
 > **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-05-10 (Session: Fixed CanvasGradient screenshot crash, implemented robust card targeting, resolved per-card screenshot responsiveness on live environment)
+> **Last Updated**: 2026-05-10 (Session: Resolved CanvasGradient crash via solid fallback, implemented Event Delegation for screenshot triggers, fixed card-level screenshot button inactivity)
 
 
 ---
@@ -880,6 +880,17 @@ window.addNewStoryTeam     = () => addGenericNewTeam('storyNewGrid',  'story');
 
 ---
 
+### ✅ Card Screenshot Button Inactivity (DOMPurify Sanitization) — RESOLVED
+
+**ISSUE:** The "Screenshot" buttons on individual cards were non-functional in Guest mode.
+
+**ROOT CAUSE:** `DOMPurify` sanitization (specifically `MED-05` guard) strips all `onclick` attributes to prevent XSS. Since the cards are loaded dynamically from Firebase, the inline handlers were removed, leaving the buttons "frozen."
+
+**FIX (`index.html` & `shared/js/admin.js`):**
+Implemented **Event Delegation**. A global click listener detects clicks on `.download-node-btn` and triggers `openDlModal(btn)` manually. This bypasses the need for inline `onclick` attributes while maintaining strict security.
+
+---
+
 ## 12. Architecture Decision Records (ADR)
 
 > Added by `architect-review` skill — 2026-04-30
@@ -909,9 +920,14 @@ window.addNewStoryTeam     = () => addGenericNewTeam('storyNewGrid',  'story');
 - **Previous Decision**: Global `* { background-image: none !important }` (Nuclear Option) — abandoned because it stripped visual identity without fully resolving the layout gap.
 - **Status**: Accepted (with QoL pending).
 
+### ADR-005: Event Delegation for Dynamic UI Triggers
+- **Decision**: Use `document.addEventListener('click', ...)` delegation for all critical UI triggers (e.g., screenshot buttons) instead of inline `onclick`.
+- **Rationale**: Allows content to be sanitized via `DOMPurify` (stripping all event handlers) without losing functionality. Maintains a high security posture (`MED-05`) while ensuring dynamic elements remain interactive.
+- **Trade-off**: Slightly higher code complexity; requires checking `e.target.closest()`.
+- **Status**: Accepted.
+
 ---
 
 > **For new developers / AI agents**: Start with `shared/js/config.js` for constants, then `shared/js/renderer.js` for how data becomes UI.
 > **Critical Rule**: When modifying credit matching, test ALL 7 modes and check BOTH `renderer.js` (admin path) and `index.html:442` (guest path).
 > **Security Rule**: Never add `onclick` to `SECURITY.ALLOWED_ATTR` — it opens stored XSS. Only `CLOUD_CONFIG` (admin-only) may include event handlers.
-

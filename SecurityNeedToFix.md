@@ -3,7 +3,7 @@
 > **Scanned by**: `wiki-architect` + `architect-review` + `security-auditor` + `differential-review` + `vibe-code-auditor` (5-Skill Audit)
 > **Date**: 2026-04-30 (Full Re-Audit) | **Last Updated**: 2026-05-10
 > **Scope**: Full codebase (`admin.html`, `index.html`, `api/`, `shared/js/`, `shared/js-min/`, `vercel.json`)
-> **Current Status**: 🟢 SECURE — All identified items fixed (gradient crash resolved via solid color fallback)
+> **Current Status**: 🟢 SECURE — All identified items fixed (stabilized capture engine + event delegation)
 
 
 ---
@@ -151,7 +151,7 @@
 * **Remediation**: 
     - **Full-Screen**: Fixed horizontal gaps and right-side card cutoff by widening `.grid-wrap` to `1440px` and temporarily forcing `max-width: 1440px` on `#pageBody` during capture. 
     - **Per-Card**: Resolved "node screenshot" stretching (640px+ width) by forcing `width: 320px` and `display: flex` in `onclone`. 
-    - **Stability**: Resolved `html2canvas` 1.4.1 `CanvasGradient` crash by implementing a nuclear fallback in `onclone`: all problematic `.card-accent-bar` gradients are replaced with solid CSS colors during the cloning phase. This prevents the `InvalidStateError` caused by zero-dimension gradient elements. Added `data-capture-target` tagging for 100% reliable card selection in complex DOM structures.
+    - **Stability**: Resolved `html2canvas` 1.4.1 `CanvasGradient` crash by implementing a solid color fallback in `onclone`. Fixed card-level button inactivity by implementing **Event Delegation** (ADR-005) for `.download-node-btn`, bypassing `MED-05` sanitization constraints.
 
 
 
