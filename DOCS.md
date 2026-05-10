@@ -1,5 +1,7 @@
 # 📘 Team Composition Guide — Technical Documentation
 
+> **Project Directive**: "Tambahkan semua kode kalau bisa di refactor (tanpa merusak fitur kedua me robust semua kode)"
+
 > **Project**: `team-composition-guide` v1.0.0  
 > **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
 > **Platform**: Vercel (Serverless)  
