@@ -14,8 +14,8 @@
   -webkit-backdrop-filter: blur(14px);
 }
 
-.team-card::after {
-  content: "";
+/* Decorative corner curve — real DOM element (not ::after) for html2canvas compatibility */
+.card-corner-curve {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -26,6 +26,7 @@
   border-bottom-left-radius: 12px;
   pointer-events: none;
   opacity: 0.6;
+  z-index: 10;
 }
 
 .team-card:hover {

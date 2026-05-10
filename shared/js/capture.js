@@ -172,9 +172,8 @@
           accent.style.setProperty('min-height', '3px', 'important');
         }
 
-        // The CSS ::after with bottom:0 naturally follows height:auto cards.
-        // Do NOT inject replacement curves — html2canvas renders ::after regardless
-        // of CSS overrides, which causes the double-curve bug.
+        // Decorative curve is now a real DOM element (.card-corner-curve)
+        // rendered in buildCard — no pseudo-element workarounds needed.
       });
 
       if (isFullscreen) {
