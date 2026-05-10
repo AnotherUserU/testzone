@@ -753,7 +753,7 @@ window.executeDownload = function() {
   if (dlBtn) { dlBtn.disabled = true; dlBtn.style.opacity = '0.5'; }
   const quality = parseInt(document.getElementById('dlQualitySlider')?.value || '90') / 100;
   const isLight = document.documentElement.classList.contains('light-theme');
-  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,[data-block="save-local"],[data-block="download"],#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
+  const HIDE_SEL = '.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn,.float-xl,.add-banner-btn,.add-banner-bar,.save-bar,#downloadBtn,#dlBtnWrapper,[data-block="save-local"],[data-block="download"],#themeToggle,.del-section-btn,.team-section-actions,.add-section-btn,.download-node-btn,.nav-header,.admin-link,#roleBadge,#fbStatus,#scrollProgress';
   
   function reEnableBtn() { if (dlBtn) { dlBtn.disabled = false; dlBtn.style.opacity = ''; } }
 
@@ -801,9 +801,10 @@ window.executeDownload = function() {
 
           // Guard against html2canvas InvalidStateError on gradient elements
           clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
-            el.style.setProperty('min-width', '15px', 'important');
-            el.style.setProperty('min-height', '2px', 'important');
+            el.style.setProperty('min-width', '20px', 'important');
+            el.style.setProperty('min-height', '3px', 'important');
           });
+
         }
       }).then(canvas => {
         pageBodyElement.style.maxWidth = origMaxWidth;
@@ -839,23 +840,30 @@ window.executeDownload = function() {
         backgroundColor: isLight ? '#ffffff' : '#13131f', 
         logging: false,
         onclone: (clonedDoc) => {
-          // Find the card inside the clone (html2canvas clones the whole doc but only renders the target)
-          // We need to find the card in the clone that corresponds to our target card
+          // Guard against html2canvas InvalidStateError on gradient elements
+          clonedDoc.querySelectorAll('.card-accent-bar').forEach(el => {
+            el.style.setProperty('min-width', '20px', 'important');
+            el.style.setProperty('min-height', '3px', 'important');
+          });
+
+          // Find the card inside the clone
           const clonedCards = clonedDoc.querySelectorAll('.team-card');
           const clonedCard = clonedCards[idx];
           
           if (clonedCard) {
-            // Hide unwanted elements inside THIS card
-            const innerHide = clonedCard.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette');
-            innerHide.forEach(el => el.style.setProperty('display', 'none', 'important'));
+            // Remove unwanted elements inside THIS card for cleaner capture
+            const innerHide = clonedCard.querySelectorAll('.download-node-btn,.edit-btn,.delete-mem,.delete-team-btn,.delete-box,.add-point-btn,.card-drag-handle,.color-dot,.clr-palette,.block-handle,.cred-edit-btn');
+            innerHide.forEach(el => el.remove());
             
             // Show credits
             const credits = clonedCard.querySelectorAll('.card-footer-credits');
             credits.forEach(el => el.style.setProperty('display', 'flex', 'important'));
             
-            // Critical fix for flex layout: ensure container has its styles
+            // Ensure layout stability and prevent stretching
             clonedCard.style.setProperty('display', 'flex', 'important');
             clonedCard.style.setProperty('flex-direction', 'column', 'important');
+            clonedCard.style.setProperty('width', '320px', 'important'); // Standard card width for consistent capture
+            clonedCard.style.setProperty('margin', '0', 'important');
           }
         }
       }).then(canvas => {

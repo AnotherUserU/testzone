@@ -143,11 +143,15 @@
 * **Status**: ✅ FIXED — 2026-05-09
 * **Remediation**: Changed capture target from `document.body` to `document.getElementById('pageBody')`. This completely bypasses the sticky `nav-header` layout offset.
 
-### QoL-02: Screenshot Horizontal & Vertical Gaps ✅ FIXED
-* **File**: `shared/js/admin.js` + `index.html` (`executeDownload` fullscreen path)
+### QoL-02: Screenshot Horizontal Gaps & Node Stretching ✅ FIXED
+* **File**: `shared/js/admin.js` + `index.html` (`executeDownload`)
 * **Discovered**: 2026-05-09 session
-* **Status**: ✅ FIXED — 2026-05-09
-* **Remediation**: `html2canvas` captures target width relative to viewport. Fixed horizontal gaps and right-side card cutoff by permanently widening `.grid-wrap` to `1440px` and temporarily forcing `max-width: 1440px` on `#pageBody` right before capture initialization. Fixed vertical gaps by stripping `#dlBtnWrapper` and `[data-block="save-local"]` via `HIDE_SEL` in `onclone`.
+* **Status**: ✅ FIXED — 2026-05-10
+* **Remediation**: 
+    - **Full-Screen**: Fixed horizontal gaps and right-side card cutoff by widening `.grid-wrap` to `1440px` and temporarily forcing `max-width: 1440px` on `#pageBody` during capture. 
+    - **Per-Card**: Resolved "node screenshot" stretching (640px+ width) by forcing `width: 320px` and `display: flex` in `onclone`. 
+    - **Stability**: Added `onclone` gradient guards (`min-width: 20px`, `min-height: 3px`) to prevent `html2canvas` 1.4.1 `InvalidStateError` crashes on small gradient elements. Fixed vertical gaps by stripping `#dlBtnWrapper` and `[data-block="save-local"]` via `HIDE_SEL`.
+
 
 ---
 

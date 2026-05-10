@@ -441,10 +441,40 @@ CSS: `.mode-section { display: none; }` / `.mode-section.active { display: block
 │   │   └── .warn-box       ← ⚠️ Warning boxes
 │   ├── .card-footer-credits ← Per-card credit line (hidden by default)
 │   └── admin buttons       ← Admin only: Add mod/tips/warn
-└── .download-node-btn      ← Screenshot individual card
+  └── .download-node-btn      ← Screenshot individual card
 ```
 
-### Credit System
+## 8. Screenshot System
+
+The application uses `html2canvas` (v1.4.1) for generating high-fidelity PNG/JPG exports of the guide.
+
+### Capture Strategy
+
+- **Full-Screen Capture**: Targets `#pageBody`. This excludes the sticky `nav-header` and `fbStatus` overlay.
+- **Per-Card Capture**: Targets a specific `.team-card`. The user can trigger this via the "Screenshot" button on any card or via the Download Modal's dropdown.
+
+### Layout Constraints (1440px Standard)
+
+To ensure consistent 4-column layouts without horizontal clipping or black gaps:
+1.  **CSS Standard**: `.grid-wrap` and `.alert-wrap` have a `max-width: 1440px`.
+2.  **Forced Reflow**: During `executeDownload` (fullscreen), the script temporarily forces `#pageBody { max-width: 1440px; margin: 0 auto; }`. This ensures `html2canvas` calculates the 4-column layout regardless of the actual browser window size.
+
+### Sanitization (`HIDE_SEL`)
+
+The `HIDE_SEL` constant contains CSS selectors for all UI elements that must be stripped from the screenshot. This includes:
+- Admin buttons (`.edit-btn`, `.add-point-btn`, etc.)
+- Drag handles (`.card-drag-handle`, `.block-handle`)
+- Toolbars (`.add-banner-bar`, `.save-bar`)
+- Navigation elements (`.nav-header`, `#downloadBtn`, `#dlBtnWrapper`)
+
+### Stability & Crash Prevention (`onclone`)
+
+The `onclone` callback is used to modify the document clone before rendering:
+1.  **UI Removal**: `clonedDoc.querySelectorAll(HIDE_SEL).forEach(el => el.remove())`. Using `.remove()` is more reliable than `display: none`.
+2.  **Gradient Guard**: `html2canvas` 1.4.1 throws an `InvalidStateError` if it attempts to render a `linear-gradient` on an element with 0px dimensions. We force `min-width: 20px` and `min-height: 3px` on `.card-accent-bar` in the clone to prevent this.
+3.  **Per-Card Stabilization**: For individual card captures, we force `width: 320px` and `display: flex` on the target card to prevent it from stretching to fill the container width.
+
+## 9. Credit System
 
 Credits operate at two levels:
 
