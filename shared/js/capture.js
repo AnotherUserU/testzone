@@ -99,6 +99,7 @@
           const clonedCard = clonedDoc.querySelector('[data-capture-target="true"]');
           if (clonedCard) {
             // RESTORE STYLES: Keep card width consistent (320px) to maintain premium look.
+            clonedCard.style.setProperty('position', 'relative', 'important');
             clonedCard.style.setProperty('display', 'flex', 'important');
             clonedCard.style.setProperty('flex-direction', 'column', 'important');
             clonedCard.style.setProperty('width', '320px', 'important');
@@ -106,6 +107,28 @@
             clonedCard.style.setProperty('min-height', 'unset', 'important');
             clonedCard.style.setProperty('margin', '0', 'important');
             clonedCard.style.setProperty('flex', 'none', 'important');
+            clonedCard.style.setProperty('overflow', 'visible', 'important');
+
+            // ROBUST CURVE: html2canvas often fails to move ::after pseudo-elements down.
+            // We inject a real element at the absolute bottom of the cloned card.
+            const curve = clonedDoc.createElement('div');
+            const tc = clonedCard.style.getPropertyValue('--tc') || '#f5c842';
+            curve.style.cssText = `
+              position: absolute !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              width: 15px !important;
+              height: 15px !important;
+              border-left: 2px solid ${tc} !important;
+              border-bottom: 2px solid ${tc} !important;
+              border-bottom-left-radius: 12px !important;
+              z-index: 100 !important;
+              background: transparent !important;
+              pointer-events: none !important;
+            `;
+            clonedCard.appendChild(curve);
+            // Hide the original pseudo-element to avoid overlapping
+            clonedCard.style.setProperty('--hide-after', 'none', 'important');
             
             // CRITICAL: Must use overflow:hidden to keep rounded corners at the top!
             const inner = clonedCard.querySelector('.team-card-inner');
