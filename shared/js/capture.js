@@ -103,8 +103,9 @@
             clonedCard.style.setProperty('flex-direction', 'column', 'important');
             clonedCard.style.setProperty('width', '320px', 'important');
             clonedCard.style.setProperty('height', 'auto', 'important');
-            clonedCard.style.setProperty('min-height', 'min-content', 'important');
+            clonedCard.style.setProperty('min-height', 'unset', 'important');
             clonedCard.style.setProperty('margin', '0', 'important');
+            clonedCard.style.setProperty('flex', 'none', 'important');
             
             // CRITICAL: Must use overflow:hidden to keep rounded corners at the top!
             const inner = clonedCard.querySelector('.team-card-inner');
@@ -117,10 +118,12 @@
               inner.style.setProperty('flex-direction', 'column', 'important');
             }
 
-            // Ensure footer expands to contain wrapped credits
+            // Ensure footer expands ONLY as much as needed and doesn't fill space
             const foot = clonedCard.querySelector('.card-foot');
             if (foot) {
               foot.style.setProperty('height', 'auto', 'important');
+              foot.style.setProperty('min-height', 'unset', 'important');
+              foot.style.setProperty('flex', 'none', 'important');
               foot.style.setProperty('display', 'flex', 'important');
               foot.style.setProperty('flex-direction', 'column', 'important');
             }
