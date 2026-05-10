@@ -162,11 +162,9 @@
 
       // 3. Robust Curve & Color inheritance per-card
       // html2canvas fails with pseudo-elements on dynamic heights, so we inject real ones
-      const style = clonedDoc.createElement('style');
-      style.textContent = '.team-card::after { display: none !important; }';
-      clonedDoc.head.appendChild(style);
 
       clonedDoc.querySelectorAll('.team-card').forEach(card => {
+        card.classList.add('is-capturing');
         const tc = card.style.getPropertyValue('--tc') || '#f5c842';
         
         // Fix Accent Bar
