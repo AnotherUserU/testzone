@@ -151,7 +151,7 @@
 * **Remediation**: 
     - **Full-Screen**: Fixed horizontal gaps and right-side card cutoff by widening `.grid-wrap` to `1440px` and temporarily forcing `max-width: 1440px` on `#pageBody` during capture. 
     - **Per-Card**: Resolved "node screenshot" stretching (640px+ width) by forcing `width: 320px` and `display: flex` in `onclone`. Fixed vertical expansion and extra bottom padding by unsetting `min-height` and forcing `height: auto` on all containers.
-    - **Stability**: Resolved `html2canvas` 1.4.1 `CanvasGradient` crash by implementing a solid color fallback in `onclone`. Fixed per-card color inheritance by reading `--tc` variables during cloning. Fixed the 'floating curve' bug by replacing the unreliable `::after` pseudo-element with a real-DOM injected DIV pinned to `bottom: 0`.
+    - **Stability**: Resolved `html2canvas` 1.4.1 `CanvasGradient` crash by implementing a solid color fallback in `onclone`. Fixed per-card color inheritance by reading `--tc` variables during cloning. Replaced the decorative `::after` pseudo-element with a real DOM element (`.card-corner-curve` in `buildCard`) to eliminate html2canvas positioning and double-rendering bugs.
 
 
 

@@ -1,13 +1,13 @@
 # 📘 Team Composition Guide — Technical Documentation
 
-> **Project Directive**: "Tambahkan semua kode kalau bisa di refactor (tanpa merusak fitur kedua me robust semua kode)"
+> **Project Directive**: "refactor and robust the code without damage any feature"
 > **Architectural Goal**: Centralize logic, eliminate redundancy, and enforce data-driven rendering across Guest and Admin modes.
 
-> **Project**: `team-composition-guide` v1.2.0  
+> **Project**: `team-composition-guide` v1.0.0  
 > **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
-> **Last Updated**: 2026-05-10 (Session: Universal ScreenshotEngine refactor, centralized curve injection in prepareClone, height-auto layout for wrapped credits, and per-card color inheritance)
+> **Last Updated**: 2026-05-10 (Session: Replaced decorative curve pseudo-element with real DOM element for html2canvas compatibility, height-auto layout for wrapped credits, per-card color inheritance)
 
 
 ---
@@ -477,9 +477,15 @@ The `onclone` callback is used to modify the document clone before rendering:
 1.  **UI Removal**: `clonedDoc.querySelectorAll(HIDE_SEL).forEach(el => el.remove())`. Using `.remove()` is more reliable than `display: none`.
 2.  **Gradient Guard**: `html2canvas` 1.4.1 throws an `InvalidStateError` if it attempts to render a `linear-gradient` on an element with 0px dimensions. We force `min-width: 20px` and `min-height: 3px` on `.card-accent-bar` in the clone to prevent this.
 3.  **Per-Card Stabilization**: For individual card captures, we force `width: 320px`, `height: auto`, and `min-height: unset` to ensure the card shrinks or grows perfectly to fit its content.
-4.  **Universal Color & Curve Stabilization (`prepareClone`)**: 
-    - Iterates through **all** cards in the clone to read their local `--tc` (Team Color) and apply it to accent bars.
-    - Centralized Curve Injection: Globally hides all `::after` pseudo-curves via a styles injection and replaces them with real DIV elements pinned to `bottom: 0`. This ensures 100% stability across all sections (Dungeon, World Boss, etc.).
+4.  **Color Inheritance (`prepareClone`)**: Iterates through all cards in the clone to read their local `--tc` (Team Color) and apply it as a solid color to accent bars, preventing gradient rendering crashes.
+
+### Decorative Corner Curve (ADR: `::after` → Real DOM)
+
+The bottom-left decorative curve was originally implemented as a CSS `::after` pseudo-element. This caused two bugs in html2canvas:
+- **Positioning bug**: html2canvas computes `::after` position from the *original* layout before `onclone` overrides take effect, so the curve appeared at `min-height: 320px` instead of the card's actual bottom.
+- **Double rendering**: Attempts to hide the original `::after` and inject a replacement DIV failed because html2canvas ignores dynamic CSS overrides on pseudo-elements.
+
+**Solution**: Replaced the `::after` with a real DOM element (`<div class="card-corner-curve">`) rendered directly in `buildCard()`. Being a real element, it participates in normal layout and is correctly positioned by html2canvas.
 
 ## 9. Credit System
 
