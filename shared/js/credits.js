@@ -98,7 +98,7 @@
         
         if (lbl.includes('DESIGN') || lbl === 'AUTHOR' || lbl === 'CREATOR') {
           mainDesigner = { lbl, name, color };
-        } else if (name && !name.toLowerCase().includes('anotheruseru')) {
+        } else if (name && !name.toLowerCase().includes('another729')) {
           pills.push({ lbl, name, color });
         }
       });
@@ -116,7 +116,7 @@
           if (footer) {
             const credContainer = document.createElement('div');
             credContainer.className = 'card-footer-credits';
-            credContainer.innerHTML = '<span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">AnotherUseru</span></span><span class="foot-cred-contributor"></span>';
+            credContainer.innerHTML = '<span class="foot-cred-item">DESIGN BY <span class="foot-cred-name">another729</span></span><span class="foot-cred-contributor"></span>';
             footer.appendChild(credContainer);
           }
         }

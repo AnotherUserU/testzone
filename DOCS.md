@@ -4,7 +4,7 @@
 > **Architectural Goal**: Centralize logic, eliminate redundancy, and enforce data-driven rendering across Guest and Admin modes.
 
 > **Project**: `team-composition-guide` v1.0.0  
-> **Repository**: [AnotherUserU/testzone](https://github.com/AnotherUserU/testzone)  
+> **Repository**: [another729/testzone](https://github.com/another729/testzone)  
 > **Platform**: Vercel (Serverless)  
 > **Database**: Firebase Realtime Database  
 > **Last Updated**: 2026-05-10 (Session: Replaced decorative curve pseudo-element with real DOM element for html2canvas compatibility, height-auto layout for wrapped credits, per-card color inheritance)

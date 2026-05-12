@@ -624,7 +624,7 @@ window.openCredModal = function (btn) {
       const nameEl = pill.querySelector('.cred-name');
       const name = nameEl?.textContent || '';
       const color = nameEl?.style.color || '#f5c842';
-      if (name.toLowerCase().includes('anotheruseru') || name.toLowerCase().includes('another729')) return;
+      if (name.toLowerCase().includes('another729')) return;
       addCredRow(lbl, name, color);
     });
   }
